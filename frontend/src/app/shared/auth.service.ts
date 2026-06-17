@@ -3,13 +3,34 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
 
+export type UserRole =
+  | 'super_admin'
+  | 'store_owner'
+  | 'rider'
+  | 'customer'
+  | 'admin'
+  | 'vendor';
+
 export interface AuthUser {
-  id: number;
+  id: string;
   email: string;
   name: string;
-  role: 'admin' | 'vendor';
-  vendorId: number | null;
+  role: UserRole;
+  phone?: string;
+  isApproved?: boolean;
+  isVerified?: boolean;
+  vendorId: string | null;
 }
+
+/** Landing route for each role after login. */
+export const HOME_BY_ROLE: Record<UserRole, string> = {
+  super_admin: '/super',
+  store_owner: '/store',
+  rider: '/rider',
+  customer: '/store',
+  admin: '/admin',
+  vendor: '/vendor',
+};
 
 interface AuthResponse {
   access_token: string;
@@ -51,6 +72,23 @@ export class AuthService {
     return this.currentUser?.role === 'vendor';
   }
 
+  get isSuperAdmin(): boolean {
+    return this.currentUser?.role === 'super_admin';
+  }
+
+  get isStoreOwner(): boolean {
+    return this.currentUser?.role === 'store_owner';
+  }
+
+  get isRider(): boolean {
+    return this.currentUser?.role === 'rider';
+  }
+
+  /** Where this user should land after login. */
+  get home(): string {
+    return this.currentUser ? HOME_BY_ROLE[this.currentUser.role] : '/login';
+  }
+
   login(email: string, password: string): Observable<AuthResponse> {
     return this.api
       .post<AuthResponse>('auth/login', { email, password })
@@ -61,6 +99,8 @@ export class AuthService {
     name: string;
     email: string;
     password: string;
+    role?: UserRole;
+    phone?: string;
     vendorCode?: string;
   }): Observable<AuthResponse> {
     return this.api

@@ -65,8 +65,8 @@ export class LoginComponent {
     this.error = '';
     this.loading = true;
     this.auth.login(this.email, this.password).subscribe({
-      next: (res) => {
-        this.router.navigate([res.user.role === 'admin' ? '/admin' : '/vendor']);
+      next: () => {
+        this.router.navigateByUrl(this.auth.home);
       },
       error: (err) => {
         this.error = err?.error?.message || 'Login failed';

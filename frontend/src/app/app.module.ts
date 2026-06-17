@@ -19,6 +19,9 @@ import { VendorDetailComponent } from './admin/vendor-detail.component';
 import { AdminPurchaseOrdersComponent } from './admin/purchase-orders.component';
 import { MyOrdersComponent } from './vendor/my-orders.component';
 import { MyPerformanceComponent } from './vendor/my-performance.component';
+import { SuperDashboardComponent } from './super-admin/super-dashboard.component';
+import { StoreDashboardComponent } from './store/store-dashboard.component';
+import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 
@@ -34,6 +37,9 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     AdminPurchaseOrdersComponent,
     MyOrdersComponent,
     MyPerformanceComponent,
+    SuperDashboardComponent,
+    StoreDashboardComponent,
+    RiderDashboardComponent,
   ],
   imports: [
     BrowserModule,

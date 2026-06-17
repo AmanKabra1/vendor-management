@@ -10,8 +10,18 @@ import { VendorDetailComponent } from './admin/vendor-detail.component';
 import { AdminPurchaseOrdersComponent } from './admin/purchase-orders.component';
 import { MyOrdersComponent } from './vendor/my-orders.component';
 import { MyPerformanceComponent } from './vendor/my-performance.component';
+import { SuperDashboardComponent } from './super-admin/super-dashboard.component';
+import { StoreDashboardComponent } from './store/store-dashboard.component';
+import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 
-import { authGuard, adminGuard, vendorGuard } from './shared/guards';
+import {
+  authGuard,
+  adminGuard,
+  vendorGuard,
+  superAdminGuard,
+  storeOwnerGuard,
+  riderGuard,
+} from './shared/guards';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -29,6 +39,10 @@ const routes: Routes = [
       // Vendor
       { path: 'vendor', component: MyOrdersComponent, canActivate: [vendorGuard] },
       { path: 'vendor/performance', component: MyPerformanceComponent, canActivate: [vendorGuard] },
+      // RideFleet role dashboards
+      { path: 'super', component: SuperDashboardComponent, canActivate: [superAdminGuard] },
+      { path: 'store', component: StoreDashboardComponent, canActivate: [storeOwnerGuard] },
+      { path: 'rider', component: RiderDashboardComponent, canActivate: [riderGuard] },
     ],
   },
   { path: '**', redirectTo: 'login' },

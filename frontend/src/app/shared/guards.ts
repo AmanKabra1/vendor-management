@@ -25,6 +25,21 @@ export const vendorGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (auth.isLoggedIn && auth.isVendor) return true;
-  router.navigate([auth.isLoggedIn ? '/admin' : '/login']);
+  router.navigate([auth.isLoggedIn ? auth.home : '/login']);
   return false;
 };
+
+/** Builds a guard that requires one of the given roles, else routes home/login. */
+const requireRole = (check: (a: AuthService) => boolean): CanActivateFn => {
+  return () => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+    if (auth.isLoggedIn && check(auth)) return true;
+    router.navigate([auth.isLoggedIn ? auth.home : '/login']);
+    return false;
+  };
+};
+
+export const superAdminGuard = requireRole((a) => a.isSuperAdmin);
+export const storeOwnerGuard = requireRole((a) => a.isStoreOwner);
+export const riderGuard = requireRole((a) => a.isRider);
