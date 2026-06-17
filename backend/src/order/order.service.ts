@@ -19,6 +19,7 @@ import { Rider, RiderDocument } from '../rider/rider.entity';
 import { CreateOrderDto } from './dto/order.dto';
 import { AuthUser } from '../auth/current-user.decorator';
 import { Role } from '../auth/role.enum';
+import { TrackingGateway } from '../tracking/tracking.gateway';
 
 @Injectable()
 export class OrderService {
@@ -26,7 +27,15 @@ export class OrderService {
     @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
     @InjectModel(Store.name) private readonly storeModel: Model<StoreDocument>,
     @InjectModel(Rider.name) private readonly riderModel: Model<RiderDocument>,
+    private readonly tracking: TrackingGateway,
   ) {}
+
+  /** Persist an order and push its new status to live subscribers. */
+  private async saveAndBroadcast(order: OrderDocument) {
+    await order.save();
+    this.tracking.emitOrderStatus(String(order._id), order.status);
+    return order;
+  }
 
   private isPlatformAdmin(user: AuthUser) {
     return user.role === Role.SuperAdmin || user.role === Role.Admin;
@@ -80,7 +89,7 @@ export class OrderService {
       status: OrderStatus.Created,
     });
     this.addTimeline(order, OrderStatus.Created, user, 'Order created');
-    return order.save();
+    return this.saveAndBroadcast(order);
   }
 
   async findAll(user: AuthUser) {
@@ -139,7 +148,7 @@ export class OrderService {
     order.status = OrderStatus.RiderAssigned;
     order.otp = String(Math.floor(1000 + Math.random() * 9000));
     this.addTimeline(order, OrderStatus.RiderAssigned, user, `Assigned rider ${riderId}`);
-    return order.save();
+    return this.saveAndBroadcast(order);
   }
 
   // --- rider-side actions ---
@@ -149,7 +158,7 @@ export class OrderService {
     order.status = OrderStatus.Created;
     order.otp = '';
     this.addTimeline(order, OrderStatus.Created, user, 'Rider rejected — back to pool');
-    return order.save();
+    return this.saveAndBroadcast(order);
   }
 
   async accept(id: string, user: AuthUser) {
@@ -158,7 +167,7 @@ export class OrderService {
       throw new BadRequestException('Order is not awaiting acceptance');
     }
     this.addTimeline(order, order.status, user, 'Rider accepted');
-    return order.save();
+    return this.saveAndBroadcast(order);
   }
 
   async pickup(id: string, user: AuthUser) {
@@ -168,7 +177,7 @@ export class OrderService {
     }
     order.status = OrderStatus.PickedUp;
     this.addTimeline(order, OrderStatus.PickedUp, user, 'Picked up from store');
-    return order.save();
+    return this.saveAndBroadcast(order);
   }
 
   async deliver(id: string, otp: string, user: AuthUser) {
@@ -185,7 +194,7 @@ export class OrderService {
       order.paymentStatus = PaymentStatus.Collected;
     }
     this.addTimeline(order, OrderStatus.Delivered, user, 'Delivered to customer');
-    await order.save();
+    await this.saveAndBroadcast(order);
 
     // Side-effects: bump counters.
     await this.riderModel.findByIdAndUpdate(order.rider, {
@@ -216,7 +225,7 @@ export class OrderService {
       ? CancelledBy.System
       : CancelledBy.Store;
     this.addTimeline(order, OrderStatus.Cancelled, user, reason || 'Cancelled');
-    return order.save();
+    return this.saveAndBroadcast(order);
   }
 
   async stats(user: AuthUser) {

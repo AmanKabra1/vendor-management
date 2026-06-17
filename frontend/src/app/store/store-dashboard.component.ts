@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 import { MapMarker } from '../shared/map.component';
+import { TrackingService } from '../shared/tracking.service';
 
 @Component({
   selector: 'app-store-dashboard',
@@ -69,7 +70,8 @@ import { MapMarker } from '../shared/map.component';
                   <td><span class="badge bg-secondary">{{ o.status }}</span></td>
                   <td>{{ o.rider?.user?.name || '—' }}</td>
                   <td>
-                    <button class="btn btn-sm btn-outline-primary" *ngIf="o.status==='CREATED'" (click)="openAssign(o)">Find rider</button>
+                    <button class="btn btn-sm btn-outline-primary me-1" *ngIf="o.status==='CREATED'" (click)="openAssign(o)">Find rider</button>
+                    <button class="btn btn-sm btn-outline-info me-1" *ngIf="o.rider && o.status!=='DELIVERED' && o.status!=='CANCELLED'" (click)="track(o)">Track</button>
                     <span *ngIf="o.otp && o.status!=='DELIVERED'" class="badge bg-info text-dark">OTP {{ o.otp }}</span>
                   </td>
                 </tr>
@@ -96,6 +98,21 @@ import { MapMarker } from '../shared/map.component';
         <div class="card-footer bg-white text-end"><button class="btn btn-light" (click)="assigning=null">Close</button></div>
       </div>
     </div>
+
+    <!-- Live tracking modal -->
+    <div class="modal-back" *ngIf="tracking" (click)="closeTrack()">
+      <div class="card shadow" style="max-width:560px;width:100%" (click)="$event.stopPropagation()">
+        <div class="card-header bg-white fw-semibold d-flex justify-content-between">
+          <span>Tracking {{ tracking.orderNumber }}</span>
+          <span class="badge bg-secondary">{{ trackStatus }}</span>
+        </div>
+        <app-map [markers]="trackMarkers" [center]="storeCenter" height="280px"></app-map>
+        <div class="card-body py-2 small text-muted">
+          {{ trackMarkers.length > 1 ? 'Live rider position updates as they move.' : 'Waiting for rider to go live…' }}
+        </div>
+        <div class="card-footer bg-white text-end"><button class="btn btn-light" (click)="closeTrack()">Close</button></div>
+      </div>
+    </div>
   `,
   styles: [`.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1050;padding:1rem}`],
 })
@@ -109,8 +126,11 @@ export class StoreDashboardComponent implements OnInit {
   nearbyRiders: any[] = [];
   storeCenter: [number, number] = [28.61, 77.2];
   riderMarkers: MapMarker[] = [];
+  tracking: any = null;
+  trackStatus = '';
+  trackMarkers: MapMarker[] = [];
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private track$: TrackingService) {}
 
   ngOnInit() {
     this.load();
@@ -170,5 +190,30 @@ export class StoreDashboardComponent implements OnInit {
       this.assigning = null;
       this.load();
     });
+  }
+
+  track(o: any) {
+    this.tracking = o;
+    this.trackStatus = o.status;
+    const lat = this.store.location?.coordinates?.[1] ?? 28.61;
+    const lng = this.store.location?.coordinates?.[0] ?? 77.2;
+    this.storeCenter = [lat, lng];
+    this.trackMarkers = [{ lat, lng, label: this.store.name, color: '#0d6efd' }];
+    this.track$.joinOrder(o.id);
+    this.track$.onLocation((loc) => {
+      if (loc.orderId !== this.tracking?.id) return;
+      // Keep the store pin, replace the rider pin with the live position.
+      this.trackMarkers = [
+        this.trackMarkers[0],
+        { lat: loc.lat, lng: loc.lng, label: 'Rider', color: '#198754' },
+      ];
+    });
+    this.track$.onStatus((s) => {
+      if (s.orderId === this.tracking?.id) this.trackStatus = s.status;
+    });
+  }
+
+  closeTrack() {
+    this.tracking = null;
   }
 }

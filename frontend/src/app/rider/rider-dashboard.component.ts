@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
+import { TrackingService } from '../shared/tracking.service';
 
 @Component({
   selector: 'app-rider-dashboard',
@@ -66,7 +67,12 @@ import { ApiService } from '../shared/api.service';
                   <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'accept')">Accept</button>
                   <button class="btn btn-sm btn-outline-danger me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'reject')">Reject</button>
                   <button class="btn btn-sm btn-primary me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'pickup')">Picked up</button>
-                  <button class="btn btn-sm btn-success" *ngIf="o.status==='PICKED_UP' || o.status==='IN_TRANSIT'" (click)="deliver(o)">Deliver (OTP)</button>
+                  <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='PICKED_UP' || o.status==='IN_TRANSIT'" (click)="deliver(o)">Deliver (OTP)</button>
+                  <button class="btn btn-sm" [class.btn-outline-info]="liveOrderId!==o.id" [class.btn-info]="liveOrderId===o.id"
+                          *ngIf="o.status==='PICKED_UP' || o.status==='IN_TRANSIT' || o.status==='RIDER_ASSIGNED'"
+                          (click)="toggleLive(o)">
+                    {{ liveOrderId===o.id ? '⏹ Live' : '📡 Go Live' }}
+                  </button>
                 </td>
               </tr>
               <tr *ngIf="!orders.length"><td colspan="5" class="text-center text-muted py-3">No deliveries assigned.</td></tr>
@@ -77,15 +83,58 @@ import { ApiService } from '../shared/api.service';
     </div>
   `,
 })
-export class RiderDashboardComponent implements OnInit {
+export class RiderDashboardComponent implements OnInit, OnDestroy {
   rider: any = null;
   orders: any[] = [];
   profileForm = { vehicleType: 'MOTORCYCLE', licenseNumber: '' };
+  liveOrderId: string | null = null;
+  private liveTimer: any = null;
+  private liveLat = 28.61;
+  private liveLng = 77.2;
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private tracking: TrackingService) {}
 
   ngOnInit() {
     this.load();
+  }
+
+  ngOnDestroy() {
+    this.stopLive();
+  }
+
+  /** Toggle broadcasting GPS for an active delivery every 4s. */
+  toggleLive(o: any) {
+    if (this.liveOrderId === o.id) {
+      this.stopLive();
+      return;
+    }
+    this.stopLive();
+    this.liveOrderId = o.id;
+    this.tracking.joinOrder(o.id);
+    const tick = () => {
+      const push = (lat: number, lng: number) => {
+        this.liveLat = lat;
+        this.liveLng = lng;
+        this.tracking.sendLocation(o.id, lat, lng);
+      };
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (p) => push(p.coords.latitude, p.coords.longitude),
+          // Fallback: nudge the marker so movement is visible while testing.
+          () => push(this.liveLat + (Math.random() - 0.5) * 0.002, this.liveLng + (Math.random() - 0.5) * 0.002),
+        );
+      } else {
+        push(this.liveLat + (Math.random() - 0.5) * 0.002, this.liveLng + (Math.random() - 0.5) * 0.002);
+      }
+    };
+    tick();
+    this.liveTimer = setInterval(tick, 4000);
+  }
+
+  stopLive() {
+    if (this.liveTimer) clearInterval(this.liveTimer);
+    this.liveTimer = null;
+    this.liveOrderId = null;
   }
 
   load() {

@@ -5,6 +5,7 @@ import { Store, StoreSchema } from '../store/store.entity';
 import { Rider, RiderSchema } from '../rider/rider.entity';
 import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
+import { TrackingModule } from '../tracking/tracking.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrderController } from './order.controller';
       { name: Store.name, schema: StoreSchema },
       { name: Rider.name, schema: RiderSchema },
     ]),
+    TrackingModule,
   ],
   providers: [OrderService],
   controllers: [OrderController],
