@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsObject,
   IsOptional,
+  IsMongoId,
 } from 'class-validator';
 
 export class CreatePurchaseOrderDto {
@@ -12,9 +13,9 @@ export class CreatePurchaseOrderDto {
   @IsString()
   poNumber: string;
 
-  @ApiProperty({ description: 'Vendor ID' })
-  @IsNumber()
-  vendor: number;
+  @ApiProperty({ description: 'Vendor ID (Mongo ObjectId)' })
+  @IsMongoId()
+  vendor: string;
 
   @ApiProperty({ description: 'Order Date' })
   @IsDateString()

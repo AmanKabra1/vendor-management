@@ -1,36 +1,34 @@
 // src/vendor/vendor.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { PurchaseOrder } from '../purchase-order/purchase-order.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
 
-@Entity()
+export type VendorDocument = HydratedDocument<Vendor>;
+
+@Schema({ timestamps: true, toJSON: { virtuals: true } })
 export class Vendor {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @Prop({ required: true })
   name: string;
 
-  @Column()
+  @Prop({ default: '' })
   contactDetails: string;
 
-  @Column()
+  @Prop({ default: '' })
   address: string;
 
-  @Column({ unique: true })
+  @Prop({ required: true, unique: true })
   vendorCode: string;
 
-  @Column({ type: 'float', default: 0 })
+  @Prop({ default: 0 })
   onTimeDeliveryRate: number;
 
-  @Column({ type: 'float', default: 0 })
+  @Prop({ default: 0 })
   qualityRatingAvg: number;
 
-  @Column({ type: 'float', default: 0 })
+  @Prop({ default: 0 })
   averageResponseTime: number;
 
-  @Column({ type: 'float', default: 0 })
+  @Prop({ default: 0 })
   fulfillmentRate: number;
-
-  @OneToMany(() => PurchaseOrder, (po) => po.vendor)
-  purchaseOrders: PurchaseOrder[];
 }
+
+export const VendorSchema = SchemaFactory.createForClass(Vendor);

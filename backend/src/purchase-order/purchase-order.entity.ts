@@ -1,39 +1,40 @@
 // src/purchase-order/purchase-order.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Vendor } from '../vendor/vendor.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 
-@Entity()
+export type PurchaseOrderDocument = HydratedDocument<PurchaseOrder>;
+
+@Schema({ timestamps: true, toJSON: { virtuals: true } })
 export class PurchaseOrder {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @Prop({ required: true })
   poNumber: string;
 
-  @ManyToOne(() => Vendor, (vendor) => vendor.purchaseOrders, { eager: true })
-  vendor: Vendor;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Vendor', required: true })
+  vendor: Types.ObjectId;
 
-  @Column()
+  @Prop()
   orderDate: Date;
 
-  @Column({ nullable: true })
+  @Prop({ default: null })
   deliveryDate: Date;
 
-  @Column('simple-json')
+  @Prop({ type: Object })
   items: any;
 
-  @Column()
+  @Prop()
   quantity: number;
 
-  @Column()
+  @Prop()
   status: string;
 
-  @Column({ type: 'float', nullable: true })
+  @Prop({ default: null })
   qualityRating: number;
 
-  @Column()
+  @Prop()
   issueDate: Date;
 
-  @Column({ nullable: true })
+  @Prop({ default: null })
   acknowledgmentDate: Date;
 }
+
+export const PurchaseOrderSchema = SchemaFactory.createForClass(PurchaseOrder);

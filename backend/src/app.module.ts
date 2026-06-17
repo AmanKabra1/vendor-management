@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { VendorModule } from './vendor/vendor.module';
 import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
@@ -9,13 +9,12 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'db.sqlite',
-      synchronize: true,
-      autoLoadEntities: true, // ✅ auto-migrate for dev
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRoot(
+      // Atlas in production via DATABASE_URL; local MongoDB for development.
+      process.env.DATABASE_URL ||
+        'mongodb://127.0.0.1:27017/vendor_management',
+    ),
     UserModule,
     AuthModule,
     VendorModule,

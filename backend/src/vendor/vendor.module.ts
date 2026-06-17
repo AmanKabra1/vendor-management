@@ -1,18 +1,20 @@
 // src/vendor/vendor.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Vendor } from './vendor.entity';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Vendor, VendorSchema } from './vendor.entity';
 import { VendorService } from './vendor.service';
 import { VendorController } from './vendor.controller';
-import { PerformanceModule } from 'src/performance/performance.module';
+import { PerformanceModule } from '../performance/performance.module';
+
+const VendorFeature = MongooseModule.forFeature([
+  { name: Vendor.name, schema: VendorSchema },
+]);
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Vendor]),
-    PerformanceModule
-  ],
+  imports: [VendorFeature, PerformanceModule],
   providers: [VendorService],
   controllers: [VendorController],
-  exports: [VendorService],
+  // Export the model so other modules (auth, purchase-order) can inject it.
+  exports: [VendorService, VendorFeature],
 })
 export class VendorModule {}

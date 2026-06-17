@@ -1,11 +1,21 @@
 // src/performance/performance.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { HistoricalPerformance } from './performance.entity';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  HistoricalPerformance,
+  HistoricalPerformanceSchema,
+} from './performance.entity';
 import { PerformanceService } from './performance.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([HistoricalPerformance])],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: HistoricalPerformance.name,
+        schema: HistoricalPerformanceSchema,
+      },
+    ]),
+  ],
   providers: [PerformanceService],
   exports: [PerformanceService],
 })

@@ -29,9 +29,9 @@ export class VendorController {
   ) {}
 
   /** A vendor user may only touch their own vendor record. Admins: anything. */
-  private assertAccess(user: AuthUser, vendorId: number) {
+  private assertAccess(user: AuthUser, vendorId: string) {
     if (user.role === Role.Admin) return;
-    if (user.vendorId !== Number(vendorId)) {
+    if (user.vendorId !== vendorId) {
       throw new ForbiddenException('You can only access your own vendor data');
     }
   }
@@ -49,32 +49,32 @@ export class VendorController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number, @CurrentUser() user: AuthUser) {
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     this.assertAccess(user, id);
     return this.vendorService.findOne(id);
   }
 
   @Roles(Role.Admin)
   @Put(':id')
-  update(@Param('id') id: number, @Body() data: Partial<Vendor>) {
+  update(@Param('id') id: string, @Body() data: Partial<Vendor>) {
     return this.vendorService.update(id, data);
   }
 
   @Roles(Role.Admin)
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  remove(@Param('id') id: string) {
     return this.vendorService.remove(id);
   }
 
   @Get(':id/performance')
-  getPerformance(@Param('id') id: number, @CurrentUser() user: AuthUser) {
+  getPerformance(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     this.assertAccess(user, id);
     return this.vendorService.getPerformance(id);
   }
 
   @Get(':id/performance-history')
   getPerformanceHistory(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @CurrentUser() user: AuthUser,
   ) {
     this.assertAccess(user, id);

@@ -1,26 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Vendor } from '../vendor/vendor.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 
-@Entity()
+export type HistoricalPerformanceDocument =
+  HydratedDocument<HistoricalPerformance>;
+
+@Schema({ timestamps: true, toJSON: { virtuals: true } })
 export class HistoricalPerformance {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Vendor', required: true })
+  vendor: Types.ObjectId;
 
-  @ManyToOne(() => Vendor, { eager: true })
-  vendor: Vendor;
-
-  @Column()
+  @Prop()
   date: Date;
 
-  @Column('float')
+  @Prop()
   onTimeDeliveryRate: number;
 
-  @Column('float')
+  @Prop()
   qualityRatingAvg: number;
 
-  @Column('float')
+  @Prop()
   averageResponseTime: number;
 
-  @Column('float')
+  @Prop()
   fulfillmentRate: number;
 }
+
+export const HistoricalPerformanceSchema = SchemaFactory.createForClass(
+  HistoricalPerformance,
+);

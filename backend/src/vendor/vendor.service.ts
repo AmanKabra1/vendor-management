@@ -1,41 +1,43 @@
 // src/vendor/vendor.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Vendor } from './vendor.entity';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Vendor, VendorDocument } from './vendor.entity';
 
 @Injectable()
 export class VendorService {
   constructor(
-    @InjectRepository(Vendor)
-    private readonly vendorRepo: Repository<Vendor>,
+    @InjectModel(Vendor.name)
+    private readonly vendorModel: Model<VendorDocument>,
   ) {}
 
-  async create(data: Partial<Vendor>) {
-    const vendor = this.vendorRepo.create(data);
-    return this.vendorRepo.save(vendor);
+  create(data: Partial<Vendor>) {
+    return this.vendorModel.create(data);
   }
 
   findAll() {
-    return this.vendorRepo.find();
+    return this.vendorModel.find().exec();
   }
 
-  findOne(id: number) {
-    return this.vendorRepo.findOne({ where: { id } });
+  findOne(id: string) {
+    return this.vendorModel.findById(id).exec();
   }
 
-  async update(id: number, data: Partial<Vendor>) {
-    await this.vendorRepo.update(id, data);
-    return this.findOne(id);
+  async update(id: string, data: Partial<Vendor>) {
+    const vendor = await this.vendorModel
+      .findByIdAndUpdate(id, data, { new: true })
+      .exec();
+    if (!vendor) throw new NotFoundException();
+    return vendor;
   }
 
-  async remove(id: number) {
-    const result = await this.vendorRepo.delete(id);
-    if (result.affected === 0) throw new NotFoundException();
+  async remove(id: string) {
+    const result = await this.vendorModel.findByIdAndDelete(id).exec();
+    if (!result) throw new NotFoundException();
   }
 
-  async getPerformance(id: number) {
-    const vendor = await this.vendorRepo.findOne({ where: { id } });
+  async getPerformance(id: string) {
+    const vendor = await this.vendorModel.findById(id).exec();
     if (!vendor) throw new NotFoundException();
     return {
       onTimeDeliveryRate: vendor.onTimeDeliveryRate,

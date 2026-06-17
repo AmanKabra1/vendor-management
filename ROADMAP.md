@@ -55,7 +55,7 @@ The current, working application. Committed in phases in this repo.
 ## 🚀 RideFleet Evolution — Phased Plan
 
 ### Phase 1 — Foundation
-- [ ] Migrate persistence to MongoDB Atlas (Mongoose) **or** keep TypeORM and add Postgres (Neon/Supabase free).
+- [x] Migrate persistence to MongoDB / Mongoose (local MongoDB for dev, Atlas via `DATABASE_URL` in prod).
 - [ ] Expand roles: `SUPER_ADMIN`, `STORE_OWNER` (admin), `RIDER`, `CUSTOMER`.
 - [ ] Approval workflow: SuperAdmin approves stores and riders; document (KYC) verification.
 - [ ] Store/Outlet entity + owner registration.

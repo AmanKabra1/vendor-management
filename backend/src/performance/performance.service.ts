@@ -1,30 +1,35 @@
 // src/performance/performance.service.ts
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { HistoricalPerformance } from './performance.entity';
-import { Repository } from 'typeorm';
-import { Vendor } from '../vendor/vendor.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  HistoricalPerformance,
+  HistoricalPerformanceDocument,
+} from './performance.entity';
+import { VendorDocument } from '../vendor/vendor.entity';
 
 @Injectable()
 export class PerformanceService {
   constructor(
-    @InjectRepository(HistoricalPerformance)
-    private readonly historyRepo: Repository<HistoricalPerformance>,
+    @InjectModel(HistoricalPerformance.name)
+    private readonly historyModel: Model<HistoricalPerformanceDocument>,
   ) {}
 
-  async recordSnapshot(vendor: Vendor) {
-    const snapshot = this.historyRepo.create({
-      vendor,
+  recordSnapshot(vendor: VendorDocument) {
+    return this.historyModel.create({
+      vendor: vendor._id,
       date: new Date(),
       onTimeDeliveryRate: vendor.onTimeDeliveryRate,
       qualityRatingAvg: vendor.qualityRatingAvg,
       averageResponseTime: vendor.averageResponseTime,
       fulfillmentRate: vendor.fulfillmentRate,
     });
-    return this.historyRepo.save(snapshot);
   }
 
-  async getHistory(vendorId: number) {
-    return this.historyRepo.find({ where: { vendor: { id: vendorId } } });
+  getHistory(vendorId: string) {
+    return this.historyModel
+      .find({ vendor: vendorId })
+      .sort({ date: 1 })
+      .exec();
   }
 }
