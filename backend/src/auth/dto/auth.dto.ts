@@ -1,4 +1,12 @@
-import { IsEmail, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { Role } from '../role.enum';
 
 export class RegisterDto {
   @IsEmail()
@@ -10,7 +18,17 @@ export class RegisterDto {
   @IsNotEmpty()
   name: string;
 
-  // Optional: link this vendor account to an existing vendor by code.
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  // Self-registration role. Only StoreOwner / Rider / Customer are accepted;
+  // anything else (or omitted) falls back to the legacy Vendor flow.
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
+
+  // Optional: link this account to an existing vendor by code.
   @IsOptional()
   vendorCode?: string;
 }

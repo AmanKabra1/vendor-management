@@ -10,8 +10,11 @@ import { Model } from 'mongoose';
 import { UserService } from '../user/user.service';
 import { UserDocument } from '../user/user.entity';
 import { Vendor, VendorDocument } from '../vendor/vendor.entity';
-import { Role } from './role.enum';
+import { Role, APPROVAL_REQUIRED_ROLES } from './role.enum';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
+
+// Roles that get a Vendor profile record on registration (legacy + store owners).
+const VENDOR_BACKED_ROLES: Role[] = [Role.Vendor, Role.StoreOwner];
 
 @Injectable()
 export class AuthService {
@@ -23,9 +26,9 @@ export class AuthService {
   ) {}
 
   /**
-   * Self-registration always creates a Vendor-role account, backed by a new
-   * Vendor record (or linked to an existing one via vendorCode). Admins are
-   * seeded / created internally, never via this public endpoint.
+   * Public self-registration. Accepts StoreOwner / Rider / Customer roles;
+   * anything else falls back to the legacy Vendor flow. SuperAdmin / Admin are
+   * seeded internally and can never be created here.
    */
   async register(dto: RegisterDto) {
     const existing = await this.userService.findByEmail(dto.email);
@@ -33,22 +36,33 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    let vendor: VendorDocument | null = null;
-    if (dto.vendorCode) {
-      vendor = await this.vendorModel
-        .findOne({ vendorCode: dto.vendorCode })
-        .exec();
-      if (!vendor) {
-        throw new ConflictException('No vendor found with that code');
+    // Resolve the requested role; default to legacy Vendor. Block privileged roles.
+    const requested = dto.role;
+    const role =
+      requested && requested !== Role.SuperAdmin && requested !== Role.Admin
+        ? requested
+        : Role.Vendor;
+
+    // Store-backed roles get a Vendor profile (created or linked via code).
+    let vendorId: VendorDocument['_id'] | null = null;
+    if (VENDOR_BACKED_ROLES.includes(role)) {
+      let vendor: VendorDocument | null = null;
+      if (dto.vendorCode) {
+        vendor = await this.vendorModel
+          .findOne({ vendorCode: dto.vendorCode })
+          .exec();
+        if (!vendor) {
+          throw new ConflictException('No vendor found with that code');
+        }
+      } else {
+        vendor = await this.vendorModel.create({
+          name: dto.name,
+          contactDetails: dto.email,
+          address: '',
+          vendorCode: await this.generateVendorCode(),
+        });
       }
-    } else {
-      // Create a fresh vendor profile for this account.
-      vendor = await this.vendorModel.create({
-        name: dto.name,
-        contactDetails: dto.email,
-        address: '',
-        vendorCode: await this.generateVendorCode(),
-      });
+      vendorId = vendor._id;
     }
 
     const hash = await bcrypt.hash(dto.password, 10);
@@ -56,8 +70,11 @@ export class AuthService {
       email: dto.email,
       password: hash,
       name: dto.name,
-      role: Role.Vendor,
-      vendor: vendor._id,
+      phone: dto.phone ?? '',
+      role,
+      // Store owners & riders await SuperAdmin approval; others are auto-approved.
+      isApproved: !APPROVAL_REQUIRED_ROLES.includes(role),
+      vendor: vendorId,
     });
 
     return this.sign(user);
@@ -88,6 +105,9 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        phone: user.phone,
+        isVerified: user.isVerified,
+        isApproved: user.isApproved,
         vendorId,
       },
     };

@@ -21,6 +21,8 @@ export async function seedAdmin(app: INestApplicationContext) {
     password: hash,
     name: 'Administrator',
     role: Role.Admin,
+    isVerified: true,
+    isApproved: true,
     vendor: null,
   });
 
