@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { StoreModule } from './store/store.module';
 import { RiderModule } from './rider/rider.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RiderModule } from './rider/rider.module';
     AuthModule,
     StoreModule,
     RiderModule,
+    OrderModule,
     VendorModule,
     PurchaseOrderModule,
     PerformanceModule,
