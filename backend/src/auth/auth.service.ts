@@ -13,8 +13,9 @@ import { Vendor, VendorDocument } from '../vendor/vendor.entity';
 import { Role, APPROVAL_REQUIRED_ROLES } from './role.enum';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
-// Roles that get a Vendor profile record on registration (legacy + store owners).
-const VENDOR_BACKED_ROLES: Role[] = [Role.Vendor, Role.StoreOwner];
+// Legacy vendor-management role gets an auto-created Vendor profile on register.
+// Store owners instead create a Store via POST /stores after registering.
+const VENDOR_BACKED_ROLES: Role[] = [Role.Vendor];
 
 @Injectable()
 export class AuthService {
