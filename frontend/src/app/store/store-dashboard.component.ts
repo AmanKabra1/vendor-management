@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
+import { MapMarker } from '../shared/map.component';
 
 @Component({
   selector: 'app-store-dashboard',
@@ -82,8 +83,9 @@ import { ApiService } from '../shared/api.service';
 
     <!-- Assign rider modal -->
     <div class="modal-back" *ngIf="assigning" (click)="assigning=null">
-      <div class="card shadow" style="max-width:520px;width:100%" (click)="$event.stopPropagation()">
+      <div class="card shadow" style="max-width:560px;width:100%" (click)="$event.stopPropagation()">
         <div class="card-header bg-white fw-semibold">Nearby available riders</div>
+        <app-map [markers]="riderMarkers" [center]="storeCenter" height="240px"></app-map>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let r of nearbyRiders">
             <span>{{ r.user?.name || 'Rider' }} <small class="text-muted">· {{ r.vehicleType }}</small></span>
@@ -105,6 +107,8 @@ export class StoreDashboardComponent implements OnInit {
   orderForm = { cname: '', cphone: '', caddr: '', item: '', amount: 0 };
   assigning: any = null;
   nearbyRiders: any[] = [];
+  storeCenter: [number, number] = [28.61, 77.2];
+  riderMarkers: MapMarker[] = [];
 
   constructor(private api: ApiService) {}
 
@@ -142,9 +146,23 @@ export class StoreDashboardComponent implements OnInit {
     this.assigning = o;
     const lat = this.store.location?.coordinates?.[1] ?? 28.61;
     const lng = this.store.location?.coordinates?.[0] ?? 77.2;
+    this.storeCenter = [lat, lng];
     this.api
       .get(`riders/nearby?lat=${lat}&lng=${lng}&radius=20000&status=AVAILABLE`)
-      .subscribe((r) => (this.nearbyRiders = r));
+      .subscribe((r) => {
+        this.nearbyRiders = r;
+        this.riderMarkers = [
+          { lat, lng, label: this.store.name, color: '#0d6efd' },
+          ...r
+            .filter((x: any) => x.currentLocation?.coordinates?.length === 2)
+            .map((x: any) => ({
+              lat: x.currentLocation.coordinates[1],
+              lng: x.currentLocation.coordinates[0],
+              label: x.user?.name || 'Rider',
+              color: '#198754',
+            })),
+        ];
+      });
   }
 
   assign(r: any) {

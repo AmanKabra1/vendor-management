@@ -3,6 +3,9 @@
 /* Bootstrap (installed dependency) */
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
+/* Leaflet maps (OpenStreetMap) */
+@import 'leaflet/dist/leaflet.css';
+
 html, body {
   height: 100%;
   background: #f4f6fa;

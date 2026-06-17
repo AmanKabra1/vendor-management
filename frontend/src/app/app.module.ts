@@ -22,6 +22,7 @@ import { MyPerformanceComponent } from './vendor/my-performance.component';
 import { SuperDashboardComponent } from './super-admin/super-dashboard.component';
 import { StoreDashboardComponent } from './store/store-dashboard.component';
 import { RiderDashboardComponent } from './rider/rider-dashboard.component';
+import { MapComponent } from './shared/map.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 
@@ -40,6 +41,7 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     SuperDashboardComponent,
     StoreDashboardComponent,
     RiderDashboardComponent,
+    MapComponent,
   ],
   imports: [
     BrowserModule,
