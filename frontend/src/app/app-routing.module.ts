@@ -1,0 +1,41 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { LoginComponent } from './auth/login.component';
+import { RegisterComponent } from './auth/register.component';
+import { LayoutComponent } from './layout/layout.component';
+import { DashboardComponent } from './admin/dashboard.component';
+import { AdminVendorsComponent } from './admin/vendors.component';
+import { VendorDetailComponent } from './admin/vendor-detail.component';
+import { AdminPurchaseOrdersComponent } from './admin/purchase-orders.component';
+import { MyOrdersComponent } from './vendor/my-orders.component';
+import { MyPerformanceComponent } from './vendor/my-performance.component';
+
+import { authGuard, adminGuard, vendorGuard } from './shared/guards';
+
+const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  {
+    path: '',
+    component: LayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      // Admin
+      { path: 'admin', component: DashboardComponent, canActivate: [adminGuard] },
+      { path: 'admin/vendors', component: AdminVendorsComponent, canActivate: [adminGuard] },
+      { path: 'admin/vendors/:id', component: VendorDetailComponent, canActivate: [adminGuard] },
+      { path: 'admin/purchase-orders', component: AdminPurchaseOrdersComponent, canActivate: [adminGuard] },
+      // Vendor
+      { path: 'vendor', component: MyOrdersComponent, canActivate: [vendorGuard] },
+      { path: 'vendor/performance', component: MyPerformanceComponent, canActivate: [vendorGuard] },
+    ],
+  },
+  { path: '**', redirectTo: 'login' },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
