@@ -18,7 +18,7 @@ import { AuthService } from '../shared/auth.service';
           <a class="nav-link" routerLink="/vendor" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">My Orders</a>
           <a class="nav-link" routerLink="/vendor/performance" routerLinkActive="active">My Performance</a>
         </ng-container>
-        <ng-container *ngIf="auth.isSuperAdmin">
+        <ng-container *ngIf="auth.isPlatformAdmin">
           <a class="nav-link" routerLink="/super" routerLinkActive="active">Admin Console</a>
         </ng-container>
         <ng-container *ngIf="auth.isStoreOwner">
