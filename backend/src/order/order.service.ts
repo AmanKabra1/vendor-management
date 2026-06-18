@@ -20,6 +20,8 @@ import { CreateOrderDto } from './dto/order.dto';
 import { AuthUser } from '../auth/current-user.decorator';
 import { Role } from '../auth/role.enum';
 import { TrackingGateway } from '../tracking/tracking.gateway';
+import { UserService } from '../user/user.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class OrderService {
@@ -28,6 +30,8 @@ export class OrderService {
     @InjectModel(Store.name) private readonly storeModel: Model<StoreDocument>,
     @InjectModel(Rider.name) private readonly riderModel: Model<RiderDocument>,
     private readonly tracking: TrackingGateway,
+    private readonly users: UserService,
+    private readonly notifications: NotificationService,
   ) {}
 
   /** Persist an order and push its new status to live subscribers. */
@@ -148,7 +152,16 @@ export class OrderService {
     order.status = OrderStatus.RiderAssigned;
     order.otp = String(Math.floor(1000 + Math.random() * 9000));
     this.addTimeline(order, OrderStatus.RiderAssigned, user, `Assigned rider ${riderId}`);
-    return this.saveAndBroadcast(order);
+    await this.saveAndBroadcast(order);
+    const riderUser = await this.users.findById(String(rider.user));
+    if (riderUser) {
+      this.notifications.orderAssigned(
+        riderUser.email,
+        riderUser.name,
+        order.orderNumber,
+      );
+    }
+    return order;
   }
 
   // --- rider-side actions ---

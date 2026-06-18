@@ -12,6 +12,7 @@ import { UserDocument } from '../user/user.entity';
 import { Vendor, VendorDocument } from '../vendor/vendor.entity';
 import { Role, APPROVAL_REQUIRED_ROLES } from './role.enum';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { NotificationService } from '../notification/notification.service';
 
 // Legacy vendor-management role gets an auto-created Vendor profile on register.
 // Store owners instead create a Store via POST /stores after registering.
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectModel(Vendor.name)
     private readonly vendorModel: Model<VendorDocument>,
+    private readonly notifications: NotificationService,
   ) {}
 
   /**
@@ -78,6 +80,7 @@ export class AuthService {
       vendor: vendorId,
     });
 
+    this.notifications.welcome(user.email, user.name, role);
     return this.sign(user);
   }
 

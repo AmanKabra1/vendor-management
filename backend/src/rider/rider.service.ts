@@ -14,11 +14,15 @@ import {
 } from './rider.entity';
 import { AuthUser } from '../auth/current-user.decorator';
 import { Role } from '../auth/role.enum';
+import { UserService } from '../user/user.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class RiderService {
   constructor(
     @InjectModel(Rider.name) private readonly riderModel: Model<RiderDocument>,
+    private readonly users: UserService,
+    private readonly notifications: NotificationService,
   ) {}
 
   private isPlatformAdmin(user: AuthUser) {
@@ -108,6 +112,8 @@ export class RiderService {
     if (!rider) throw new NotFoundException('Rider not found');
     rider.isApproved = true;
     await rider.save();
+    const user = await this.users.findById(String(rider.user));
+    if (user) this.notifications.approved(user.email, user.name, 'rider profile');
     return rider;
   }
 

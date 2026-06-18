@@ -6,6 +6,7 @@ import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
 import { PerformanceModule } from './performance/performance.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { NotificationModule } from './notification/notification.module';
 import { StoreModule } from './store/store.module';
 import { RiderModule } from './rider/rider.module';
 import { OrderModule } from './order/order.module';
@@ -19,6 +20,7 @@ import { OrderModule } from './order/order.module';
         'mongodb://127.0.0.1:27017/vendor_management',
     ),
     UserModule,
+    NotificationModule,
     AuthModule,
     StoreModule,
     RiderModule,

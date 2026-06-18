@@ -10,11 +10,15 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { AuthUser } from '../auth/current-user.decorator';
 import { Role } from '../auth/role.enum';
+import { UserService } from '../user/user.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class StoreService {
   constructor(
     @InjectModel(Store.name) private readonly storeModel: Model<StoreDocument>,
+    private readonly users: UserService,
+    private readonly notifications: NotificationService,
   ) {}
 
   private isPlatformAdmin(user: AuthUser) {
@@ -67,6 +71,10 @@ export class StoreService {
     store.status = status;
     store.rejectionReason = status === StoreStatus.Rejected ? reason : '';
     await store.save();
+    if (status === StoreStatus.Approved) {
+      const owner = await this.users.findById(String(store.owner));
+      if (owner) this.notifications.approved(owner.email, owner.name, 'store');
+    }
     return store;
   }
 
