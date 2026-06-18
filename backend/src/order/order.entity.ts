@@ -126,6 +126,17 @@ export class Order {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Rider', default: null })
   rider: Types.ObjectId | null;
 
+  // Set when a customer places the order themselves (kirana flow).
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
+  customerUser: Types.ObjectId | null;
+
+  // Customer's typed shopping list and/or an uploaded photo of a handwritten list.
+  @Prop({ default: '' })
+  listText: string;
+
+  @Prop({ default: '' })
+  listImageUrl: string;
+
   @Prop({ type: CustomerInfoSchema, default: () => ({}) })
   customer: CustomerInfo;
 

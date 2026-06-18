@@ -36,6 +36,15 @@ export class CreateOrderDto {
   @IsOptional()
   @IsEnum(PaymentMethod)
   paymentMethod?: PaymentMethod;
+
+  // Kirana customer flow: typed list and/or photo of a handwritten list.
+  @IsOptional()
+  @IsString()
+  listText?: string;
+
+  @IsOptional()
+  @IsString()
+  listImageUrl?: string;
 }
 
 export class AssignRiderDto {

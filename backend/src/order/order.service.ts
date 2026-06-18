@@ -63,37 +63,108 @@ export class OrderService {
     return String(rider._id);
   }
 
+  // --- delivery-fee model: base fare + per-km, computed from store->customer distance ---
+  private static BASE_FEE = 20; // ₹
+  private static PER_KM = 8; // ₹/km
+
+  private haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371;
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
   async create(dto: CreateOrderDto, user: AuthUser) {
     const store = await this.storeModel.findById(dto.store).exec();
     if (!store) throw new NotFoundException('Store not found');
-    if (!this.isPlatformAdmin(user) && String(store.owner) !== user.userId) {
+
+    const isCustomer = user.role === Role.Customer;
+    if (!isCustomer && !this.isPlatformAdmin(user) && String(store.owner) !== user.userId) {
       throw new ForbiddenException('Not your store');
+    }
+    // Customers can only order from an approved (live) kirana store.
+    if (isCustomer && store.status !== 'APPROVED') {
+      throw new ForbiddenException('This store is not accepting orders yet');
+    }
+
+    const storeLat = store.location?.coordinates?.[1] ?? null;
+    const storeLng = store.location?.coordinates?.[0] ?? null;
+    const custLat = dto.customer?.lat ?? null;
+    const custLng = dto.customer?.lng ?? null;
+
+    // Items subtotal from line items.
+    const items = dto.items ?? [];
+    const itemsSubtotal = items.reduce(
+      (s: number, i: any) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
+      0,
+    );
+
+    // Distance-based delivery fee (falls back to base fare when coords unknown).
+    let distance = 0;
+    let deliveryFee = dto.deliveryFee;
+    if (storeLat != null && storeLng != null && custLat != null && custLng != null) {
+      distance = Math.round(this.haversineKm(storeLat, storeLng, custLat, custLng) * 10) / 10;
+    }
+    if (deliveryFee == null) {
+      deliveryFee = Math.round(OrderService.BASE_FEE + OrderService.PER_KM * distance);
     }
 
     const orderNumber = await this.generateOrderNumber();
     const order = new this.orderModel({
       orderNumber,
       store: store._id,
+      customerUser: isCustomer ? user.userId : null,
       customer: dto.customer,
-      items: dto.items ?? [],
-      totalAmount: dto.totalAmount ?? 0,
-      deliveryFee: dto.deliveryFee ?? 0,
+      listText: dto.listText ?? '',
+      listImageUrl: dto.listImageUrl ?? '',
+      items,
+      totalAmount: dto.totalAmount ?? itemsSubtotal,
+      deliveryFee,
+      distance,
       priority: dto.priority,
       paymentMethod: dto.paymentMethod,
       pickupLocation: {
         address: store.address?.street || store.name,
-        lat: store.location?.coordinates?.[1] ?? null,
-        lng: store.location?.coordinates?.[0] ?? null,
+        lat: storeLat,
+        lng: storeLng,
       },
       dropLocation: {
         address: dto.customer?.address || '',
-        lat: dto.customer?.lat ?? null,
-        lng: dto.customer?.lng ?? null,
+        lat: custLat,
+        lng: custLng,
       },
       status: OrderStatus.Created,
     });
-    this.addTimeline(order, OrderStatus.Created, user, 'Order created');
+    this.addTimeline(order, OrderStatus.Created, user, isCustomer ? 'Order placed by customer' : 'Order created');
     return this.saveAndBroadcast(order);
+  }
+
+  /** Computed invoice for an order (items + delivery/rider fee + total). */
+  async invoice(id: string, user: AuthUser) {
+    const order = await this.findOne(id, user); // enforces access
+    const itemsSubtotal = (order.items || []).reduce(
+      (s: number, i: any) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
+      0,
+    );
+    const deliveryFee = order.deliveryFee || 0;
+    return {
+      orderNumber: order.orderNumber,
+      date: (order as any).createdAt,
+      status: order.status,
+      store: (order.store as any)?.name ?? '',
+      customer: order.customer,
+      items: order.items,
+      distanceKm: order.distance,
+      itemsSubtotal,
+      deliveryFee,
+      total: itemsSubtotal + deliveryFee,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+    };
   }
 
   async findAll(user: AuthUser) {
@@ -102,6 +173,8 @@ export class OrderService {
       if (user.role === Role.Rider) {
         const rider = await this.riderModel.findOne({ user: user.userId }).exec();
         filter = { rider: rider?._id ?? null };
+      } else if (user.role === Role.Customer) {
+        filter = { customerUser: user.userId };
       } else {
         // Store owner: orders across the stores they own.
         const stores = await this.storeModel.find({ owner: user.userId }).select('_id').exec();
@@ -129,7 +202,9 @@ export class OrderService {
 
   private async assertCanView(order: OrderDocument, user: AuthUser) {
     if (this.isPlatformAdmin(user)) return;
-    if (user.role === Role.Rider) {
+    if (user.role === Role.Customer) {
+      if (String(order.customerUser) === user.userId) return;
+    } else if (user.role === Role.Rider) {
       const riderId = await this.actingRiderId(user).catch(() => null);
       const oid = String((order.rider as any)?._id ?? order.rider);
       if (riderId && oid === riderId) return;
@@ -307,6 +382,9 @@ export class OrderService {
     if (user.role === Role.Rider) {
       const rider = await this.riderModel.findOne({ user: user.userId }).exec();
       return { rider: rider?._id ?? null };
+    }
+    if (user.role === Role.Customer) {
+      return { customerUser: user.userId };
     }
     const stores = await this.storeModel.find({ owner: user.userId }).select('_id').exec();
     return { store: { $in: stores.map((s) => s._id) } };

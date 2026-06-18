@@ -25,10 +25,15 @@ import { CurrentUser, AuthUser } from '../auth/current-user.decorator';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Roles(Role.StoreOwner, Role.Vendor, Role.SuperAdmin, Role.Admin)
+  @Roles(Role.StoreOwner, Role.Vendor, Role.Customer, Role.SuperAdmin, Role.Admin)
   @Post()
   create(@Body() dto: CreateOrderDto, @CurrentUser() user: AuthUser) {
     return this.orderService.create(dto, user);
+  }
+
+  @Get(':id/invoice')
+  invoice(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.orderService.invoice(id, user);
   }
 
   @Get()

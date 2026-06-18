@@ -11,11 +11,6 @@ import { AuthService } from '../shared/auth.service';
       </span>
 
       <div class="navbar-nav me-auto flex-row gap-3">
-        <ng-container *ngIf="auth.isAdmin">
-          <a class="nav-link" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
-          <a class="nav-link" routerLink="/admin/vendors" routerLinkActive="active">Vendors</a>
-          <a class="nav-link" routerLink="/admin/purchase-orders" routerLinkActive="active">Purchase Orders</a>
-        </ng-container>
         <ng-container *ngIf="auth.isVendor">
           <a class="nav-link" routerLink="/vendor" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">My Orders</a>
           <a class="nav-link" routerLink="/vendor/performance" routerLinkActive="active">My Performance</a>
@@ -28,6 +23,9 @@ import { AuthService } from '../shared/auth.service';
         </ng-container>
         <ng-container *ngIf="auth.isRider">
           <a class="nav-link" routerLink="/rider" routerLinkActive="active">Rider Hub</a>
+        </ng-container>
+        <ng-container *ngIf="auth.isCustomer">
+          <a class="nav-link" routerLink="/customer" routerLinkActive="active">Order Groceries</a>
         </ng-container>
       </div>
 

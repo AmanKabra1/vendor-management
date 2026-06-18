@@ -14,6 +14,7 @@ import { SuperDashboardComponent } from './super-admin/super-dashboard.component
 import { StoreDashboardComponent } from './store/store-dashboard.component';
 import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 import { TrackComponent } from './track/track.component';
+import { CustomerDashboardComponent } from './customer/customer-dashboard.component';
 
 import {
   authGuard,
@@ -22,6 +23,7 @@ import {
   superAdminGuard,
   storeOwnerGuard,
   riderGuard,
+  customerGuard,
 } from './shared/guards';
 
 const routes: Routes = [
@@ -46,6 +48,7 @@ const routes: Routes = [
       { path: 'super', component: SuperDashboardComponent, canActivate: [superAdminGuard] },
       { path: 'store', component: StoreDashboardComponent, canActivate: [storeOwnerGuard] },
       { path: 'rider', component: RiderDashboardComponent, canActivate: [riderGuard] },
+      { path: 'customer', component: CustomerDashboardComponent, canActivate: [customerGuard] },
     ],
   },
   { path: '**', redirectTo: 'login' },

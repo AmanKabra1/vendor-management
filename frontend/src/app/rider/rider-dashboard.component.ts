@@ -43,11 +43,27 @@ import { TrackingService } from '../shared/tracking.service';
             <select class="form-select" style="width:auto" [(ngModel)]="rider.availability" (change)="setAvailability()">
               <option>OFFLINE</option><option>AVAILABLE</option><option>ON_BREAK</option><option>ON_DELIVERY</option>
             </select>
-            <button class="btn btn-sm btn-outline-secondary" (click)="updateLocation()">📍 Set my location</button>
           </div>
         </div>
-        <div class="card-footer bg-white small text-muted" *ngIf="!rider.isApproved">
-          You can go AVAILABLE, but you'll only receive orders once an admin approves you.
+
+        <!-- Location row -->
+        <div class="card-footer bg-white">
+          <div class="d-flex flex-wrap align-items-end gap-2">
+            <div>
+              <label class="form-label mb-1 small">Latitude</label>
+              <input type="number" step="0.0001" class="form-control form-control-sm" style="width:130px" [(ngModel)]="loc.lat" name="lat">
+            </div>
+            <div>
+              <label class="form-label mb-1 small">Longitude</label>
+              <input type="number" step="0.0001" class="form-control form-control-sm" style="width:130px" [(ngModel)]="loc.lng" name="lng">
+            </div>
+            <button class="btn btn-sm btn-primary" (click)="saveLocation()">Save location</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="useGps()">📍 Use my GPS</button>
+            <span class="small" [class.text-success]="locMsg.startsWith('Saved')" [class.text-danger]="locMsg.startsWith('Could')">{{ locMsg }}</span>
+          </div>
+          <div class="small text-muted mt-2" *ngIf="!rider.isApproved">
+            You can set availability & location, but you'll only receive orders once an admin approves you.
+          </div>
         </div>
       </div>
 
@@ -87,6 +103,8 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
   rider: any = null;
   orders: any[] = [];
   profileForm = { vehicleType: 'MOTORCYCLE', licenseNumber: '' };
+  loc = { lat: 28.61, lng: 77.2 };
+  locMsg = '';
   liveOrderId: string | null = null;
   private liveTimer: any = null;
   private liveLat = 28.61;
@@ -138,7 +156,13 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
   }
 
   load() {
-    this.api.get('riders').subscribe((r) => (this.rider = r[0] || null));
+    this.api.get('riders').subscribe((r) => {
+      this.rider = r[0] || null;
+      const c = this.rider?.currentLocation?.coordinates;
+      if (c?.length === 2 && (c[0] || c[1])) {
+        this.loc = { lat: c[1], lng: c[0] };
+      }
+    });
     this.api.get('orders').subscribe((o) => (this.orders = o));
   }
 
@@ -152,18 +176,38 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  updateLocation() {
-    // Use browser geolocation when available, else a Delhi default for testing.
-    const send = (lat: number, lng: number) =>
-      this.api.patch(`riders/${this.rider.id}/location`, { lat, lng }).subscribe(() => this.load());
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => send(p.coords.latitude, p.coords.longitude),
-        () => send(28.61, 77.2),
-      );
-    } else {
-      send(28.61, 77.2);
+  /** Save the lat/lng currently in the inputs. */
+  saveLocation() {
+    const lat = Number(this.loc.lat);
+    const lng = Number(this.loc.lng);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) {
+      this.locMsg = 'Could not save — enter valid lat/lng';
+      return;
     }
+    this.locMsg = 'Saving…';
+    this.api.patch(`riders/${this.rider.id}/location`, { lat, lng }).subscribe({
+      next: () => {
+        this.locMsg = `Saved ✓ (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+        this.load();
+      },
+      error: () => (this.locMsg = 'Could not save location'),
+    });
+  }
+
+  /** Try the browser GPS; on success fill inputs and save. */
+  useGps() {
+    if (!navigator.geolocation) {
+      this.locMsg = 'Could not get GPS — enter coordinates manually';
+      return;
+    }
+    this.locMsg = 'Getting GPS…';
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        this.loc = { lat: p.coords.latitude, lng: p.coords.longitude };
+        this.saveLocation();
+      },
+      () => (this.locMsg = 'GPS denied — enter coordinates manually'),
+    );
   }
 
   act(o: any, action: 'accept' | 'reject' | 'pickup') {

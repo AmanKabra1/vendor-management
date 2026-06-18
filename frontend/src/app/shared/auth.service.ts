@@ -27,7 +27,7 @@ export const HOME_BY_ROLE: Record<UserRole, string> = {
   super_admin: '/super',
   store_owner: '/store',
   rider: '/rider',
-  customer: '/store',
+  customer: '/customer',
   admin: '/super', // legacy admin acts as the platform super-admin
   vendor: '/vendor',
 };
@@ -87,6 +87,10 @@ export class AuthService {
 
   get isRider(): boolean {
     return this.currentUser?.role === 'rider';
+  }
+
+  get isCustomer(): boolean {
+    return this.currentUser?.role === 'customer';
   }
 
   /** Where this user should land after login. */

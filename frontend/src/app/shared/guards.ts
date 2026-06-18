@@ -43,3 +43,4 @@ const requireRole = (check: (a: AuthService) => boolean): CanActivateFn => {
 export const superAdminGuard = requireRole((a) => a.isPlatformAdmin);
 export const storeOwnerGuard = requireRole((a) => a.isStoreOwner);
 export const riderGuard = requireRole((a) => a.isRider);
+export const customerGuard = requireRole((a) => a.isCustomer);
