@@ -24,6 +24,7 @@ import { StoreDashboardComponent } from './store/store-dashboard.component';
 import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 import { MapComponent } from './shared/map.component';
 import { TrackComponent } from './track/track.component';
+import { ChatWidgetComponent } from './shared/chat-widget.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 
@@ -44,6 +45,7 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     RiderDashboardComponent,
     MapComponent,
     TrackComponent,
+    ChatWidgetComponent,
   ],
   imports: [
     BrowserModule,

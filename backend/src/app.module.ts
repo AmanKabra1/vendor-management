@@ -10,6 +10,7 @@ import { NotificationModule } from './notification/notification.module';
 import { StoreModule } from './store/store.module';
 import { RiderModule } from './rider/rider.module';
 import { OrderModule } from './order/order.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { OrderModule } from './order/order.module';
     StoreModule,
     RiderModule,
     OrderModule,
+    ChatModule,
     VendorModule,
     PurchaseOrderModule,
     PerformanceModule,
