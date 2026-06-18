@@ -23,6 +23,7 @@ import { SuperDashboardComponent } from './super-admin/super-dashboard.component
 import { StoreDashboardComponent } from './store/store-dashboard.component';
 import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 import { MapComponent } from './shared/map.component';
+import { TrackComponent } from './track/track.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 
@@ -42,6 +43,7 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     StoreDashboardComponent,
     RiderDashboardComponent,
     MapComponent,
+    TrackComponent,
   ],
   imports: [
     BrowserModule,

@@ -24,16 +24,16 @@ export class TrackingGateway implements OnGatewayConnection {
 
   constructor(private readonly jwtService: JwtService) {}
 
-  // Validate the JWT supplied in the handshake; reject anonymous sockets.
+  // Authenticate via the handshake JWT when present. Anonymous sockets are
+  // allowed as read-only watchers (for the public customer tracking link).
   handleConnection(client: Socket) {
     const token =
       client.handshake.auth?.token ||
       (client.handshake.headers.authorization || '').replace('Bearer ', '');
     try {
-      const payload = this.jwtService.verify(token);
-      (client.data as any).user = payload;
+      (client.data as any).user = token ? this.jwtService.verify(token) : null;
     } catch {
-      client.disconnect(true);
+      (client.data as any).user = null;
     }
   }
 
@@ -53,6 +53,8 @@ export class TrackingGateway implements OnGatewayConnection {
     @MessageBody() data: LocationPayload,
     @ConnectedSocket() client: Socket,
   ) {
+    // Only authenticated users may publish location; guests are read-only.
+    if (!(client.data as any).user) return;
     this.server.to(this.room(data.orderId)).emit('location', {
       orderId: data.orderId,
       lat: data.lat,

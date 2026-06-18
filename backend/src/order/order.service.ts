@@ -228,6 +228,28 @@ export class OrderService {
     return this.saveAndBroadcast(order);
   }
 
+  /** Public, sanitized tracking view for the customer link (no auth). */
+  async publicTracking(id: string) {
+    const order = await this.orderModel
+      .findById(id)
+      .populate('store', 'name')
+      .populate({ path: 'rider', populate: { path: 'user', select: 'name' } })
+      .exec();
+    if (!order) throw new NotFoundException('Order not found');
+    const rider: any = order.rider;
+    return {
+      orderNumber: order.orderNumber,
+      status: order.status,
+      storeName: (order.store as any)?.name ?? '',
+      customerName: order.customer?.name ?? '',
+      pickupLocation: order.pickupLocation,
+      dropLocation: order.dropLocation,
+      timeline: order.timeline,
+      riderName: rider?.user?.name ?? null,
+      riderLocation: rider?.currentLocation ?? null,
+    };
+  }
+
   async stats(user: AuthUser) {
     const match = await this.scopeMatch(user);
     const rows = await this.orderModel.aggregate([

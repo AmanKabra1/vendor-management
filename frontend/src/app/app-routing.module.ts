@@ -13,6 +13,7 @@ import { MyPerformanceComponent } from './vendor/my-performance.component';
 import { SuperDashboardComponent } from './super-admin/super-dashboard.component';
 import { StoreDashboardComponent } from './store/store-dashboard.component';
 import { RiderDashboardComponent } from './rider/rider-dashboard.component';
+import { TrackComponent } from './track/track.component';
 
 import {
   authGuard,
@@ -26,6 +27,8 @@ import {
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  // Public customer tracking link (no login required)
+  { path: 'track/:id', component: TrackComponent },
   {
     path: '',
     component: LayoutComponent,

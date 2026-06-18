@@ -110,7 +110,10 @@ import { TrackingService } from '../shared/tracking.service';
         <div class="card-body py-2 small text-muted">
           {{ trackMarkers.length > 1 ? 'Live rider position updates as they move.' : 'Waiting for rider to go live…' }}
         </div>
-        <div class="card-footer bg-white text-end"><button class="btn btn-light" (click)="closeTrack()">Close</button></div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+          <button class="btn btn-outline-secondary btn-sm" (click)="copyTrackLink()">🔗 Copy customer link</button>
+          <button class="btn btn-light" (click)="closeTrack()">Close</button>
+        </div>
       </div>
     </div>
   `,
@@ -215,5 +218,11 @@ export class StoreDashboardComponent implements OnInit {
 
   closeTrack() {
     this.tracking = null;
+  }
+
+  copyTrackLink() {
+    const url = `${location.origin}/track/${this.tracking.id}`;
+    navigator.clipboard?.writeText(url);
+    alert('Customer tracking link copied:\n' + url);
   }
 }

@@ -5,6 +5,7 @@ import { Store, StoreSchema } from '../store/store.entity';
 import { Rider, RiderSchema } from '../rider/rider.entity';
 import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
+import { PublicTrackingController } from './public-tracking.controller';
 import { TrackingModule } from '../tracking/tracking.module';
 
 @Module({
@@ -18,7 +19,7 @@ import { TrackingModule } from '../tracking/tracking.module';
     TrackingModule,
   ],
   providers: [OrderService],
-  controllers: [OrderController],
+  controllers: [OrderController, PublicTrackingController],
   exports: [OrderService],
 })
 export class OrderModule {}
