@@ -6,7 +6,9 @@ import { AuthService } from '../shared/auth.service';
   standalone: false,
   template: `
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
-      <span class="navbar-brand fw-bold">📦 Vendor Management</span>
+      <span class="navbar-brand fw-bold d-flex align-items-center gap-2">
+        <span class="brand-chip">📦</span> RideFleet
+      </span>
 
       <div class="navbar-nav me-auto flex-row gap-3">
         <ng-container *ngIf="auth.isAdmin">
@@ -41,9 +43,13 @@ import { AuthService } from '../shared/auth.service';
     <main class="container-fluid py-4 px-md-5">
       <router-outlet></router-outlet>
     </main>
+
+    <!-- AI support assistant (all signed-in pages) -->
+    <app-chat-widget></app-chat-widget>
   `,
   styles: [
-    `.nav-link.active { color: #fff; font-weight: 600; text-decoration: underline; }`,
+    `.nav-link.active { color: #fff; font-weight: 600; }`,
+    `.brand-chip { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-size: 17px; }`,
   ],
 })
 export class LayoutComponent {

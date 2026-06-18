@@ -1,31 +1,122 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   RideFleet — global design system
+   Built on Bootstrap, restyled into a modern SaaS look.
+   ============================================================ */
 
-/* Bootstrap (installed dependency) */
 @import 'bootstrap/dist/css/bootstrap.min.css';
-
-/* Leaflet maps (OpenStreetMap) */
 @import 'leaflet/dist/leaflet.css';
+
+:root {
+  --rf-indigo: #6d28d9;
+  --rf-violet: #8b5cf6;
+  --rf-blue: #2563eb;
+  --rf-grad: linear-gradient(135deg, #6d28d9 0%, #4f46e5 55%, #2563eb 100%);
+  --rf-grad-soft: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+  --rf-ink: #1e1b2e;
+  --rf-muted: #6b7280;
+  --rf-bg: #f6f7fb;
+  --rf-card: #ffffff;
+  --rf-ring: rgba(109, 40, 217, 0.25);
+  --rf-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px rgba(16, 24, 40, .06);
+  --rf-shadow-lg: 0 12px 40px rgba(76, 29, 149, .18);
+  --bs-primary: #6d28d9;
+  --bs-primary-rgb: 109, 40, 217;
+}
+
+* { -webkit-font-smoothing: antialiased; }
 
 html, body {
   height: 100%;
-  background: #f4f6fa;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--rf-ink);
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(139, 92, 246, .10), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(37, 99, 235, .10), transparent 60%),
+    var(--rf-bg);
 }
 
-/* Centered auth screens (login / register) */
+h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -0.02em; }
+
+/* ---------- Buttons ---------- */
+.btn { border-radius: 10px; font-weight: 600; transition: transform .12s ease, box-shadow .2s ease, filter .2s ease; }
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--rf-grad); border: none; box-shadow: 0 6px 16px rgba(99, 102, 241, .35);
+}
+.btn-primary:hover, .btn-primary:focus { filter: brightness(1.06); box-shadow: 0 10px 22px rgba(99, 102, 241, .45); }
+.btn-outline-primary { color: var(--rf-indigo); border-color: rgba(109, 40, 217, .4); }
+.btn-outline-primary:hover { background: var(--rf-indigo); border-color: var(--rf-indigo); }
+.btn-success { background: linear-gradient(135deg, #059669, #10b981); border: none; }
+.btn-sm { border-radius: 8px; }
+
+/* ---------- Cards ---------- */
+.card {
+  border: 1px solid rgba(16, 24, 40, .06);
+  border-radius: 16px;
+  box-shadow: var(--rf-shadow);
+  overflow: hidden;
+}
+.card-header { background: #fff; border-bottom: 1px solid rgba(16,24,40,.06); font-weight: 600; }
+
+/* Stat cards with a gradient accent bar */
+.stat-card { position: relative; transition: transform .15s ease, box-shadow .2s ease; }
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--rf-shadow-lg); }
+.stat-card::before {
+  content: ''; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--rf-grad);
+}
+.stat-card .display-6 { font-size: 2rem; font-weight: 800; background: var(--rf-grad);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* ---------- Navbar ---------- */
+.navbar.bg-primary { background: var(--rf-grad) !important; box-shadow: 0 4px 20px rgba(76, 29, 149, .25); }
+.navbar .navbar-brand { font-weight: 800; letter-spacing: -0.02em; }
+.navbar .nav-link { border-radius: 8px; padding: 6px 12px !important; transition: background .15s ease; }
+.navbar .nav-link:hover { background: rgba(255,255,255,.14); }
+.navbar .nav-link.active { background: rgba(255,255,255,.22); text-decoration: none !important; }
+
+/* ---------- Tables ---------- */
+.table { --bs-table-bg: transparent; }
+.table thead.table-light th, .table thead th {
+  background: #faf9ff; color: var(--rf-muted); text-transform: uppercase;
+  font-size: .72rem; letter-spacing: .04em; border-bottom: 1px solid rgba(16,24,40,.08);
+}
+.table-hover tbody tr { transition: background .12s ease; }
+.table-hover tbody tr:hover { background: #faf8ff; }
+.table td, .table th { vertical-align: middle; }
+
+/* ---------- Badges ---------- */
+.badge { border-radius: 999px; font-weight: 600; padding: .4em .7em; letter-spacing: .01em; }
+
+/* ---------- Forms ---------- */
+.form-control, .form-select {
+  border-radius: 10px; border-color: #e5e7eb; padding: .55rem .8rem;
+}
+.form-control:focus, .form-select:focus { border-color: var(--rf-violet); box-shadow: 0 0 0 4px var(--rf-ring); }
+.form-label { font-weight: 600; font-size: .85rem; color: #374151; }
+
+/* ---------- Auth screens ---------- */
 .auth-wrap {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
-  padding: 1rem;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+  position: relative; overflow: hidden;
+  background: var(--rf-grad);
 }
-
+.auth-wrap::before, .auth-wrap::after {
+  content: ''; position: absolute; border-radius: 50%; filter: blur(8px); opacity: .35;
+}
+.auth-wrap::before { width: 420px; height: 420px; background: #a78bfa; top: -120px; right: -80px; }
+.auth-wrap::after { width: 360px; height: 360px; background: #60a5fa; bottom: -120px; left: -80px; }
 .auth-card {
-  width: 100%;
-  max-width: 420px;
+  width: 100%; max-width: 430px; border: none; border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(20, 10, 50, .35); position: relative; z-index: 1;
+  animation: rf-rise .4s ease both;
 }
+@keyframes rf-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-.stat-card .display-6 {
-  font-size: 2rem;
-}
+/* page content fade-in */
+main { animation: rf-fade .35s ease both; }
+@keyframes rf-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: content-box; }
