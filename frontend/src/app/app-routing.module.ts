@@ -15,6 +15,7 @@ import { StoreDashboardComponent } from './store/store-dashboard.component';
 import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 import { TrackComponent } from './track/track.component';
 import { CustomerDashboardComponent } from './customer/customer-dashboard.component';
+import { LandingComponent } from './landing/landing.component';
 
 import {
   authGuard,
@@ -31,6 +32,8 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   // Public customer tracking link (no login required)
   { path: 'track/:id', component: TrackComponent },
+  // Public marketing landing page (redirects signed-in users to their dashboard)
+  { path: '', pathMatch: 'full', component: LandingComponent },
   {
     path: '',
     component: LayoutComponent,
@@ -51,7 +54,7 @@ const routes: Routes = [
       { path: 'customer', component: CustomerDashboardComponent, canActivate: [customerGuard] },
     ],
   },
-  { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

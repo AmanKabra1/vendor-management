@@ -26,6 +26,7 @@ import { MapComponent } from './shared/map.component';
 import { TrackComponent } from './track/track.component';
 import { ChatWidgetComponent } from './shared/chat-widget.component';
 import { CustomerDashboardComponent } from './customer/customer-dashboard.component';
+import { LandingComponent } from './landing/landing.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 
@@ -48,6 +49,7 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     TrackComponent,
     ChatWidgetComponent,
     CustomerDashboardComponent,
+    LandingComponent,
   ],
   imports: [
     BrowserModule,
