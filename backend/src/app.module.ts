@@ -13,6 +13,7 @@ import { OrderModule } from './order/order.module';
 import { ChatModule } from './chat/chat.module';
 import { ProductModule } from './product/product.module';
 import { SupplyOrderModule } from './supply-order/supply-order.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SupplyOrderModule } from './supply-order/supply-order.module';
     ChatModule,
     ProductModule,
     SupplyOrderModule,
+    PaymentModule,
     VendorModule,
     PurchaseOrderModule,
     PerformanceModule,

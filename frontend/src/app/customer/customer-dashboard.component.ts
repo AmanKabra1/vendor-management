@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 import { AuthService } from '../shared/auth.service';
 import { MapMarker } from '../shared/map.component';
+import { PaymentService } from '../shared/payment.service';
 
 @Component({
   selector: 'app-customer-dashboard',
@@ -79,6 +80,8 @@ import { MapMarker } from '../shared/map.component';
               <td>₹{{ (o.totalAmount || 0) + (o.deliveryFee || 0) }}</td>
               <td><span class="badge bg-secondary">{{ o.status }}</span></td>
               <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-success me-1" *ngIf="o.paymentStatus !== 'COLLECTED' && o.status !== 'CANCELLED'" (click)="pay(o)">Pay online</button>
+                <span class="badge bg-success me-1" *ngIf="o.paymentStatus === 'COLLECTED'">Paid</span>
                 <a class="btn btn-sm btn-outline-info me-1" [href]="'/track/' + o.id" target="_blank">Track</a>
                 <button class="btn btn-sm btn-outline-secondary" (click)="openInvoice(o)">Invoice</button>
               </td>
@@ -140,7 +143,11 @@ export class CustomerDashboardComponent implements OnInit {
   orders: any[] = [];
   invoice: any = null;
 
-  constructor(private api: ApiService, private auth: AuthService) {}
+  constructor(private api: ApiService, private auth: AuthService, private payments: PaymentService) {}
+
+  pay(o: any) {
+    this.payments.pay(o.id, () => this.loadOrders());
+  }
 
   ngOnInit() {
     this.phone = this.auth.currentUser?.phone || '';
