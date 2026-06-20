@@ -24,4 +24,12 @@ export class UserService {
   count() {
     return this.userModel.countDocuments().exec();
   }
+
+  /** List users of given role(s) — used to discover suppliers (wholesalers/distributors). */
+  findByRoles(roles: string[]) {
+    return this.userModel
+      .find({ role: { $in: roles } })
+      .select('name email role phone')
+      .exec();
+  }
 }

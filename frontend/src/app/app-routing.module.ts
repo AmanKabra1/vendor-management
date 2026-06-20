@@ -16,6 +16,7 @@ import { RiderDashboardComponent } from './rider/rider-dashboard.component';
 import { TrackComponent } from './track/track.component';
 import { CustomerDashboardComponent } from './customer/customer-dashboard.component';
 import { LandingComponent } from './landing/landing.component';
+import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
 
 import {
   authGuard,
@@ -25,6 +26,7 @@ import {
   storeOwnerGuard,
   riderGuard,
   customerGuard,
+  supplyGuard,
 } from './shared/guards';
 
 const routes: Routes = [
@@ -52,6 +54,7 @@ const routes: Routes = [
       { path: 'store', component: StoreDashboardComponent, canActivate: [storeOwnerGuard] },
       { path: 'rider', component: RiderDashboardComponent, canActivate: [riderGuard] },
       { path: 'customer', component: CustomerDashboardComponent, canActivate: [customerGuard] },
+      { path: 'supply', component: SupplyDashboardComponent, canActivate: [supplyGuard] },
     ],
   },
   { path: '**', redirectTo: '' },

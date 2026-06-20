@@ -48,19 +48,9 @@ import { TrackingService } from '../shared/tracking.service';
 
         <!-- Location row -->
         <div class="card-footer bg-white">
-          <div class="d-flex flex-wrap align-items-end gap-2">
-            <div>
-              <label class="form-label mb-1 small">Latitude</label>
-              <input type="number" step="0.0001" class="form-control form-control-sm" style="width:130px" [(ngModel)]="loc.lat" name="lat">
-            </div>
-            <div>
-              <label class="form-label mb-1 small">Longitude</label>
-              <input type="number" step="0.0001" class="form-control form-control-sm" style="width:130px" [(ngModel)]="loc.lng" name="lng">
-            </div>
-            <button class="btn btn-sm btn-primary" (click)="saveLocation()">Save location</button>
-            <button class="btn btn-sm btn-outline-secondary" (click)="useGps()">📍 Use my GPS</button>
-            <span class="small" [class.text-success]="locMsg.startsWith('Saved')" [class.text-danger]="locMsg.startsWith('Could')">{{ locMsg }}</span>
-          </div>
+          <label class="form-label small mb-1">My current location (riders need this to receive nearby orders)</label>
+          <app-location-picker [lat]="loc.lat" [lng]="loc.lng" (locationChange)="onRiderLoc($event)"></app-location-picker>
+          <span class="small" [class.text-success]="locMsg.startsWith('Saved')" [class.text-danger]="locMsg.startsWith('Could')">{{ locMsg }}</span>
           <div class="small text-muted mt-2" *ngIf="!rider.isApproved">
             You can set availability & location, but you'll only receive orders once an admin approves you.
           </div>
@@ -194,20 +184,10 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Try the browser GPS; on success fill inputs and save. */
-  useGps() {
-    if (!navigator.geolocation) {
-      this.locMsg = 'Could not get GPS — enter coordinates manually';
-      return;
-    }
-    this.locMsg = 'Getting GPS…';
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        this.loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        this.saveLocation();
-      },
-      () => (this.locMsg = 'GPS denied — enter coordinates manually'),
-    );
+  /** Picker emitted a coordinate (address search / GPS / manual) — save it. */
+  onRiderLoc(e: { lat: number; lng: number }) {
+    this.loc = { lat: e.lat, lng: e.lng };
+    this.saveLocation();
   }
 
   act(o: any, action: 'accept' | 'reject' | 'pickup') {

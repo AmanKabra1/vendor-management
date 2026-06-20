@@ -27,6 +27,9 @@ import { AuthService } from '../shared/auth.service';
         <ng-container *ngIf="auth.isCustomer">
           <a class="nav-link" routerLink="/customer" routerLinkActive="active">Order Groceries</a>
         </ng-container>
+        <ng-container *ngIf="auth.isSupplyParticipant">
+          <a class="nav-link" routerLink="/supply" routerLinkActive="active">Supply Chain</a>
+        </ng-container>
       </div>
 
       <div class="navbar-nav flex-row align-items-center gap-3">

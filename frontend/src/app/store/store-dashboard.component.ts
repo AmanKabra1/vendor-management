@@ -13,18 +13,18 @@ import { TrackingService } from '../shared/tracking.service';
     <div *ngIf="!stores.length" class="card border-0 shadow-sm mb-4">
       <div class="card-header bg-white fw-semibold">Create your store</div>
       <div class="card-body">
-        <div class="row g-2">
-          <div class="col-md-4"><input class="form-control" placeholder="Store name" [(ngModel)]="storeForm.name"></div>
-          <div class="col-md-3">
-            <select class="form-select" [(ngModel)]="storeForm.category">
+        <div class="row g-2 mb-2">
+          <div class="col-md-7"><input class="form-control" placeholder="Store name" [(ngModel)]="storeForm.name" name="sname"></div>
+          <div class="col-md-5">
+            <select class="form-select" [(ngModel)]="storeForm.category" name="scat">
               <option>GROCERY</option><option>RESTAURANT</option><option>PHARMACY</option><option>GENERAL</option><option>OTHER</option>
             </select>
           </div>
-          <div class="col-md-2"><input class="form-control" placeholder="Lat" type="number" [(ngModel)]="storeForm.lat"></div>
-          <div class="col-md-2"><input class="form-control" placeholder="Lng" type="number" [(ngModel)]="storeForm.lng"></div>
-          <div class="col-md-1"><button class="btn btn-primary w-100" (click)="createStore()">Add</button></div>
         </div>
-        <small class="text-muted">Tip: Delhi ≈ lat 28.61, lng 77.20. Store needs admin approval before you can hire riders.</small>
+        <label class="form-label">Store location</label>
+        <app-location-picker [lat]="storeForm.lat" [lng]="storeForm.lng" (locationChange)="onStoreLoc($event)"></app-location-picker>
+        <button class="btn btn-primary mt-2" (click)="createStore()">Add store</button>
+        <small class="d-block text-muted mt-1">Your store needs admin approval before you can hire riders.</small>
       </div>
     </div>
 
@@ -145,6 +145,11 @@ export class StoreDashboardComponent implements OnInit {
       this.store = s[0] || null;
     });
     this.api.get('orders').subscribe((o) => (this.orders = o));
+  }
+
+  onStoreLoc(e: { lat: number; lng: number }) {
+    this.storeForm.lat = e.lat;
+    this.storeForm.lng = e.lng;
   }
 
   createStore() {

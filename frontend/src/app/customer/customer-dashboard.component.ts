@@ -15,14 +15,8 @@ import { MapMarker } from '../shared/map.component';
         <div class="card border-0 mb-3">
           <div class="card-header">My delivery location</div>
           <div class="card-body">
-            <input class="form-control mb-2" placeholder="Delivery address" [(ngModel)]="addr" name="addr">
-            <div class="d-flex gap-2">
-              <input type="number" step="0.0001" class="form-control" placeholder="Lat" [(ngModel)]="lat" name="lat">
-              <input type="number" step="0.0001" class="form-control" placeholder="Lng" [(ngModel)]="lng" name="lng">
-              <button class="btn btn-outline-secondary text-nowrap" (click)="useGps()">📍 GPS</button>
-            </div>
+            <app-location-picker [lat]="lat" [lng]="lng" (locationChange)="onLoc($event)"></app-location-picker>
             <button class="btn btn-primary w-100 mt-2" (click)="findStores()">Find nearby kirana stores</button>
-            <small class="text-muted">{{ gpsMsg }}</small>
           </div>
         </div>
 
@@ -157,13 +151,10 @@ export class CustomerDashboardComponent implements OnInit {
     this.api.get('orders').subscribe((o) => (this.orders = o));
   }
 
-  useGps() {
-    if (!navigator.geolocation) { this.gpsMsg = 'GPS unavailable — enter lat/lng'; return; }
-    this.gpsMsg = 'Locating…';
-    navigator.geolocation.getCurrentPosition(
-      (p) => { this.lat = p.coords.latitude; this.lng = p.coords.longitude; this.gpsMsg = 'Location set ✓'; this.findStores(); },
-      () => (this.gpsMsg = 'GPS denied — enter lat/lng manually'),
-    );
+  onLoc(e: { lat: number; lng: number; address?: string }) {
+    this.lat = e.lat;
+    this.lng = e.lng;
+    if (e.address) this.addr = e.address;
   }
 
   findStores() {

@@ -16,10 +16,10 @@ import { AuthService, UserRole } from '../shared/auth.service';
 
           <div class="mb-3">
             <label class="form-label">I am a…</label>
-            <div class="btn-group w-100" role="group">
-              <button type="button" class="btn" [class.btn-primary]="form.role==='store_owner'" [class.btn-outline-primary]="form.role!=='store_owner'" (click)="form.role='store_owner'">Store Owner</button>
-              <button type="button" class="btn" [class.btn-primary]="form.role==='rider'" [class.btn-outline-primary]="form.role!=='rider'" (click)="form.role='rider'">Rider</button>
-              <button type="button" class="btn" [class.btn-primary]="form.role==='customer'" [class.btn-outline-primary]="form.role!=='customer'" (click)="form.role='customer'">Customer</button>
+            <div class="d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm" *ngFor="let r of roles"
+                [class.btn-primary]="form.role===r.key" [class.btn-outline-primary]="form.role!==r.key"
+                (click)="form.role=r.key">{{ r.label }}</button>
             </div>
           </div>
 
@@ -57,6 +57,13 @@ import { AuthService, UserRole } from '../shared/auth.service';
   `,
 })
 export class RegisterComponent {
+  roles: { key: UserRole; label: string }[] = [
+    { key: 'store_owner', label: 'Store / Kirana' },
+    { key: 'rider', label: 'Rider' },
+    { key: 'customer', label: 'Customer' },
+    { key: 'wholesaler', label: 'Wholesaler' },
+    { key: 'distributor', label: 'Distributor' },
+  ];
   form: { name: string; email: string; phone: string; password: string; role: UserRole } = {
     name: '',
     email: '',

@@ -8,6 +8,8 @@ export type UserRole =
   | 'store_owner'
   | 'rider'
   | 'customer'
+  | 'wholesaler'
+  | 'distributor'
   | 'admin'
   | 'vendor';
 
@@ -28,6 +30,8 @@ export const HOME_BY_ROLE: Record<UserRole, string> = {
   store_owner: '/store',
   rider: '/rider',
   customer: '/customer',
+  wholesaler: '/supply',
+  distributor: '/supply',
   admin: '/super', // legacy admin acts as the platform super-admin
   vendor: '/vendor',
 };
@@ -91,6 +95,24 @@ export class AuthService {
 
   get isCustomer(): boolean {
     return this.currentUser?.role === 'customer';
+  }
+
+  get isWholesaler(): boolean {
+    return this.currentUser?.role === 'wholesaler';
+  }
+
+  get isDistributor(): boolean {
+    return this.currentUser?.role === 'distributor';
+  }
+
+  /** Can sell on the supply chain (lists a product catalog). */
+  get isSupplier(): boolean {
+    return this.isWholesaler || this.isDistributor;
+  }
+
+  /** Sees the Supply area at all (suppliers + buyers). */
+  get isSupplyParticipant(): boolean {
+    return this.isWholesaler || this.isDistributor || this.isStoreOwner;
   }
 
   /** Where this user should land after login. */

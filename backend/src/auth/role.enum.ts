@@ -1,9 +1,11 @@
 export enum Role {
   // RideFleet platform roles
   SuperAdmin = 'super_admin', // platform owner — approves stores & riders
-  StoreOwner = 'store_owner', // owns an outlet/store, creates delivery orders
+  StoreOwner = 'store_owner', // owns an outlet/kirana store, creates delivery orders
   Rider = 'rider', // delivery rider — accepts and fulfills orders
   Customer = 'customer', // places / receives deliveries
+  Wholesaler = 'wholesaler', // lists bulk products for distributors/retailers
+  Distributor = 'distributor', // middleman — buys from wholesalers, sells to kiranas
 
   // Legacy vendor-management roles (kept for backward compatibility)
   Admin = 'admin',

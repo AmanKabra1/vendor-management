@@ -27,6 +27,8 @@ import { TrackComponent } from './track/track.component';
 import { ChatWidgetComponent } from './shared/chat-widget.component';
 import { CustomerDashboardComponent } from './customer/customer-dashboard.component';
 import { LandingComponent } from './landing/landing.component';
+import { LocationPickerComponent } from './shared/location-picker.component';
+import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 
@@ -50,6 +52,8 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     ChatWidgetComponent,
     CustomerDashboardComponent,
     LandingComponent,
+    LocationPickerComponent,
+    SupplyDashboardComponent,
   ],
   imports: [
     BrowserModule,
