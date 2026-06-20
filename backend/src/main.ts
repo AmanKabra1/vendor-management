@@ -28,7 +28,9 @@ async function bootstrap() {
 
   await seedAdmin(app);
 
-  await app.listen(3000);
-  console.log('🚀 Server started on http://localhost:3000');
+  // Cloud hosts (Back4App, Koyeb, Railway…) provide the port via env.
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Server started on port ${port}`);
 }
 bootstrap();

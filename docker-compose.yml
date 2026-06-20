@@ -1,0 +1,42 @@
+# Local production-style run of the whole stack.
+# Usage: docker compose up --build  → frontend on :8080, API on :3000
+# Note: the frontend image is built with environment.prod.ts. For this local
+# compose, set its apiUrl to http://localhost:3000 before building.
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      - DATABASE_URL=mongodb://mongo:27017/vendor_management
+      - JWT_SECRET=change-me-in-prod
+      - ADMIN_EMAIL=admin@vendor.com
+      - ADMIN_PASSWORD=admin123
+      # Optional integrations:
+      # - GMAIL_USER=
+      # - GMAIL_APP_PASSWORD=
+      # - GROQ_API_KEY=
+      # - RAZORPAY_KEY_ID=
+      # - RAZORPAY_KEY_SECRET=
+    ports:
+      - '3000:3000'
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '8080:80'
+
+volumes:
+  mongo-data:
