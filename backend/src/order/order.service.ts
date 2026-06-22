@@ -19,7 +19,6 @@ import { Rider, RiderDocument } from '../rider/rider.entity';
 import { CreateOrderDto } from './dto/order.dto';
 import { AuthUser } from '../auth/current-user.decorator';
 import { Role } from '../auth/role.enum';
-import { TrackingGateway } from '../tracking/tracking.gateway';
 import { UserService } from '../user/user.service';
 import { NotificationService } from '../notification/notification.service';
 
@@ -29,16 +28,23 @@ export class OrderService {
     @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
     @InjectModel(Store.name) private readonly storeModel: Model<StoreDocument>,
     @InjectModel(Rider.name) private readonly riderModel: Model<RiderDocument>,
-    private readonly tracking: TrackingGateway,
     private readonly users: UserService,
     private readonly notifications: NotificationService,
   ) {}
 
-  /** Persist an order and push its new status to live subscribers. */
+  /** Persist an order. Live status/location are read by clients via polling. */
   private async saveAndBroadcast(order: OrderDocument) {
     await order.save();
-    this.tracking.emitOrderStatus(String(order._id), order.status);
     return order;
+  }
+
+  /** Rider pushes their current GPS for an order; watchers read it via polling. */
+  async pushLocation(orderId: string, lat: number, lng: number) {
+    const order = await this.orderModel.findById(orderId).exec();
+    if (!order) throw new NotFoundException('Order not found');
+    order.liveLocation = { lat, lng, at: new Date() } as any;
+    await order.save();
+    return { ok: true };
   }
 
   private isPlatformAdmin(user: AuthUser) {
@@ -325,6 +331,8 @@ export class OrderService {
       .exec();
     if (!order) throw new NotFoundException('Order not found');
     const rider: any = order.rider;
+    const live = order.liveLocation;
+    const hasLive = live && live.lat != null && live.lng != null;
     return {
       orderNumber: order.orderNumber,
       status: order.status,
@@ -334,7 +342,12 @@ export class OrderService {
       dropLocation: order.dropLocation,
       timeline: order.timeline,
       riderName: rider?.user?.name ?? null,
-      riderLocation: rider?.currentLocation ?? null,
+      // GeoJSON for the map marker; prefer the live push, else the rider's last known point.
+      riderLocation: hasLive
+        ? { type: 'Point', coordinates: [live.lng, live.lat] }
+        : rider?.currentLocation ?? null,
+      // Flat shape the polling client reads for live updates.
+      liveLocation: hasLive ? { lat: live.lat, lng: live.lng, at: live.at } : null,
     };
   }
 

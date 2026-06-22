@@ -99,4 +99,14 @@ export class OrderController {
   ) {
     return this.orderService.cancel(id, dto?.reason || '', user);
   }
+
+  // Rider pushes live GPS for an order (replaces the websocket relay).
+  @Roles(Role.Rider, Role.SuperAdmin, Role.Admin)
+  @Post(':id/location')
+  pushLocation(
+    @Param('id') id: string,
+    @Body() body: { lat: number; lng: number },
+  ) {
+    return this.orderService.pushLocation(id, Number(body.lat), Number(body.lng));
+  }
 }

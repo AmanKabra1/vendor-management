@@ -9,6 +9,10 @@ export class LoadingInterceptor implements HttpInterceptor {
   constructor(private loading: LoadingService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
+    // Don't flash the bar for background tracking polls (every few seconds).
+    const isPoll = /\/track\//.test(req.url) || /\/location$/.test(req.url);
+    if (isPoll) return next.handle(req);
+
     this.loading.start();
     return next.handle(req).pipe(finalize(() => this.loading.stop()));
   }

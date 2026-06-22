@@ -103,6 +103,19 @@ export class TimelineEntry {
 const TimelineEntrySchema = SchemaFactory.createForClass(TimelineEntry);
 
 @Schema({ _id: false })
+export class LiveLocation {
+  @Prop({ default: null })
+  lat: number;
+
+  @Prop({ default: null })
+  lng: number;
+
+  @Prop({ default: null })
+  at: Date;
+}
+const LiveLocationSchema = SchemaFactory.createForClass(LiveLocation);
+
+@Schema({ _id: false })
 export class OrderRating {
   @Prop({ default: 0 })
   byStore: number;
@@ -193,6 +206,10 @@ export class Order {
 
   @Prop({ type: OrderRatingSchema, default: () => ({}) })
   rating: OrderRating;
+
+  // Latest rider GPS, updated by polling instead of websockets.
+  @Prop({ type: LiveLocationSchema, default: () => ({}) })
+  liveLocation: LiveLocation;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
