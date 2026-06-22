@@ -37,7 +37,12 @@ import { AuthService } from '../shared/auth.service';
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Password</label>
-                  <input class="form-control" type="password" name="password" [(ngModel)]="password" placeholder="••••••" required />
+                  <div class="input-group">
+                    <input class="form-control" [type]="showPw ? 'text' : 'password'" name="password" [(ngModel)]="password" placeholder="••••••" required />
+                    <button class="btn btn-outline-secondary" type="button" (click)="showPw = !showPw" [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
+                      {{ showPw ? '🙈' : '👁️' }}
+                    </button>
+                  </div>
                 </div>
                 <button class="btn btn-primary w-100 py-2" [disabled]="loading">
                   {{ loading ? 'Signing in…' : 'Sign In' }}
@@ -62,6 +67,7 @@ import { AuthService } from '../shared/auth.service';
 export class LoginComponent {
   email = '';
   password = '';
+  showPw = false;
   error = '';
   loading = false;
 

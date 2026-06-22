@@ -38,7 +38,12 @@ import { AuthService, UserRole } from '../shared/auth.service';
             </div>
             <div class="mb-3">
               <label class="form-label">Password</label>
-              <input class="form-control" type="password" name="password" [(ngModel)]="form.password" required />
+              <div class="input-group">
+                <input class="form-control" [type]="showPw ? 'text' : 'password'" name="password" [(ngModel)]="form.password" required />
+                <button class="btn btn-outline-secondary" type="button" (click)="showPw = !showPw" [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
+                  {{ showPw ? '🙈' : '👁️' }}
+                </button>
+              </div>
             </div>
             <button class="btn btn-primary w-100" [disabled]="loading">
               {{ loading ? 'Creating…' : 'Register' }}
@@ -71,6 +76,7 @@ export class RegisterComponent {
     password: '',
     role: 'store_owner',
   };
+  showPw = false;
   error = '';
   loading = false;
 
