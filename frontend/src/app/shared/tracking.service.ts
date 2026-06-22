@@ -13,7 +13,7 @@ export interface LiveLocation {
 @Injectable({ providedIn: 'root' })
 export class TrackingService {
   private socket?: Socket;
-  private readonly url = `${environment.apiUrl}/tracking`;
+  private readonly url = `${environment.apiUrl.replace(/\/+$/, '')}/tracking`;
 
   constructor(private auth: AuthService) {}
 

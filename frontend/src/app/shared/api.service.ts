@@ -5,7 +5,8 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = environment.apiUrl;
+  // Trim any trailing slash so endpoints don't produce a double `//`.
+  private baseUrl = environment.apiUrl.replace(/\/+$/, '');
 
   constructor(private http: HttpClient) {}
 
