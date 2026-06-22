@@ -26,9 +26,11 @@ export interface PickedLocation {
         <button class="btn btn-outline-secondary text-nowrap" type="button" (click)="gps()" [disabled]="busy">📍 GPS</button>
       </div>
       <div class="d-flex gap-2 align-items-center">
-        <!-- Auto-detected coordinates: shown for transparency, not hand-editable. -->
-        <input class="form-control form-control-sm bg-light text-muted" style="max-width:120px" [value]="lat ?? ''" readonly placeholder="Lat" title="Set by address search or GPS">
-        <input class="form-control form-control-sm bg-light text-muted" style="max-width:120px" [value]="lng ?? ''" readonly placeholder="Lng" title="Set by address search or GPS">
+        <!-- Auto-filled by search/GPS, but editable so users can fine-tune. -->
+        <input type="number" step="any" class="form-control form-control-sm" style="max-width:120px"
+               [(ngModel)]="lat" name="locLat" (ngModelChange)="emit()" placeholder="Lat" title="Latitude — set by search/GPS or edit manually">
+        <input type="number" step="any" class="form-control form-control-sm" style="max-width:120px"
+               [(ngModel)]="lng" name="locLng" (ngModelChange)="emit()" placeholder="Lng" title="Longitude — set by search/GPS or edit manually">
         <span class="small" [class.text-success]="ok" [class.text-danger]="err">{{ msg }}</span>
       </div>
     </div>

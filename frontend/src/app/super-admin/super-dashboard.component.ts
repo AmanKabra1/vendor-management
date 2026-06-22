@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 
-type Tab = 'overview' | 'stores' | 'riders' | 'orders' | 'vendors';
+type Tab = 'overview' | 'stores' | 'riders' | 'suppliers' | 'orders' | 'vendors';
 
 @Component({
   selector: 'app-super-dashboard',
@@ -31,6 +31,7 @@ type Tab = 'overview' | 'stores' | 'riders' | 'orders' | 'vendors';
           {{ t.label }}
           <span class="badge bg-warning text-dark ms-1" *ngIf="t.key==='stores' && pendingStores.length">{{ pendingStores.length }}</span>
           <span class="badge bg-warning text-dark ms-1" *ngIf="t.key==='riders' && pendingRiders.length">{{ pendingRiders.length }}</span>
+          <span class="badge bg-warning text-dark ms-1" *ngIf="t.key==='suppliers' && pendingSuppliers.length">{{ pendingSuppliers.length }}</span>
         </a>
       </li>
     </ul>
@@ -58,6 +59,18 @@ type Tab = 'overview' | 'stores' | 'riders' | 'orders' | 'vendors';
               <button class="btn btn-sm btn-success" (click)="approveRider(r)">Approve</button>
             </li>
             <li class="list-group-item text-muted text-center" *ngIf="!pendingRiders.length">All clear 🎉</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 h-100">
+          <div class="card-header d-flex justify-content-between"><span>Suppliers awaiting approval</span><span class="badge bg-warning text-dark">{{ pendingSuppliers.length }}</span></div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let u of pendingSuppliers">
+              <div><div class="fw-semibold">{{ u.name }}</div><small class="text-muted">{{ u.role }} · {{ u.email }}</small></div>
+              <div><button class="btn btn-sm btn-success me-1" (click)="approveSupplier(u)">Approve</button><button class="btn btn-sm btn-outline-danger" (click)="rejectSupplier(u)">Reject</button></div>
+            </li>
+            <li class="list-group-item text-muted text-center" *ngIf="!pendingSuppliers.length">All clear 🎉</li>
           </ul>
         </div>
       </div>
@@ -97,6 +110,28 @@ type Tab = 'overview' | 'stores' | 'riders' | 'orders' | 'vendors';
               <td class="text-end"><button class="btn btn-sm btn-success" *ngIf="!r.isApproved" (click)="approveRider(r)">Approve</button></td>
             </tr>
             <tr *ngIf="!riders.length"><td colspan="6" class="text-center text-muted py-3">No riders.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUPPLIERS (wholesalers & distributors) -->
+    <div *ngIf="tab==='suppliers'" class="card border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr><th>Name</th><th>Role</th><th>Email</th><th>Phone</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let u of suppliers">
+              <td class="fw-semibold">{{ u.name }}</td>
+              <td><span class="badge bg-light text-dark text-capitalize">{{ u.role }}</span></td>
+              <td>{{ u.email }}</td><td>{{ u.phone || '—' }}</td>
+              <td><span class="badge" [ngClass]="u.isApproved?'bg-success':'bg-warning text-dark'">{{ u.isApproved?'Approved':'Pending' }}</span></td>
+              <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-success me-1" *ngIf="!u.isApproved" (click)="approveSupplier(u)">Approve</button>
+                <button class="btn btn-sm btn-outline-danger" *ngIf="u.isApproved" (click)="rejectSupplier(u)">Revoke</button>
+              </td>
+            </tr>
+            <tr *ngIf="!suppliers.length"><td colspan="6" class="text-center text-muted py-3">No suppliers.</td></tr>
           </tbody>
         </table>
       </div>
@@ -149,12 +184,14 @@ export class SuperDashboardComponent implements OnInit {
     { key: 'overview', label: 'Overview' },
     { key: 'stores', label: 'Stores' },
     { key: 'riders', label: 'Riders' },
+    { key: 'suppliers', label: 'Suppliers' },
     { key: 'orders', label: 'Orders' },
     { key: 'vendors', label: 'Vendors' },
   ];
 
   stores: any[] = [];
   riders: any[] = [];
+  suppliers: any[] = [];
   orders: any[] = [];
   vendors: any[] = [];
   orderStats: any = { total: 0, byStatus: {} };
@@ -168,6 +205,7 @@ export class SuperDashboardComponent implements OnInit {
   load() {
     this.api.get('stores').subscribe((s) => (this.stores = s));
     this.api.get('riders').subscribe((r) => (this.riders = r));
+    this.api.get('users/suppliers').subscribe((u) => (this.suppliers = u));
     this.api.get('orders').subscribe((o) => (this.orders = o));
     this.api.get('orders/stats').subscribe((s) => (this.orderStats = s));
     this.api.get('vendors').subscribe((v) => (this.vendors = v));
@@ -175,6 +213,7 @@ export class SuperDashboardComponent implements OnInit {
 
   get pendingStores() { return this.stores.filter((s) => s.status === 'PENDING'); }
   get pendingRiders() { return this.riders.filter((r) => !r.isApproved); }
+  get pendingSuppliers() { return this.suppliers.filter((u) => !u.isApproved); }
 
   get statCards() {
     return [
@@ -185,10 +224,31 @@ export class SuperDashboardComponent implements OnInit {
     ];
   }
 
-  approveStore(s: any) { this.api.patch(`stores/${s.id}/approve`).subscribe(() => this.load()); }
+  // Update the row immediately so the button responds instantly, then call the
+  // API in the background and revert only if it fails. No full re-fetch.
+  approveStore(s: any) {
+    const prev = s.status;
+    s.status = 'APPROVED';
+    this.api.patch(`stores/${s.id}/approve`).subscribe({ error: () => (s.status = prev) });
+  }
   rejectStore(s: any) {
     const reason = prompt('Reason for rejection?') || '';
-    this.api.patch(`stores/${s.id}/reject`, { reason }).subscribe(() => this.load());
+    const prev = s.status;
+    s.status = 'REJECTED';
+    this.api.patch(`stores/${s.id}/reject`, { reason }).subscribe({ error: () => (s.status = prev) });
   }
-  approveRider(r: any) { this.api.patch(`riders/${r.id}/approve`).subscribe(() => this.load()); }
+  approveRider(r: any) {
+    r.isApproved = true;
+    this.api.patch(`riders/${r.id}/approve`).subscribe({ error: () => (r.isApproved = false) });
+  }
+  approveSupplier(u: any) {
+    u.isApproved = true;
+    this.api.patch(`users/${u.id}/approve`).subscribe({ error: () => (u.isApproved = false) });
+  }
+  rejectSupplier(u: any) {
+    const reason = prompt('Reason for rejection?') || '';
+    const prev = u.isApproved;
+    u.isApproved = false;
+    this.api.patch(`users/${u.id}/reject`, { reason }).subscribe({ error: () => (u.isApproved = prev) });
+  }
 }

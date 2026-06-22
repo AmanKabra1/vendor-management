@@ -75,6 +75,19 @@ export class NotificationService {
     );
   }
 
+  rejected(to: string, name: string, what: string, reason = '') {
+    this.send(
+      to,
+      `Your ${what} could not be approved`,
+      this.wrap(
+        'Application update',
+        `Hi ${name}, your ${what} was not approved.${
+          reason ? ` Reason: ${reason}.` : ''
+        } You can update your details and reach out to support to re-apply.`,
+      ),
+    );
+  }
+
   orderAssigned(to: string, riderName: string, orderNumber: string) {
     this.send(
       to,

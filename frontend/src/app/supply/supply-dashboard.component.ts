@@ -11,8 +11,17 @@ import { AuthService } from '../shared/auth.service';
       {{ auth.isSupplier ? 'List your products and fulfil incoming restock orders.' : 'Restock your shop from wholesalers & distributors.' }}
     </p>
 
+    <!-- ============ SUPPLIER: awaiting approval ============ -->
+    <div *ngIf="auth.isSupplier && !auth.currentUser?.isApproved" class="alert alert-warning d-flex align-items-center gap-2">
+      <span style="font-size:1.4rem">⏳</span>
+      <div>
+        <div class="fw-semibold">Your supplier account is awaiting admin approval.</div>
+        <small>You'll be able to list products and receive restock orders once an admin approves your account. We'll email you when that happens.</small>
+      </div>
+    </div>
+
     <!-- ============ SUPPLIER: my catalog ============ -->
-    <div *ngIf="auth.isSupplier" class="row g-4 mb-4">
+    <div *ngIf="auth.isSupplier && auth.currentUser?.isApproved" class="row g-4 mb-4">
       <div class="col-lg-5">
         <div class="card border-0">
           <div class="card-header">Add a product</div>
@@ -55,8 +64,8 @@ import { AuthService } from '../shared/auth.service';
       </div>
     </div>
 
-    <!-- ============ BUYER: browse & order ============ -->
-    <div *ngIf="auth.isSupplyParticipant" class="row g-4 mb-4">
+    <!-- ============ BUYER: browse & order (suppliers must be approved) ============ -->
+    <div *ngIf="auth.isSupplyParticipant && (!auth.isSupplier || auth.currentUser?.isApproved)" class="row g-4 mb-4">
       <div class="col-lg-4">
         <div class="card border-0">
           <div class="card-header">Suppliers</div>

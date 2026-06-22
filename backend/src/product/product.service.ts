@@ -36,9 +36,9 @@ export class ProductService {
       .exec();
   }
 
-  /** All suppliers a buyer can order from. */
+  /** Suppliers a buyer can order from — admin-approved only. */
   listSuppliers() {
-    return this.users.findByRoles([Role.Wholesaler, Role.Distributor]);
+    return this.users.findByRoles([Role.Wholesaler, Role.Distributor], true);
   }
 
   async update(id: string, dto: UpdateProductDto, user: AuthUser) {

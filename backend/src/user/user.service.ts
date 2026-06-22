@@ -32,11 +32,29 @@ export class UserService {
       .exec();
   }
 
-  /** List users of given role(s) — used to discover suppliers (wholesalers/distributors). */
-  findByRoles(roles: string[]) {
+  /**
+   * List users of given role(s) — used to discover suppliers (wholesalers/distributors).
+   * Pass approvedOnly=true so buyers only see admin-approved suppliers.
+   */
+  findByRoles(roles: string[], approvedOnly = false) {
+    const filter: Record<string, unknown> = { role: { $in: roles } };
+    if (approvedOnly) filter.isApproved = true;
+    return this.userModel.find(filter).select('name email role phone').exec();
+  }
+
+  /** Full supplier list for the admin console, including approval status. */
+  findSuppliersForAdmin(roles: string[]) {
     return this.userModel
       .find({ role: { $in: roles } })
-      .select('name email role phone')
+      .select('name email role phone isApproved isActive createdAt')
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
+  /** SuperAdmin approves/rejects a user account (gates suppliers, store owners…). */
+  setApproval(id: string, approved: boolean) {
+    return this.userModel
+      .findByIdAndUpdate(id, { isApproved: approved }, { new: true })
       .exec();
   }
 }

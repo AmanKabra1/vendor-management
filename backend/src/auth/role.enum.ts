@@ -13,4 +13,12 @@ export enum Role {
 }
 
 // Roles that require SuperAdmin approval before they can operate.
-export const APPROVAL_REQUIRED_ROLES: Role[] = [Role.StoreOwner, Role.Rider];
+export const APPROVAL_REQUIRED_ROLES: Role[] = [
+  Role.StoreOwner,
+  Role.Rider,
+  Role.Wholesaler,
+  Role.Distributor,
+];
+
+// Supplier roles an admin reviews on the "Suppliers" tab.
+export const SUPPLIER_ROLES: Role[] = [Role.Wholesaler, Role.Distributor];
