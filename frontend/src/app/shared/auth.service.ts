@@ -132,6 +132,7 @@ export class AuthService {
     password: string;
     role?: UserRole;
     phone?: string;
+    landline?: string;
     vendorCode?: string;
   }): Observable<AuthResponse> {
     return this.api

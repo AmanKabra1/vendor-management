@@ -51,6 +51,9 @@ export class User {
   phone: string;
 
   @Prop({ default: '' })
+  landline: string;
+
+  @Prop({ default: '' })
   avatar: string;
 
   // Email/phone/identity verified.

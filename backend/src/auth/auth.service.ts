@@ -74,6 +74,7 @@ export class AuthService {
       password: hash,
       name: dto.name,
       phone: dto.phone ?? '',
+      landline: dto.landline ?? '',
       role,
       // Store owners & riders await SuperAdmin approval; others are auto-approved.
       isApproved: !APPROVAL_REQUIRED_ROLES.includes(role),

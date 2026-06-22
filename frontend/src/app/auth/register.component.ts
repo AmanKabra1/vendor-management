@@ -33,9 +33,15 @@ import { AuthService, UserRole } from '../shared/auth.service';
               <input class="form-control" type="email" name="email" [(ngModel)]="form.email" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Phone</label>
-              <input class="form-control" name="phone" [(ngModel)]="form.phone" />
+              <app-phone-input label="Mobile" name="phone" placeholder="Mobile number"
+                (valueChange)="form.phone=$event" (validChange)="phoneValid=$event"></app-phone-input>
             </div>
+            <div class="mb-3">
+              <app-phone-input label="Landline (optional)" name="landline" placeholder="Landline number"
+                (valueChange)="form.landline=$event" (validChange)="landlineValid=$event"></app-phone-input>
+              <div class="form-text">Provide a mobile or a landline — at least one is required.</div>
+            </div>
+            <div class="alert alert-warning py-2" *ngIf="contactError">{{ contactError }}</div>
             <div class="mb-3">
               <label class="form-label">Password</label>
               <div class="input-group">
@@ -69,13 +75,17 @@ export class RegisterComponent {
     { key: 'wholesaler', label: 'Wholesaler' },
     { key: 'distributor', label: 'Distributor' },
   ];
-  form: { name: string; email: string; phone: string; password: string; role: UserRole } = {
+  form: { name: string; email: string; phone: string; landline: string; password: string; role: UserRole } = {
     name: '',
     email: '',
     phone: '',
+    landline: '',
     password: '',
     role: 'store_owner',
   };
+  phoneValid = true;
+  landlineValid = true;
+  contactError = '';
   showPw = false;
   error = '';
   loading = false;
@@ -84,6 +94,18 @@ export class RegisterComponent {
 
   submit() {
     this.error = '';
+    this.contactError = '';
+
+    // At least one contact number is required, and any entered number must be valid.
+    if (!this.form.phone && !this.form.landline) {
+      this.contactError = 'Please enter a mobile or a landline number.';
+      return;
+    }
+    if (!this.phoneValid || !this.landlineValid) {
+      this.contactError = 'Please fix the highlighted phone number.';
+      return;
+    }
+
     this.loading = true;
     this.auth
       .register({
@@ -91,6 +113,7 @@ export class RegisterComponent {
         email: this.form.email,
         password: this.form.password,
         phone: this.form.phone,
+        landline: this.form.landline,
         role: this.form.role,
       })
       .subscribe({

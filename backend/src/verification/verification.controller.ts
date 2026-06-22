@@ -12,4 +12,9 @@ export class VerificationController {
   aadhaar(@Body('aadhaar') aadhaar: string, @CurrentUser() user: AuthUser) {
     return this.verification.verifyAadhaar(aadhaar, user);
   }
+
+  @Post('digilocker')
+  digilocker(@CurrentUser() user: AuthUser) {
+    return this.verification.verifyViaDigilocker(user);
+  }
 }

@@ -22,6 +22,10 @@ export class RegisterDto {
   @IsString()
   phone?: string;
 
+  @IsOptional()
+  @IsString()
+  landline?: string;
+
   // Self-registration role. Only StoreOwner / Rider / Customer are accepted;
   // anything else (or omitted) falls back to the legacy Vendor flow.
   @IsOptional()

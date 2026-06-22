@@ -2,5 +2,5 @@
 // To change the backend URL, set the API_URL env var (e.g. in Vercel) and redeploy.
 export const environment = {
   production: true,
-  apiUrl: 'https://vendormanagement1-f6wu50kn.b4a.run',
+  apiUrl: 'http://localhost:3000/',
 };

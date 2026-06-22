@@ -62,4 +62,27 @@ export class VerificationService {
     this.logger.log(`KYC verified for user ${user.userId} (${masked})`);
     return { verified: true, aadhaarMasked: masked };
   }
+
+  /**
+   * KYC via DigiLocker. Real DigiLocker uses Meripehchaan OAuth: the user is
+   * redirected to DigiLocker, consents, and we exchange the returned code for
+   * an eKYC token. That requires a registered Requester (DIGILOCKER_CLIENT_ID /
+   * SECRET) and a public redirect URI. Until those exist this runs in sandbox
+   * mode and returns a simulated verified result, so the flow is wired end-to-end.
+   */
+  async verifyViaDigilocker(user: AuthUser) {
+    const clientId = process.env.DIGILOCKER_CLIENT_ID;
+    if (clientId) {
+      // TODO: real flow — build the Meripehchaan authorize URL, handle the
+      // callback, exchange the code for a token, then pull eKYC/Aadhaar here.
+      throw new BadRequestException(
+        'DigiLocker live verification is not configured yet',
+      );
+    }
+
+    const masked = 'XXXX XXXX 0019'; // sandbox sample
+    await this.users.markVerified(user.userId, masked);
+    this.logger.log(`KYC verified via DigiLocker (sandbox) for user ${user.userId}`);
+    return { verified: true, provider: 'digilocker', aadhaarMasked: masked, sandbox: true };
+  }
 }

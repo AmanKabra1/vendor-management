@@ -30,6 +30,7 @@ import { LandingComponent } from './landing/landing.component';
 import { LocationPickerComponent } from './shared/location-picker.component';
 import { KycComponent } from './shared/kyc.component';
 import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
+import { PhoneInputComponent } from './shared/phone-input.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 import { LoadingInterceptor } from './shared/loading.interceptor';
@@ -57,6 +58,7 @@ import { LoadingInterceptor } from './shared/loading.interceptor';
     LocationPickerComponent,
     KycComponent,
     SupplyDashboardComponent,
+    PhoneInputComponent,
   ],
   imports: [
     BrowserModule,
