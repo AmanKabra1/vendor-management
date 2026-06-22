@@ -4,8 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 
-// Falls back to localhost so local prod builds don't break if API_URL is unset.
-const rawUrl = process.env.API_URL || 'http://localhost:3000/';
+// Use API_URL when set (e.g. on Vercel); otherwise fall back to the deployed
+// backend so a build without the env var still points at production, not localhost.
+const DEFAULT_API_URL = 'https://vendormanagement-qwzydmup.b4a.run';
+const rawUrl = process.env.API_URL || DEFAULT_API_URL;
 // Ensure exactly one trailing slash (the app joins paths onto apiUrl).
 const apiUrl = rawUrl.replace(/\/+$/, '') + '/';
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 
 interface Country {
   iso: string;
@@ -55,10 +55,12 @@ export const COUNTRIES: Country[] = [
     </div>
   `,
 })
-export class PhoneInputComponent {
+export class PhoneInputComponent implements OnChanges {
   @Input() label = '';
   @Input() name = 'phone';
   @Input() placeholder = 'Number';
+  /** Full number (e.g. "+919876543210") to prefill / reset from a parent value. */
+  @Input() value = '';
   @Output() valueChange = new EventEmitter<string>();
   @Output() validChange = new EventEmitter<boolean>();
 
@@ -66,6 +68,36 @@ export class PhoneInputComponent {
   country: Country = COUNTRIES[0];
   number = '';
   touched = false;
+  private lastEmitted = '';
+
+  // React to external value changes (prefill or reset), but ignore the echo of
+  // our own emitted value so typing doesn't get re-parsed mid-edit.
+  ngOnChanges() {
+    const incoming = this.normalize(this.value);
+    if (incoming === this.lastEmitted) return;
+    this.parse(incoming);
+  }
+
+  private normalize(v: string) {
+    return (v || '').replace(/[^\d+]/g, '');
+  }
+
+  private parse(full: string) {
+    if (!full) {
+      this.number = '';
+      return;
+    }
+    // Match the longest dial code that prefixes the value (e.g. +91 before +9).
+    const match = [...COUNTRIES]
+      .sort((a, b) => b.dial.length - a.dial.length)
+      .find((c) => full.startsWith(c.dial));
+    if (match) {
+      this.country = match;
+      this.number = full.slice(match.dial.length).slice(0, match.max);
+    } else {
+      this.number = full.replace(/\D/g, '').slice(0, this.country.max);
+    }
+  }
 
   get valid(): boolean {
     if (!this.number) return true; // empty = optional
@@ -88,7 +120,9 @@ export class PhoneInputComponent {
 
   onChange() {
     this.touched = true;
-    this.valueChange.emit(this.number ? `${this.country.dial}${this.number}` : '');
+    const out = this.number ? `${this.country.dial}${this.number}` : '';
+    this.lastEmitted = this.normalize(out);
+    this.valueChange.emit(out);
     this.validChange.emit(this.valid);
   }
 }

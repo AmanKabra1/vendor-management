@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { apiBaseUrl } from './api-url';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // Trim any trailing slash so endpoints don't produce a double `//`.
-  private baseUrl = environment.apiUrl.replace(/\/+$/, '');
+  // Runtime override (localStorage) or the build-time URL; no trailing slash.
+  private baseUrl = apiBaseUrl();
 
   constructor(private http: HttpClient) {}
 

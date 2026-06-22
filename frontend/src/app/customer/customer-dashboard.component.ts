@@ -57,7 +57,10 @@ import { PaymentService } from '../shared/payment.service';
             </div>
             <button class="btn btn-sm btn-outline-secondary mb-3" (click)="items.push({name:'',quantity:1,price:0})">+ Add item</button>
 
-            <input class="form-control mb-2" placeholder="Contact phone" [(ngModel)]="phone" name="phone">
+            <div class="mb-2">
+              <app-phone-input name="custPhone" placeholder="Contact phone" [value]="phone"
+                (valueChange)="phone=$event"></app-phone-input>
+            </div>
             <button class="btn btn-primary w-100" [disabled]="!picked || placing" (click)="placeOrder()">
               {{ placing ? 'Placing…' : 'Place order (COD)' }}
             </button>

@@ -48,7 +48,10 @@ import { TrackingService } from '../shared/tracking.service';
           <div class="card-header bg-white fw-semibold">New delivery order</div>
           <div class="card-body">
             <input class="form-control mb-2" placeholder="Customer name" [(ngModel)]="orderForm.cname">
-            <input class="form-control mb-2" placeholder="Customer phone" [(ngModel)]="orderForm.cphone">
+            <div class="mb-2">
+              <app-phone-input name="cphone" placeholder="Customer phone" [value]="orderForm.cphone"
+                (valueChange)="orderForm.cphone=$event"></app-phone-input>
+            </div>
             <input class="form-control mb-2" placeholder="Drop address" [(ngModel)]="orderForm.caddr">
             <input class="form-control mb-2" placeholder="Item" [(ngModel)]="orderForm.item">
             <input class="form-control mb-2" placeholder="Amount" type="number" [(ngModel)]="orderForm.amount">

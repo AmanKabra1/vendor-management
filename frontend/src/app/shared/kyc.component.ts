@@ -8,9 +8,9 @@ import { AuthService } from './auth.service';
   template: `
     <div class="card border-0 mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Identity verification (KYC)</span>
-        <span class="badge" [ngClass]="verified ? 'bg-success' : 'bg-warning text-dark'">
-          {{ verified ? 'Verified' : 'Not verified' }}
+        <span>Identity verification (KYC) <span class="text-muted small">· optional</span></span>
+        <span class="badge" [ngClass]="verified ? 'bg-success' : 'bg-secondary'">
+          {{ verified ? 'Verified' : 'Optional' }}
         </span>
       </div>
       <div class="card-body">

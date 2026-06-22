@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { AuthService } from './auth.service';
-import { environment } from '../../environments/environment';
+import { apiBaseUrl } from './api-url';
 
 export interface LiveLocation {
   orderId: string;
@@ -13,7 +13,7 @@ export interface LiveLocation {
 @Injectable({ providedIn: 'root' })
 export class TrackingService {
   private socket?: Socket;
-  private readonly url = `${environment.apiUrl.replace(/\/+$/, '')}/tracking`;
+  private readonly url = `${apiBaseUrl()}/tracking`;
 
   constructor(private auth: AuthService) {}
 
