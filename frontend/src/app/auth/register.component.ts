@@ -37,8 +37,9 @@ import { AuthService, UserRole } from '../shared/auth.service';
                 (valueChange)="form.phone=$event" (validChange)="phoneValid=$event"></app-phone-input>
             </div>
             <div class="mb-3">
-              <app-phone-input label="Landline (optional)" name="landline" placeholder="Landline number"
-                (valueChange)="form.landline=$event" (validChange)="landlineValid=$event"></app-phone-input>
+              <label class="form-label">Landline (optional)</label>
+              <input class="form-control" name="landline" inputmode="numeric"
+                placeholder="STD code + number, e.g. 011 23456789" [(ngModel)]="form.landline">
               <div class="form-text">Provide a mobile or a landline — at least one is required.</div>
             </div>
             <div class="alert alert-warning py-2" *ngIf="contactError">{{ contactError }}</div>
