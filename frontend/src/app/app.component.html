@@ -1,1 +1,4 @@
+<!-- Global activity bar: shows whenever any HTTP request is in flight, so a slow
+     request (e.g. backend waking up) doesn't look like a frozen click. -->
+<div class="global-loading-bar" *ngIf="loading.loading$ | async"></div>
 <router-outlet></router-outlet>

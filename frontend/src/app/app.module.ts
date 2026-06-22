@@ -32,6 +32,7 @@ import { KycComponent } from './shared/kyc.component';
 import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
+import { LoadingInterceptor } from './shared/loading.interceptor';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { AuthInterceptor } from './shared/auth.interceptor';
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

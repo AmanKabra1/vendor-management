@@ -1,0 +1,17 @@
+// Global activity bar — a thin indeterminate progress strip pinned to the top.
+.global-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 2000;
+  background: linear-gradient(90deg, #0d6efd 0%, #6ea8fe 50%, #0d6efd 100%);
+  background-size: 200% 100%;
+  animation: global-loading-slide 1s linear infinite;
+}
+
+@keyframes global-loading-slide {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
