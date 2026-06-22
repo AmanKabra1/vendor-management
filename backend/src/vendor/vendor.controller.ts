@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { Vendor } from './vendor.entity';
-import { PerformanceService } from 'src/performance/performance.service';
+import { PerformanceService } from '../performance/performance.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
