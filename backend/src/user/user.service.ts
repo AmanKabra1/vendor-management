@@ -25,6 +25,13 @@ export class UserService {
     return this.userModel.countDocuments().exec();
   }
 
+  /** Mark a user identity-verified after successful KYC. */
+  markVerified(id: string, aadhaarMasked: string) {
+    return this.userModel
+      .findByIdAndUpdate(id, { isVerified: true, aadhaarMasked }, { new: true })
+      .exec();
+  }
+
   /** List users of given role(s) — used to discover suppliers (wholesalers/distributors). */
   findByRoles(roles: string[]) {
     return this.userModel

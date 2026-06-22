@@ -57,6 +57,10 @@ export class User {
   @Prop({ default: false })
   isVerified: boolean;
 
+  // Masked Aadhaar after KYC (e.g. "XXXX XXXX 1234"); we never store the full number.
+  @Prop({ default: '' })
+  aadhaarMasked: string;
+
   // SuperAdmin has approved this account (gates store owners & riders).
   @Prop({ default: false })
   isApproved: boolean;

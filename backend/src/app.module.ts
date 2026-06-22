@@ -14,6 +14,7 @@ import { ChatModule } from './chat/chat.module';
 import { ProductModule } from './product/product.module';
 import { SupplyOrderModule } from './supply-order/supply-order.module';
 import { PaymentModule } from './payment/payment.module';
+import { VerificationModule } from './verification/verification.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PaymentModule } from './payment/payment.module';
     ProductModule,
     SupplyOrderModule,
     PaymentModule,
+    VerificationModule,
     VendorModule,
     PurchaseOrderModule,
     PerformanceModule,

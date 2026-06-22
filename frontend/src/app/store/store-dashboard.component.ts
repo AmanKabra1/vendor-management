@@ -9,6 +9,9 @@ import { TrackingService } from '../shared/tracking.service';
   template: `
     <h3 class="mb-4">My Store &amp; Orders</h3>
 
+    <app-kyc></app-kyc>
+
+
     <!-- No store yet -->
     <div *ngIf="!stores.length" class="card border-0 shadow-sm mb-4">
       <div class="card-header bg-white fw-semibold">Create your store</div>

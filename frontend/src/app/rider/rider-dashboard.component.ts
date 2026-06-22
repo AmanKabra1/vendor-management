@@ -8,6 +8,9 @@ import { TrackingService } from '../shared/tracking.service';
   template: `
     <h3 class="mb-4">Rider Hub</h3>
 
+    <app-kyc></app-kyc>
+
+
     <!-- No profile yet -->
     <div *ngIf="!rider" class="card border-0 shadow-sm mb-4" style="max-width:560px">
       <div class="card-header bg-white fw-semibold">Set up your rider profile</div>

@@ -14,8 +14,9 @@ export class NotificationService {
   private from = '';
 
   constructor() {
-    const user = process.env.GMAIL_USER;
-    const pass = process.env.GMAIL_APP_PASSWORD;
+    const user = (process.env.GMAIL_USER || '').trim();
+    // Google shows app passwords as "abcd efgh ijkl mnop" — strip any spaces.
+    const pass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
     if (user && pass) {
       this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -24,7 +25,13 @@ export class NotificationService {
         auth: { user, pass },
       });
       this.from = `RideFleet <${user}>`;
-      this.logger.log(`Email enabled (Gmail SMTP as ${user})`);
+      // Surface credential problems at startup instead of failing silently later.
+      this.transporter
+        .verify()
+        .then(() => this.logger.log(`Email enabled (Gmail SMTP as ${user})`))
+        .catch((e) =>
+          this.logger.error(`Email NOT working — Gmail rejected the credentials: ${e.message}`),
+        );
     } else {
       this.logger.warn('Email disabled — set GMAIL_USER and GMAIL_APP_PASSWORD to enable');
     }
