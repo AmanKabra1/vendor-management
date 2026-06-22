@@ -5,8 +5,14 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  // Root + /health both return 200 so uptime monitors (UptimeRobot) don't see a 404.
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  root() {
+    return this.appService.health();
+  }
+
+  @Get('health')
+  health() {
+    return this.appService.health();
   }
 }

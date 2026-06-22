@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { VendorModule } from './vendor/vendor.module';
 import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
 import { PerformanceModule } from './performance/performance.module';
@@ -39,5 +41,7 @@ import { VerificationModule } from './verification/verification.module';
     PurchaseOrderModule,
     PerformanceModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
