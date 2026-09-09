@@ -11,6 +11,14 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
+    // Declared explicitly rather than relying on TypeScript's automatic @types
+    // discovery, which walks up from the *current directory*. An editor opened
+    // at the repo root finds no node_modules there, so jest's `describe`/`expect`
+    // and node's `process` came up as "Cannot find name" in the IDE even though
+    // `tsc -p` from this folder was clean. Listing them here resolves relative
+    // to this tsconfig, so it works whatever the editor's working directory is.
+    "types": ["jest", "node"],
+    "typeRoots": ["./node_modules/@types"],
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
