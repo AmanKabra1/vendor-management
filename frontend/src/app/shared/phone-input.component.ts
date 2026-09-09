@@ -44,8 +44,13 @@ export const COUNTRIES: Country[] = [
   template: `
     <label class="form-label" *ngIf="label">{{ label }}</label>
     <div class="input-group">
-      <select class="form-select flex-grow-0" style="max-width:130px" [(ngModel)]="country" [name]="name + 'Cc'" (ngModelChange)="onChange()">
-        <option *ngFor="let c of countries" [ngValue]="c">{{ c.iso }} {{ c.dial }}</option>
+      <!-- Dial code first, so the code itself is what you read at a glance;
+           the country ISO follows it. Bootstrap gives .input-group selects
+           width:1%, so an explicit basis is needed or the box collapses to
+           just its arrow. -->
+      <select class="form-select cc-select" [(ngModel)]="country" [name]="name + 'Cc'"
+              (ngModelChange)="onChange()" aria-label="Country dialling code">
+        <option *ngFor="let c of countries" [ngValue]="c">{{ c.dial }} {{ c.iso }}</option>
       </select>
       <input class="form-control" [name]="name" inputmode="numeric" [maxlength]="country.max"
              [(ngModel)]="number" (ngModelChange)="onInput($event)" [placeholder]="placeholder">
@@ -54,6 +59,16 @@ export const COUNTRIES: Country[] = [
       Enter a valid {{ country.name }} number ({{ lengthHint }} digits).
     </div>
   `,
+  styles: [
+    `
+      .cc-select {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 104px;
+        font-variant-numeric: tabular-nums;
+      }
+    `,
+  ],
 })
 export class PhoneInputComponent implements OnChanges {
   @Input() label = '';

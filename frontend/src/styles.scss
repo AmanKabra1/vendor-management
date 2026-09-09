@@ -211,7 +211,7 @@ body.rf-lite .rf-lite-note { display: block; }
 }
 .rf-sos-hero h3 { color: #fff; margin: 0; }
 .rf-sos-hero p { margin: .35rem 0 0; color: rgba(255,255,255,.85); font-size: .93rem; }
-.rf-sos-grid { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.rf-sos-grid { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); }
 /* A helpline is one big number and one big tap — nothing else. */
 .rf-sos-call {
   display: flex; align-items: center; gap: .7rem; text-decoration: none;
@@ -219,9 +219,20 @@ body.rf-lite .rf-lite-note { display: block; }
   border: 2px solid var(--rf-danger-bg); color: var(--rf-ink); min-height: 68px;
 }
 .rf-sos-call:hover { border-color: #dc2626; color: var(--rf-ink); }
-.rf-sos-call-ic { font-size: 26px; line-height: 1; }
-.rf-sos-num { font-size: 1.3rem; font-weight: 800; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
-.rf-sos-name { font-size: .8rem; color: var(--rf-muted); line-height: 1.25; }
+/* min-width:0 lets the label wrap instead of forcing the flex row wider. */
+.rf-sos-call > span { min-width: 0; }
+.rf-sos-call-ic { font-size: 26px; line-height: 1; flex: 0 0 auto; }
+/* Number over label, not beside it — as plain inline spans these ran together
+   and read "112Emergency (all services)". */
+.rf-sos-num {
+  display: block; font-size: 1.3rem; font-weight: 800; letter-spacing: .02em;
+  line-height: 1.15; font-variant-numeric: tabular-nums;
+}
+.rf-sos-name {
+  display: block; font-size: .8rem; color: var(--rf-muted); line-height: 1.25;
+  /* Long labels wrap instead of being clipped by the card. */
+  overflow-wrap: anywhere;
+}
 .rf-tip {
   display: flex; gap: .6rem; padding: .7rem .85rem; border-radius: 12px;
   background: var(--rf-warn-bg); color: #78350f; font-size: .88rem; margin-bottom: .5rem;
