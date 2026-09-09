@@ -60,6 +60,40 @@ import { TrackingService } from '../shared/tracking.service';
         </div>
       </div>
 
+      <!-- Help requests nearby -----------------------------------------
+           A rider is already out on the road with a vehicle and a phone, so
+           they are often the fastest responder in a small town. Shown only
+           when something is actually open, so it never becomes noise. -->
+      <div class="card border-0 shadow-sm mb-4" *ngIf="sosAlerts.length">
+        <div class="card-header bg-danger text-white fw-semibold d-flex justify-content-between">
+          <span>🆘 {{ 'sos.alerts' | t }}</span>
+          <span class="badge bg-light text-danger">{{ sosAlerts.length }}</span>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between align-items-start gap-2 flex-wrap"
+              *ngFor="let a of sosAlerts">
+            <span>
+              <span class="fw-semibold">{{ a.type }}</span> — {{ a.message || '—' }}
+              <small class="d-block text-muted">
+                📍 {{ a.landmark || a.address || '—' }} · {{ a.createdAt | date: 'short' }}
+              </small>
+            </span>
+            <span class="d-flex gap-1">
+              <a class="btn btn-sm btn-call" *ngIf="a.phone || a.raisedBy?.phone"
+                 [href]="'tel:' + (a.phone || a.raisedBy?.phone)">📞</a>
+              <button class="btn btn-sm btn-outline-danger" *ngIf="a.status === 'OPEN'"
+                      (click)="ackAlert(a)">{{ 'sos.acknowledge' | t }}</button>
+              <button class="btn btn-sm btn-outline-success" (click)="resolveAlert(a)">
+                {{ 'sos.resolve' | t }}
+              </button>
+            </span>
+          </li>
+        </ul>
+        <div class="card-footer bg-white small text-muted">
+          <a routerLink="/emergency">{{ 'nav.emergency' | t }} →</a>
+        </div>
+      </div>
+
       <!-- Assigned orders -->
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white fw-semibold">My deliveries</div>
@@ -99,6 +133,8 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
   loc = { lat: 28.61, lng: 77.2 };
   locMsg = '';
   liveOrderId: string | null = null;
+  /** Open help requests near this rider (see the SOS card in the template). */
+  sosAlerts: any[] = [];
   private liveTimer: any = null;
   private liveLat = 28.61;
   private liveLng = 77.2;
@@ -157,6 +193,24 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
       }
     });
     this.api.get('orders').subscribe((o) => (this.orders = o));
+    this.loadAlerts();
+  }
+
+  /** Help requests near this rider — scoped by GPS when we have it. */
+  loadAlerts() {
+    const q = this.loc.lat ? `?lat=${this.loc.lat}&lng=${this.loc.lng}` : '';
+    this.api.get(`emergency/sos${q}`).subscribe({
+      next: (a: any) => (this.sosAlerts = (a || []).map((x: any) => ({ ...x, id: x.id ?? x._id }))),
+      error: () => (this.sosAlerts = []),
+    });
+  }
+
+  ackAlert(a: any) {
+    this.api.patch(`emergency/sos/${a.id}/acknowledge`, {}).subscribe(() => this.loadAlerts());
+  }
+
+  resolveAlert(a: any) {
+    this.api.patch(`emergency/sos/${a.id}/resolve`, {}).subscribe(() => this.loadAlerts());
   }
 
   createProfile() {

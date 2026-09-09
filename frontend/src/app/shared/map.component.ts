@@ -7,6 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as L from 'leaflet';
+import { I18nService } from './i18n.service';
 
 export interface MapMarker {
   lat: number;
@@ -39,7 +40,14 @@ export class MapComponent implements AfterViewInit, OnChanges {
   private map?: L.Map;
   private layer = L.layerGroup();
 
+  constructor(private i18n: I18nService) {}
+
   ngAfterViewInit() {
+    // Data saver: never create the map at all. CSS hides the element, but
+    // Leaflet would still download a screenful of tiles on every pan — real
+    // money on a prepaid data pack and a long wait on a weak signal.
+    if (this.i18n.lite()) return;
+
     this.map = L.map(this.mapEl.nativeElement).setView(this.center, this.zoom);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',

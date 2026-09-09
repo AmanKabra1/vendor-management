@@ -31,6 +31,11 @@ import { LocationPickerComponent } from './shared/location-picker.component';
 import { KycComponent } from './shared/kyc.component';
 import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
 import { PhoneInputComponent } from './shared/phone-input.component';
+import { EmergencyComponent } from './emergency/emergency.component';
+import { ShopDirectoryComponent } from './directory/shop-directory.component';
+import { SalesDashboardComponent } from './sales/sales-dashboard.component';
+import { TranslatePipe } from './shared/t.pipe';
+import { JoinPipe } from './shared/join.pipe';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
 import { LoadingInterceptor } from './shared/loading.interceptor';
@@ -59,6 +64,11 @@ import { LoadingInterceptor } from './shared/loading.interceptor';
     KycComponent,
     SupplyDashboardComponent,
     PhoneInputComponent,
+    EmergencyComponent,
+    ShopDirectoryComponent,
+    SalesDashboardComponent,
+    TranslatePipe,
+    JoinPipe,
   ],
   imports: [
     BrowserModule,

@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './user.entity';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
+import { ProfileController } from './profile.controller';
 
 // Global so UserService can be injected anywhere (stores/riders/orders for emails).
 @Global()
@@ -10,7 +11,7 @@ import { UserController } from './user.controller';
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  controllers: [UserController],
+  controllers: [UserController, ProfileController],
   providers: [UserService],
   exports: [UserService],
 })

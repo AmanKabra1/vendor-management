@@ -1,4 +1,6 @@
 import {
+  IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -12,6 +14,11 @@ export class CreateStoreDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  // Shop name in the local script (हिंदी / मराठी …).
+  @IsOptional()
+  @IsString()
+  nameLocal?: string;
 
   @IsOptional()
   @IsEnum(StoreCategory)
@@ -29,7 +36,11 @@ export class CreateStoreDto {
   @IsString()
   phone?: string;
 
-  // { street, city, state, pincode, landmark }
+  @IsOptional()
+  @IsString()
+  whatsapp?: string;
+
+  // { street, city, state, pincode, landmark, area }
   @IsOptional()
   @IsObject()
   address?: Record<string, string>;
@@ -46,4 +57,49 @@ export class CreateStoreDto {
   @IsOptional()
   @IsObject()
   operatingHours?: Record<string, any>;
+
+  @IsOptional()
+  @IsBoolean()
+  is24x7?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  closedToday?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  homeDelivery?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  acceptsUdhaar?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  emergencyService?: boolean;
+
+  @IsOptional()
+  @IsString()
+  upiId?: string;
+
+  @IsOptional()
+  @IsNumber()
+  deliveryRadiusKm?: number;
+
+  @IsOptional()
+  @IsNumber()
+  minOrderValue?: number;
+
+  @IsOptional()
+  @IsNumber()
+  deliveryChargeFlat?: number;
+
+  @IsOptional()
+  @IsArray()
+  serviceAreas?: string[];
+
+  // [{ name, nameLocal, price, unit, available }]
+  @IsOptional()
+  @IsArray()
+  priceList?: Record<string, any>[];
 }

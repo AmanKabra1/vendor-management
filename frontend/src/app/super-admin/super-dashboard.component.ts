@@ -1,7 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 
-type Tab = 'overview' | 'stores' | 'riders' | 'suppliers' | 'orders' | 'vendors';
+type Tab =
+  | 'overview'
+  | 'stores'
+  | 'riders'
+  | 'suppliers'
+  | 'orders'
+  | 'emergency'
+  | 'vendors';
+
+/** Emergency contact types an admin can file a local number under. */
+const EMERGENCY_TYPES = [
+  { key: 'AMBULANCE', label: '🚑 Ambulance' },
+  { key: 'HOSPITAL', label: '🏥 Hospital' },
+  { key: 'CHEMIST_24X7', label: '💊 24x7 chemist' },
+  { key: 'BLOOD_BANK', label: '🩸 Blood bank' },
+  { key: 'FIRE_BRIGADE', label: '🚒 Fire brigade' },
+  { key: 'POLICE', label: '👮 Police' },
+  { key: 'GAS_LEAK', label: '🔥 Gas leak' },
+  { key: 'ELECTRICITY', label: '⚡ Electricity' },
+  { key: 'WATER_TANKER', label: '🚰 Water tanker' },
+  { key: 'VETERINARY', label: '🐄 Veterinary' },
+  { key: 'WOMEN_HELPLINE', label: '👩 Women helpline' },
+  { key: 'CHILD_HELPLINE', label: '🧒 Child helpline' },
+  { key: 'DISASTER', label: '🌊 Disaster cell' },
+  { key: 'MUNICIPALITY', label: '🏛️ Municipality' },
+  { key: 'TOWING', label: '🛻 Towing' },
+  { key: 'OTHER', label: '🆘 Other' },
+];
 
 @Component({
   selector: 'app-super-dashboard',
@@ -153,6 +180,122 @@ type Tab = 'overview' | 'stores' | 'riders' | 'suppliers' | 'orders' | 'vendors'
       </div>
     </div>
 
+    <!-- EMERGENCY DIRECTORY ----------------------------------------------
+         The national helplines are built into the app; this is where the
+         district's own numbers get curated. Unverified entries (submitted by
+         shopkeepers and field agents) are listed last on the public page until
+         an admin confirms the number actually answers. -->
+    <div *ngIf="tab==='emergency'" class="row g-4">
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">➕ Add a local emergency number</div>
+          <div class="card-body">
+            <label class="form-label">Type</label>
+            <select class="form-select mb-2" [(ngModel)]="sosForm.type" name="etype">
+              <option *ngFor="let t of emergencyTypes" [value]="t.key">{{ t.label }}</option>
+            </select>
+            <input class="form-control mb-2" placeholder="Name (e.g. Gupta Nursing Home)"
+                   [(ngModel)]="sosForm.name" name="ename">
+            <input class="form-control mb-2" placeholder="नाम (हिंदी में)"
+                   [(ngModel)]="sosForm.nameLocal" name="enamel">
+            <input class="form-control mb-2" placeholder="Phone" inputmode="numeric"
+                   [(ngModel)]="sosForm.phone" name="ephone">
+            <input class="form-control mb-2" placeholder="Alternate phone" inputmode="numeric"
+                   [(ngModel)]="sosForm.altPhone" name="ealt">
+            <input class="form-control mb-2" placeholder="Address / landmark"
+                   [(ngModel)]="sosForm.address" name="eaddr">
+            <div class="row g-2 mb-2">
+              <div class="col-4"><input class="form-control" placeholder="Area"
+                     [(ngModel)]="sosForm.area" name="earea"></div>
+              <div class="col-4"><input class="form-control" placeholder="City"
+                     [(ngModel)]="sosForm.city" name="ecity"></div>
+              <div class="col-4"><input class="form-control" placeholder="Pincode" inputmode="numeric"
+                     [(ngModel)]="sosForm.pincode" name="epin"></div>
+            </div>
+            <input class="form-control mb-2" placeholder="Notes (has oxygen, ICU van…)"
+                   [(ngModel)]="sosForm.notes" name="enotes">
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="e24" [(ngModel)]="sosForm.is24x7"
+                     name="e24">
+              <label class="form-check-label" for="e24">Answers 24×7</label>
+            </div>
+            <button class="btn btn-primary w-100" (click)="addContact()"
+                    [disabled]="!sosForm.name.trim() || !sosForm.phone.trim()">
+              Add number
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <!-- Open help requests raised from the app -->
+        <div class="card mb-3" *ngIf="alerts.length">
+          <div class="card-header d-flex justify-content-between">
+            <span>🆘 Open help requests</span>
+            <span class="badge bg-danger">{{ alerts.length }}</span>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-start gap-2"
+                *ngFor="let a of alerts">
+              <span>
+                <span class="fw-semibold">{{ a.type }}</span> — {{ a.message || '—' }}
+                <small class="d-block text-muted">
+                  {{ a.name || a.raisedBy?.name }} · {{ a.landmark }} ·
+                  {{ a.createdAt | date: 'short' }}
+                </small>
+              </span>
+              <span class="d-flex gap-1 flex-shrink-0">
+                <a class="btn btn-sm btn-call" *ngIf="a.phone || a.raisedBy?.phone"
+                   [href]="'tel:' + (a.phone || a.raisedBy?.phone)">📞</a>
+                <button class="btn btn-sm btn-outline-success" (click)="resolveAlert(a)">Resolve</button>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <span>Local emergency directory</span>
+            <span class="text-muted small">{{ contacts.length }}</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr><th>Type</th><th>Name</th><th>Phone</th><th>Area</th><th>Verified</th>
+                  <th class="text-end">Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of contacts">
+                  <td class="small">{{ c.type }}</td>
+                  <td class="fw-semibold">{{ c.name }}
+                    <small class="d-block text-muted" *ngIf="c.notes">{{ c.notes }}</small>
+                  </td>
+                  <td><a [href]="'tel:' + c.phone">{{ c.phone }}</a></td>
+                  <td class="small">{{ c.area || c.city || '—' }} {{ c.pincode }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="c.verified ? 'bg-success' : 'bg-warning text-dark'">
+                      {{ c.verified ? 'Verified' : 'Unverified' }}
+                    </span>
+                  </td>
+                  <td class="text-end text-nowrap">
+                    <button class="btn btn-sm btn-success me-1" *ngIf="!c.verified"
+                            (click)="verifyContact(c)">Verify</button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="removeContact(c)">Remove</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!contacts.length">
+                  <td colspan="6" class="text-center text-muted py-3">
+                    No local numbers yet — the national helplines still show on the public page.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- VENDORS (legacy procurement) -->
     <div *ngIf="tab==='vendors'" class="card border-0">
       <div class="card-header d-flex justify-content-between">
@@ -186,6 +329,7 @@ export class SuperDashboardComponent implements OnInit {
     { key: 'riders', label: 'Riders' },
     { key: 'suppliers', label: 'Suppliers' },
     { key: 'orders', label: 'Orders' },
+    { key: 'emergency', label: '🆘 Emergency' },
     { key: 'vendors', label: 'Vendors' },
   ];
 
@@ -195,6 +339,24 @@ export class SuperDashboardComponent implements OnInit {
   orders: any[] = [];
   vendors: any[] = [];
   orderStats: any = { total: 0, byStatus: {} };
+
+  // Emergency directory
+  emergencyTypes = EMERGENCY_TYPES;
+  contacts: any[] = [];
+  alerts: any[] = [];
+  sosForm = {
+    type: 'AMBULANCE',
+    name: '',
+    nameLocal: '',
+    phone: '',
+    altPhone: '',
+    address: '',
+    area: '',
+    city: '',
+    pincode: '',
+    notes: '',
+    is24x7: true,
+  };
 
   constructor(private api: ApiService) {}
 
@@ -209,6 +371,46 @@ export class SuperDashboardComponent implements OnInit {
     this.api.get('orders').subscribe((o) => (this.orders = o));
     this.api.get('orders/stats').subscribe((s) => (this.orderStats = s));
     this.api.get('vendors').subscribe((v) => (this.vendors = v));
+    this.loadEmergency();
+  }
+
+  // ------------------------------------------------------ emergency directory
+
+  loadEmergency() {
+    this.api.get('emergency').subscribe({
+      next: (c: any) => (this.contacts = (c || []).map((x: any) => ({ ...x, id: x.id ?? x._id }))),
+      error: () => (this.contacts = []),
+    });
+    this.api.get('emergency/sos').subscribe({
+      next: (a: any) => (this.alerts = (a || []).map((x: any) => ({ ...x, id: x.id ?? x._id }))),
+      error: () => (this.alerts = []),
+    });
+  }
+
+  addContact() {
+    this.api.post('emergency', { ...this.sosForm, verified: true }).subscribe(() => {
+      this.sosForm = {
+        type: 'AMBULANCE', name: '', nameLocal: '', phone: '', altPhone: '', address: '',
+        area: '', city: '', pincode: '', notes: '', is24x7: true,
+      };
+      this.loadEmergency();
+    });
+  }
+
+  verifyContact(c: any) {
+    c.verified = true;
+    this.api.patch(`emergency/${c.id}`, { verified: true }).subscribe({
+      error: () => (c.verified = false),
+    });
+  }
+
+  removeContact(c: any) {
+    if (!confirm(`Remove "${c.name}" from the emergency directory?`)) return;
+    this.api.delete(`emergency/${c.id}`).subscribe(() => this.loadEmergency());
+  }
+
+  resolveAlert(a: any) {
+    this.api.patch(`emergency/sos/${a.id}/resolve`, {}).subscribe(() => this.loadEmergency());
   }
 
   get pendingStores() { return this.stores.filter((s) => s.status === 'PENDING'); }

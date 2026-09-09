@@ -51,8 +51,50 @@ export class OrderService {
     return user.role === Role.SuperAdmin || user.role === Role.Admin;
   }
 
-  private addTimeline(order: OrderDocument, status: string, user: AuthUser, note = '') {
-    order.timeline.push({ status, note, updatedBy: user.role, at: new Date() } as any);
+  /**
+   * Whether a store-side user may act for a shop: the owner, or the counter
+   * staff attached to it. In a real shop the person on the counter takes the
+   * order, so staff get the same order rights as the owner.
+   */
+  private async canActForStore(
+    storeId: string,
+    user: AuthUser,
+  ): Promise<boolean> {
+    const store = await this.storeModel.findById(storeId).exec();
+    if (!store) return false;
+    if (String(store.owner) === user.userId) return true;
+    if (user.role === Role.StoreStaff) {
+      const account = await this.users.findById(user.userId);
+      return !!account?.store && String(account.store) === String(store._id);
+    }
+    return false;
+  }
+
+  /** Store ids a store-side user reads orders for. */
+  private async storeIdsFor(user: AuthUser) {
+    if (user.role === Role.StoreStaff) {
+      const account = await this.users.findById(user.userId);
+      return account?.store ? [account.store] : [];
+    }
+    const stores = await this.storeModel
+      .find({ owner: user.userId })
+      .select('_id')
+      .exec();
+    return stores.map((s) => s._id);
+  }
+
+  private addTimeline(
+    order: OrderDocument,
+    status: string,
+    user: AuthUser,
+    note = '',
+  ) {
+    order.timeline.push({
+      status,
+      note,
+      updatedBy: user.role,
+      at: new Date(),
+    } as any);
   }
 
   private async generateOrderNumber(): Promise<string> {
@@ -89,7 +131,11 @@ export class OrderService {
     if (!store) throw new NotFoundException('Store not found');
 
     const isCustomer = user.role === Role.Customer;
-    if (!isCustomer && !this.isPlatformAdmin(user) && String(store.owner) !== user.userId) {
+    if (
+      !isCustomer &&
+      !this.isPlatformAdmin(user) &&
+      !(await this.canActForStore(String(store._id), user))
+    ) {
       throw new ForbiddenException('Not your store');
     }
     // Customers can only order from an approved (live) kirana store.
@@ -105,18 +151,29 @@ export class OrderService {
     // Items subtotal from line items.
     const items = dto.items ?? [];
     const itemsSubtotal = items.reduce(
-      (s: number, i: any) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
+      (s: number, i: any) =>
+        s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
       0,
     );
 
     // Distance-based delivery fee (falls back to base fare when coords unknown).
     let distance = 0;
     let deliveryFee = dto.deliveryFee;
-    if (storeLat != null && storeLng != null && custLat != null && custLng != null) {
-      distance = Math.round(this.haversineKm(storeLat, storeLng, custLat, custLng) * 10) / 10;
+    if (
+      storeLat != null &&
+      storeLng != null &&
+      custLat != null &&
+      custLng != null
+    ) {
+      distance =
+        Math.round(
+          this.haversineKm(storeLat, storeLng, custLat, custLng) * 10,
+        ) / 10;
     }
     if (deliveryFee == null) {
-      deliveryFee = Math.round(OrderService.BASE_FEE + OrderService.PER_KM * distance);
+      deliveryFee = Math.round(
+        OrderService.BASE_FEE + OrderService.PER_KM * distance,
+      );
     }
 
     const orderNumber = await this.generateOrderNumber();
@@ -139,13 +196,22 @@ export class OrderService {
         lng: storeLng,
       },
       dropLocation: {
-        address: dto.customer?.address || '',
+        // The landmark rides along in the address the rider reads, because in a
+        // kasba "behind Hanuman mandir" is the only part that actually helps.
+        address: [dto.customer?.address, dto.customer?.landmark]
+          .filter((p) => String(p || '').trim())
+          .join(' · '),
         lat: custLat,
         lng: custLng,
       },
       status: OrderStatus.Created,
     });
-    this.addTimeline(order, OrderStatus.Created, user, isCustomer ? 'Order placed by customer' : 'Order created');
+    this.addTimeline(
+      order,
+      OrderStatus.Created,
+      user,
+      isCustomer ? 'Order placed by customer' : 'Order created',
+    );
     return this.saveAndBroadcast(order);
   }
 
@@ -153,7 +219,8 @@ export class OrderService {
   async invoice(id: string, user: AuthUser) {
     const order = await this.findOne(id, user); // enforces access
     const itemsSubtotal = (order.items || []).reduce(
-      (s: number, i: any) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
+      (s: number, i: any) =>
+        s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
       0,
     );
     const deliveryFee = order.deliveryFee || 0;
@@ -177,14 +244,15 @@ export class OrderService {
     let filter: Record<string, any> = {};
     if (!this.isPlatformAdmin(user)) {
       if (user.role === Role.Rider) {
-        const rider = await this.riderModel.findOne({ user: user.userId }).exec();
+        const rider = await this.riderModel
+          .findOne({ user: user.userId })
+          .exec();
         filter = { rider: rider?._id ?? null };
       } else if (user.role === Role.Customer) {
         filter = { customerUser: user.userId };
       } else {
-        // Store owner: orders across the stores they own.
-        const stores = await this.storeModel.find({ owner: user.userId }).select('_id').exec();
-        filter = { store: { $in: stores.map((s) => s._id) } };
+        // Store side: orders across the shops they own, or the one they staff.
+        filter = { store: { $in: await this.storeIdsFor(user) } };
       }
     }
     return this.orderModel
@@ -216,8 +284,7 @@ export class OrderService {
       if (riderId && oid === riderId) return;
     } else {
       const storeId = String((order.store as any)?._id ?? order.store);
-      const store = await this.storeModel.findById(storeId).exec();
-      if (store && String(store.owner) === user.userId) return;
+      if (await this.canActForStore(storeId, user)) return;
     }
     throw new ForbiddenException('Not allowed to view this order');
   }
@@ -232,7 +299,12 @@ export class OrderService {
     order.rider = rider._id as any;
     order.status = OrderStatus.RiderAssigned;
     order.otp = String(Math.floor(1000 + Math.random() * 9000));
-    this.addTimeline(order, OrderStatus.RiderAssigned, user, `Assigned rider ${riderId}`);
+    this.addTimeline(
+      order,
+      OrderStatus.RiderAssigned,
+      user,
+      `Assigned rider ${riderId}`,
+    );
     await this.saveAndBroadcast(order);
     const riderUser = await this.users.findById(String(rider.user));
     if (riderUser) {
@@ -251,7 +323,12 @@ export class OrderService {
     order.rider = null;
     order.status = OrderStatus.Created;
     order.otp = '';
-    this.addTimeline(order, OrderStatus.Created, user, 'Rider rejected — back to pool');
+    this.addTimeline(
+      order,
+      OrderStatus.Created,
+      user,
+      'Rider rejected — back to pool',
+    );
     return this.saveAndBroadcast(order);
   }
 
@@ -287,7 +364,12 @@ export class OrderService {
     if (order.paymentMethod === PaymentMethod.Cod) {
       order.paymentStatus = PaymentStatus.Collected;
     }
-    this.addTimeline(order, OrderStatus.Delivered, user, 'Delivered to customer');
+    this.addTimeline(
+      order,
+      OrderStatus.Delivered,
+      user,
+      'Delivered to customer',
+    );
     await this.saveAndBroadcast(order);
 
     // Side-effects: bump counters.
@@ -303,12 +385,12 @@ export class OrderService {
   async cancel(id: string, reason: string, user: AuthUser) {
     const order = await this.orderModel.findById(id).exec();
     if (!order) throw new NotFoundException('Order not found');
-    // Store owner (of this order) or platform admin may cancel.
-    if (!this.isPlatformAdmin(user)) {
-      const store = await this.storeModel.findById(order.store).exec();
-      if (!store || String(store.owner) !== user.userId) {
-        throw new ForbiddenException('Not allowed to cancel this order');
-      }
+    // Store side (of this order) or platform admin may cancel.
+    if (
+      !this.isPlatformAdmin(user) &&
+      !(await this.canActForStore(String(order.store), user))
+    ) {
+      throw new ForbiddenException('Not allowed to cancel this order');
     }
     if (order.status === OrderStatus.Delivered) {
       throw new BadRequestException('Delivered orders cannot be cancelled');
@@ -345,9 +427,11 @@ export class OrderService {
       // GeoJSON for the map marker; prefer the live push, else the rider's last known point.
       riderLocation: hasLive
         ? { type: 'Point', coordinates: [live.lng, live.lat] }
-        : rider?.currentLocation ?? null,
+        : (rider?.currentLocation ?? null),
       // Flat shape the polling client reads for live updates.
-      liveLocation: hasLive ? { lat: live.lat, lng: live.lng, at: live.at } : null,
+      liveLocation: hasLive
+        ? { lat: live.lat, lng: live.lng, at: live.at }
+        : null,
     };
   }
 
@@ -370,11 +454,11 @@ export class OrderService {
   private async loadStoreOwned(id: string, user: AuthUser) {
     const order = await this.orderModel.findById(id).exec();
     if (!order) throw new NotFoundException('Order not found');
-    if (!this.isPlatformAdmin(user)) {
-      const store = await this.storeModel.findById(order.store).exec();
-      if (!store || String(store.owner) !== user.userId) {
-        throw new ForbiddenException('Not your store order');
-      }
+    if (
+      !this.isPlatformAdmin(user) &&
+      !(await this.canActForStore(String(order.store), user))
+    ) {
+      throw new ForbiddenException('Not your store order');
     }
     return order;
   }
@@ -399,7 +483,6 @@ export class OrderService {
     if (user.role === Role.Customer) {
       return { customerUser: user.userId };
     }
-    const stores = await this.storeModel.find({ owner: user.userId }).select('_id').exec();
-    return { store: { $in: stores.map((s) => s._id) } };
+    return { store: { $in: await this.storeIdsFor(user) } };
   }
 }

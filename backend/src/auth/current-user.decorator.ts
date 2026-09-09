@@ -1,9 +1,12 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Role } from './role.enum';
 
 export interface AuthUser {
   userId: string;
   email: string;
-  role: string;
+  // Typed as the enum, not a bare string, so `user.role === Role.X` checks are
+  // verified by the compiler instead of silently comparing unrelated values.
+  role: Role;
   vendorId: string | null;
 }
 

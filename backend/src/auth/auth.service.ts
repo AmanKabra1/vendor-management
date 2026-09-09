@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { UserService } from '../user/user.service';
 import { UserDocument } from '../user/user.entity';
 import { Vendor, VendorDocument } from '../vendor/vendor.entity';
-import { Role, APPROVAL_REQUIRED_ROLES } from './role.enum';
+import { Role, APPROVAL_REQUIRED_ROLES, SELF_SIGNUP_ROLES } from './role.enum';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { NotificationService } from '../notification/notification.service';
 
@@ -39,10 +39,11 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    // Resolve the requested role; default to legacy Vendor. Block privileged roles.
+    // Resolve the requested role against an allow-list, so SuperAdmin/Admin can
+    // never be self-assigned; anything unrecognised falls back to legacy Vendor.
     const requested = dto.role;
     const role =
-      requested && requested !== Role.SuperAdmin && requested !== Role.Admin
+      requested && SELF_SIGNUP_ROLES.includes(requested)
         ? requested
         : Role.Vendor;
 
@@ -113,6 +114,10 @@ export class AuthService {
         phone: user.phone,
         isVerified: user.isVerified,
         isApproved: user.isApproved,
+        // Lets the app open in the user's own language on the very first screen.
+        preferredLanguage: user.preferredLanguage || 'en',
+        // Counter staff: the shop they're attached to (null until the owner adds them).
+        storeId: user.store ? String(user.store) : null,
         vendorId,
       },
     };
@@ -122,12 +127,10 @@ export class AuthService {
     const count = await this.vendorModel.countDocuments().exec();
     let n = count + 1;
     // Ensure uniqueness even if records were deleted.
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       const code = `V${String(n).padStart(3, '0')}`;
-      const clash = await this.vendorModel
-        .findOne({ vendorCode: code })
-        .exec();
+      const clash = await this.vendorModel.findOne({ vendorCode: code }).exec();
       if (!clash) return code;
       n++;
     }

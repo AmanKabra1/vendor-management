@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../shared/auth.service';
+import { STORE_CATEGORIES } from '../shared/store-categories';
 
 @Component({
   selector: 'app-landing',
@@ -18,11 +19,13 @@ import { AuthService } from '../shared/auth.service';
       <header class="lp-nav">
         <a class="lp-brand" href="#top"><span class="lp-chip">📦</span> RideFleet</a>
         <nav class="lp-links">
+          <a routerLink="/shops">Shop directory</a>
+          <a href="#shops">Shop types</a>
           <a href="#flow">How it works</a>
-          <a href="#features">Features</a>
           <a href="#people">For you</a>
         </nav>
         <div class="lp-navcta">
+          <a class="lp-ghost" routerLink="/emergency">🆘 Emergency</a>
           <a class="lp-ghost" routerLink="/login">Log in</a>
           <a class="lp-amber" routerLink="/register">Get started</a>
         </div>
@@ -32,19 +35,21 @@ import { AuthService } from '../shared/auth.service';
       <section class="lp-hero" id="top">
         <canvas #map class="lp-map"></canvas>
         <div class="lp-hero-inner">
-          <span class="lp-kicker">Shared delivery riders · for Bharat's shops</span>
-          <h1>Shared riders for<br><span class="lp-grad">every shop.</span></h1>
+          <span class="lp-kicker">For towns, kasbas and small cities · हिंदी में भी</span>
+          <h1>Your whole bazaar,<br><span class="lp-grad">one phone call away.</span></h1>
           <p class="lp-sub">
-            Kirana stores, wholesalers and customers — connected by a pool of nearby riders.
-            List it, hire a rider on the map, deliver with an OTP, track every move live.
+            Kirana, medical, water can, gas cylinder, sabzi, hardware, seeds — every shop in
+            town, with its phone number, its rates and a rider to bring it home. Udhaar khata
+            included, and an emergency directory that works without an account.
           </p>
           <div class="lp-cta-row">
             <a class="lp-amber lg" routerLink="/register">Get started free →</a>
-            <a class="lp-ghost lg" href="#flow">See how it works</a>
+            <a class="lp-ghost lg" routerLink="/shops">Browse shops near you</a>
           </div>
           <div class="lp-chips">
-            <span>🔒 OTP-verified handoff</span>
-            <span>🛰️ Live GPS tracking</span>
+            <span>📒 Udhaar khata</span>
+            <span>🆘 108 · 101 · 1906 built in</span>
+            <span>🐢 Works on 2G</span>
             <span>₹0 to start</span>
           </div>
         </div>
@@ -55,6 +60,44 @@ import { AuthService } from '../shared/auth.service';
         <div class="lp-stat" *ngFor="let s of stats">
           <div class="lp-stat-num">{{ s.num }}</div>
           <div class="lp-stat-label">{{ s.label }}</div>
+        </div>
+      </section>
+
+      <!-- SHOP TYPES — the answer to "is my kind of shop on this?" -->
+      <section class="lp-section" id="shops">
+        <div class="lp-eyebrow">Every kind of shop</div>
+        <h2 class="lp-h2">Not just groceries. The whole bazaar.</h2>
+        <p class="lp-lead">
+          A town runs on more than a kirana. Each shop type gets the fields it actually needs —
+          a water supplier gets refill rounds, a chemist gets a 24×7 flag, a gas agency gets
+          cylinder bookings, a seed shop gets its season.
+        </p>
+        <div class="lp-cats">
+          <span class="lp-cat" *ngFor="let c of shopTypes">
+            <b>{{ c.icon }}</b> {{ c.en }}
+            <small>{{ c.hi }}</small>
+          </span>
+        </div>
+      </section>
+
+      <!-- EMERGENCY — the part that has to work without an account -->
+      <section class="lp-section alt" id="emergency">
+        <div class="lp-eyebrow">Medical & emergency</div>
+        <h2 class="lp-h2">The numbers you need at 2am.</h2>
+        <p class="lp-lead">
+          Ambulance, fire, gas leak, live wire, blood bank, the night chemist two streets away.
+          National helplines are built into the app and render instantly — no login, no map load,
+          no signal required. Local numbers are added and verified by the district admin.
+        </p>
+        <div class="lp-sos-row">
+          <a class="lp-sos" href="tel:112"><b>112</b><small>All emergencies</small></a>
+          <a class="lp-sos" href="tel:108"><b>108</b><small>Ambulance</small></a>
+          <a class="lp-sos" href="tel:101"><b>101</b><small>Fire brigade</small></a>
+          <a class="lp-sos" href="tel:1906"><b>1906</b><small>LPG gas leak</small></a>
+          <a class="lp-sos" href="tel:1912"><b>1912</b><small>Electricity</small></a>
+        </div>
+        <div class="lp-cta-row">
+          <a class="lp-amber lg" routerLink="/emergency">Open the emergency page →</a>
         </div>
       </section>
 
@@ -103,7 +146,7 @@ import { AuthService } from '../shared/auth.service';
       <!-- TESTIMONIALS -->
       <section class="lp-section alt">
         <div class="lp-eyebrow">From the ground</div>
-        <h2 class="lp-h2">Loved across the supply chain.</h2>
+        <h2 class="lp-h2">Built for how a town actually shops.</h2>
         <div class="lp-quotes">
           <figure class="lp-quote" *ngFor="let q of quotes">
             <blockquote>“{{ q.text }}”</blockquote>
@@ -117,7 +160,7 @@ import { AuthService } from '../shared/auth.service';
       <!-- CTA -->
       <section class="lp-final">
         <h2>Bring your shop online today.</h2>
-        <p>Free to start. Set up your store or sign up to ride in under two minutes.</p>
+        <p>Free to start. Any kind of shop, in Hindi or English, in under two minutes.</p>
         <div class="lp-cta-row center">
           <a class="lp-amber lg" routerLink="/register">Create your account</a>
           <a class="lp-ghost lg dark" routerLink="/login">I already have one</a>
@@ -126,7 +169,11 @@ import { AuthService } from '../shared/auth.service';
 
       <footer class="lp-foot">
         <span class="lp-brand sm"><span class="lp-chip">📦</span> RideFleet</span>
-        <span class="lp-foot-note">Shared riders for local commerce · built on a 100% free stack</span>
+        <span class="lp-foot-note">
+          <a routerLink="/shops" style="color:inherit">Shop directory</a> ·
+          <a routerLink="/emergency" style="color:inherit">Emergency numbers</a> ·
+          local commerce for towns and kasbas
+        </span>
       </footer>
     </div>
   `,
@@ -137,38 +184,47 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   private raf = 0;
 
   stats = [
-    { num: '5 roles', label: 'admin · store · rider · customer · wholesaler' },
+    { num: '40+ shop types', label: 'kirana to gas agency to seed shop' },
+    { num: '9 roles', label: 'customer · shop · staff · rider · sales · supplier' },
     { num: '₹20 + ₹8/km', label: 'fair, distance-based rider fee' },
-    { num: 'every 4s', label: 'live GPS location updates' },
-    { num: '4-digit OTP', label: 'verified, fraud-free handoff' },
+    { num: 'हिंदी + English', label: 'one tap, no reinstall' },
   ];
+
+  /** A slice of the catalogue — enough to answer "is my shop on this list?" */
+  shopTypes = STORE_CATEGORIES.filter(
+    (c) => !['GROCERY', 'PHARMACY', 'GENERAL', 'OTHER'].includes(c.key),
+  );
 
   flow = [
-    { ic: '📝', title: 'Customer sends a list', text: 'Type your daily items or snap a photo of a handwritten list and pick a nearby kirana store.' },
-    { ic: '🏪', title: 'Store confirms & prices', text: 'The shop reviews the list, prepares the order and the bill is generated automatically.' },
-    { ic: '🛵', title: 'A nearby rider is hired', text: 'The store sees available riders on a map and assigns the closest one — fee set by distance.' },
-    { ic: '✅', title: 'OTP delivery, tracked live', text: 'Watch the rider move in real time; they hand over only after your 4-digit OTP matches.' },
+    { ic: '📝', title: 'Send your list', text: 'Type it, snap a photo of the handwritten one, or tap items off the shop’s own rate board.' },
+    { ic: '🏪', title: 'The shop prices it', text: 'The counter reviews the list, prepares the order and the bill is generated automatically.' },
+    { ic: '🛵', title: 'A nearby rider is hired', text: 'The shop sees available riders on a map and assigns the closest — fee set by distance.' },
+    { ic: '📒', title: 'Pay cash, UPI or khata', text: 'OTP handoff on delivery. Put it on your udhaar khata and both sides see the same balance.' },
   ];
 
+
   features = [
-    { ic: '🗺️', bg: 'linear-gradient(135deg,#6d28d9,#4f46e5)', title: 'Live map tracking', text: 'Leaflet + OpenStreetMap show riders, stores and the moving delivery in real time.' },
-    { ic: '🔒', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', title: 'OTP-verified delivery', text: 'Every order carries a one-time code, so handoffs can’t be faked.' },
-    { ic: '🪪', bg: 'linear-gradient(135deg,#f59e0b,#ea580c)', title: 'KYC verification', text: 'Riders & stores verify identity (Aadhaar / DigiLocker) before they go live.' },
-    { ic: '💳', bg: 'linear-gradient(135deg,#10b981,#059669)', title: 'UPI & card payments', text: 'Pay on delivery or online — UPI, cards and wallets via a secure gateway.' },
-    { ic: '📈', bg: 'linear-gradient(135deg,#8b5cf6,#6366f1)', title: 'Fair distance pricing', text: 'Transparent base + per-km rider fee, computed from real coordinates.' },
-    { ic: '🔔', bg: 'linear-gradient(135deg,#f43f5e,#e11d48)', title: 'Instant notifications', text: 'Email + in-app alerts on approval, assignment and delivery.' },
+    { ic: '📒', bg: 'linear-gradient(135deg,#b91c1c,#dc2626)', title: 'Udhaar khata, digitised', text: 'The shop’s credit book — goods now, payment on salary day. Shopkeeper and customer see the same balance, so payday arguments end.' },
+    { ic: '🆘', bg: 'linear-gradient(135deg,#f43f5e,#e11d48)', title: 'Emergency directory', text: '108, 101, 1906, 1912 built in, plus verified local ambulance, hospital, blood bank and tanker numbers. No login, works offline.' },
+    { ic: '💧', bg: 'linear-gradient(135deg,#0284c7,#0ea5e9)', title: 'Repeat refills', text: 'Water can, gas cylinder, milk, cattle feed — a dated round the shop works through each morning, so nobody runs dry.' },
+    { ic: '🌐', bg: 'linear-gradient(135deg,#7c3aed,#6366f1)', title: 'Hindi + English', text: 'One tap switches the whole app. Shop names, rate lists and item names all carry a local-script version.' },
+    { ic: '🐢', bg: 'linear-gradient(135deg,#15803d,#16a34a)', title: 'Data saver mode', text: 'Turns off maps, photos and animation for a 2G tower or a tight data pack. Big-text mode for older eyes.' },
+    { ic: '📍', bg: 'linear-gradient(135deg,#f59e0b,#ea580c)', title: 'Landmark addresses', text: '“Behind Hanuman mandir, blue gate” — because street names often don’t exist and a GPS pin lands on the wrong lane.' },
   ];
 
   personas = [
-    { ic: '🏪', bg: 'linear-gradient(135deg,#6d28d9,#4f46e5)', title: 'Store owners', bullets: ['List your shop & go live after approval', 'Accept customer lists, auto-generate bills', 'Hire the nearest available rider'] },
-    { ic: '🛵', bg: 'linear-gradient(135deg,#f59e0b,#ea580c)', title: 'Riders', bullets: ['Choose your hours & platform per slot', 'Accept nearby orders, earn per delivery', 'Go live and share GPS while delivering'] },
-    { ic: '🛒', bg: 'linear-gradient(135deg,#10b981,#059669)', title: 'Customers', bullets: ['Send a list or a photo to a kirana', 'Track the rider live on a map', 'Pay on delivery, get a clear invoice'] },
+    { ic: '🏪', bg: 'linear-gradient(135deg,#5b21b6,#4f46e5)', title: 'Shop owners', bullets: ['Any shop type — kirana, medical, water, gas, sabzi, seeds', 'Publish a rate list, keep the udhaar khata, run refill rounds', 'One shutter switch pauses orders when you close'] },
+    { ic: '🧑‍💼', bg: 'linear-gradient(135deg,#0891b2,#0ea5e9)', title: 'Shop staff', bullets: ['Own login for whoever is on the counter', 'Take phone orders and write the khata', 'No access to shop settings or payouts'] },
+    { ic: '🛵', bg: 'linear-gradient(135deg,#f59e0b,#ea580c)', title: 'Riders', bullets: ['Deliver for any shop in town, on your own hours', 'OTP handoff, live GPS, fee set by distance', 'See help requests raised nearby'] },
+    { ic: '🛒', bg: 'linear-gradient(135deg,#15803d,#16a34a)', title: 'Customers', bullets: ['Send a list, a photo, or tap the shop’s rate board', 'Pay cash, UPI, or put it on your khata', 'Set repeat orders for water, gas and milk'] },
+    { ic: '📋', bg: 'linear-gradient(135deg,#be185d,#db2777)', title: 'Field sales agents', bullets: ['Work a shop-by-shop beat in your own town', 'Log visits, set follow-ups, pitch on WhatsApp', 'Earn per shop that actually goes live'] },
+    { ic: '🚚', bg: 'linear-gradient(135deg,#4338ca,#6366f1)', title: 'Wholesalers & distributors', bullets: ['List a bulk catalogue for the shops', 'Take restock orders, dispatch and confirm', 'Sell to kiranas across the district'] },
   ];
 
   quotes = [
-    { text: 'I get orders from the whole mohalla now without hiring my own delivery boy. I just tap the nearest rider.', name: 'Sharma Kirana', role: 'Grocery store, Jaipur', initial: 'S', bg: '#6d28d9' },
-    { text: 'Morning I take Zomato, evening I do kirana drops here. One app, my own timing, fee fixed by distance.', name: 'Ravi K.', role: 'Delivery rider, Pune', initial: 'R', bg: '#f59e0b' },
-    { text: 'I send a photo of my list to the shop and watch it come home. The OTP makes it feel safe.', name: 'Aman', role: 'Customer, Indore', initial: 'A', bg: '#10b981' },
+    { text: 'The khata is the reason I open it. Twelve years of paper registers, and now the customer sees the same number I do.', name: 'Sharma Kirana', role: 'Kirana, Jaipur', initial: 'S', bg: '#5b21b6' },
+    { text: 'Water can orders used to come by call and I would forget half. Now the morning list is on the phone with the landmark.', name: 'Balaji Jal Seva', role: 'Water supplier, Nashik', initial: 'B', bg: '#0284c7' },
+    { text: 'My mother could not read the English screen. One tap and it is all Hindi — now she orders the sabzi herself.', name: 'Aman', role: 'Customer, Indore', initial: 'A', bg: '#15803d' },
   ];
 
   constructor(private router: Router, private auth: AuthService) {}

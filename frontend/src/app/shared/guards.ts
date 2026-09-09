@@ -41,7 +41,9 @@ const requireRole = (check: (a: AuthService) => boolean): CanActivateFn => {
 };
 
 export const superAdminGuard = requireRole((a) => a.isPlatformAdmin);
-export const storeOwnerGuard = requireRole((a) => a.isStoreOwner);
+/** Owner, counter staff and service providers all share the shop screens. */
+export const storeOwnerGuard = requireRole((a) => a.isStoreSide);
 export const riderGuard = requireRole((a) => a.isRider);
 export const customerGuard = requireRole((a) => a.isCustomer);
 export const supplyGuard = requireRole((a) => a.isSupplyParticipant);
+export const salesGuard = requireRole((a) => a.isSalesAgent || a.isPlatformAdmin);

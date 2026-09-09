@@ -1,62 +1,136 @@
 /* ============================================================
    RideFleet — global design system
-   Built on Bootstrap, restyled into a modern SaaS look.
+   Built on Bootstrap, restyled for local commerce on cheap phones.
+
+   Three rules drive every choice here:
+     1. Thumb first — this is used one-handed, standing at a counter.
+        Tap targets are 44px+, primary actions sit at the bottom on phones.
+     2. Readable in sunlight — high contrast text, no grey-on-grey.
+     3. Cheap to render — no heavy shadows or blur stacks, and a `.rf-lite`
+        mode that strips maps, photos and animation entirely.
    ============================================================ */
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  --rf-indigo: #6d28d9;
-  --rf-violet: #8b5cf6;
+  /* brand */
+  --rf-indigo: #5b21b6;
+  --rf-violet: #7c3aed;
   --rf-blue: #2563eb;
-  --rf-grad: linear-gradient(135deg, #6d28d9 0%, #4f46e5 55%, #2563eb 100%);
+  /* warm accent — saffron reads as "local shop", not "SaaS dashboard" */
+  --rf-saffron: #f97316;
+  --rf-amber: #f59e0b;
+  --rf-grad: linear-gradient(135deg, #5b21b6 0%, #4f46e5 55%, #2563eb 100%);
+  --rf-grad-warm: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
   --rf-grad-soft: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
-  --rf-ink: #1e1b2e;
-  --rf-muted: #6b7280;
-  --rf-bg: #f6f7fb;
+
+  /* ink & surfaces */
+  --rf-ink: #16132a;
+  --rf-ink-2: #3f3d56;
+  --rf-muted: #64748b;
+  --rf-line: #e6e4f0;
+  --rf-bg: #f7f6fb;
   --rf-card: #ffffff;
-  --rf-ring: rgba(109, 40, 217, 0.25);
-  --rf-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px rgba(16, 24, 40, .06);
-  --rf-shadow-lg: 0 12px 40px rgba(76, 29, 149, .18);
-  --bs-primary: #6d28d9;
-  --bs-primary-rgb: 109, 40, 217;
+  --rf-ring: rgba(124, 58, 237, 0.22);
+
+  /* status */
+  --rf-ok: #15803d;
+  --rf-ok-bg: #dcfce7;
+  --rf-warn: #b45309;
+  --rf-warn-bg: #fef3c7;
+  --rf-danger: #b91c1c;
+  --rf-danger-bg: #fee2e2;
+  --rf-info: #0369a1;
+  --rf-info-bg: #e0f2fe;
+
+  --rf-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 6px 18px rgba(16, 24, 40, .06);
+  --rf-shadow-lg: 0 12px 36px rgba(76, 29, 149, .16);
+  --rf-radius: 16px;
+
+  /* one scale used by every tile/chip/button so density stays consistent */
+  --rf-tap: 46px;
+
+  --bs-primary: #5b21b6;
+  --bs-primary-rgb: 91, 33, 182;
+  --bs-body-color: #16132a;
+  --bs-border-color: #e6e4f0;
 }
 
 * { -webkit-font-smoothing: antialiased; }
+*:focus-visible { outline: 3px solid var(--rf-violet); outline-offset: 2px; border-radius: 6px; }
 
 html, body {
-  height: 100%;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  min-height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', sans-serif;
   color: var(--rf-ink);
   background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(139, 92, 246, .10), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(37, 99, 235, .10), transparent 60%),
+    radial-gradient(1100px 520px at 100% -10%, rgba(124, 92, 246, .10), transparent 60%),
+    radial-gradient(820px 460px at -10% 108%, rgba(249, 115, 22, .09), transparent 60%),
     var(--rf-bg);
 }
 
+/* Devanagari needs a touch more line-height to stay legible at small sizes. */
+html[lang='hi'] body { line-height: 1.65; }
+
 h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -0.02em; }
 
+/* Accessibility: one tap makes the whole app larger for older users. */
+body.rf-big { font-size: 1.125rem; }
+body.rf-big .btn, body.rf-big .form-control, body.rf-big .form-select { font-size: 1.05rem; }
+body.rf-big .small, body.rf-big small { font-size: .95rem !important; }
+
+/* Data saver: hide the expensive stuff outright rather than lazy-loading it. */
+body.rf-lite .rf-heavy,
+body.rf-lite app-map,
+body.rf-lite .leaflet-container { display: none !important; }
+body.rf-lite * { animation: none !important; transition: none !important; }
+body.rf-lite .rf-lite-note { display: block; }
+.rf-lite-note { display: none; }
+
 /* ---------- Buttons ---------- */
-.btn { border-radius: 10px; font-weight: 600; transition: transform .12s ease, box-shadow .2s ease, filter .2s ease; }
+.btn {
+  border-radius: 12px;
+  font-weight: 600;
+  min-height: var(--rf-tap);
+  padding-inline: 1rem;
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+}
 .btn:active { transform: translateY(1px); }
 .btn-primary {
-  background: var(--rf-grad); border: none; box-shadow: 0 6px 16px rgba(99, 102, 241, .35);
+  background: var(--rf-grad); border: none; box-shadow: 0 6px 16px rgba(99, 102, 241, .3);
 }
-.btn-primary:hover, .btn-primary:focus { filter: brightness(1.06); box-shadow: 0 10px 22px rgba(99, 102, 241, .45); }
-.btn-outline-primary { color: var(--rf-indigo); border-color: rgba(109, 40, 217, .4); }
+.btn-primary:hover, .btn-primary:focus { filter: brightness(1.06); box-shadow: 0 10px 22px rgba(99, 102, 241, .4); }
+.btn-outline-primary { color: var(--rf-indigo); border-color: rgba(91, 33, 182, .35); border-width: 2px; }
 .btn-outline-primary:hover { background: var(--rf-indigo); border-color: var(--rf-indigo); }
-.btn-success { background: linear-gradient(135deg, #059669, #10b981); border: none; }
-.btn-sm { border-radius: 8px; }
+.btn-success { background: linear-gradient(135deg, #15803d, #16a34a); border: none; }
+.btn-danger { background: linear-gradient(135deg, #b91c1c, #dc2626); border: none; }
+/* The warm CTA — used for "call", "order", "get help": the actions people came for. */
+.btn-warm {
+  background: var(--rf-grad-warm); border: none; color: #fff;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, .32);
+}
+.btn-warm:hover, .btn-warm:focus { color: #fff; filter: brightness(1.05); }
+.btn-sm { border-radius: 10px; min-height: 38px; padding-inline: .7rem; }
+.btn-lg { border-radius: 14px; min-height: 54px; font-size: 1.05rem; }
+/* A call button is a phone number: make it look like one you can hit. */
+.btn-call { background: #15803d; border: none; color: #fff; font-variant-numeric: tabular-nums; }
+.btn-call:hover, .btn-call:focus { background: #166534; color: #fff; }
+.btn-wa { background: #25d366; border: none; color: #06331a; font-weight: 700; }
+.btn-wa:hover, .btn-wa:focus { background: #1fbb59; color: #06331a; }
 
 /* ---------- Cards ---------- */
 .card {
-  border: 1px solid rgba(16, 24, 40, .06);
-  border-radius: 16px;
+  border: 1px solid var(--rf-line);
+  border-radius: var(--rf-radius);
   box-shadow: var(--rf-shadow);
   overflow: hidden;
 }
-.card-header { background: #fff; border-bottom: 1px solid rgba(16,24,40,.06); font-weight: 600; }
+.card-header {
+  background: #fff; border-bottom: 1px solid var(--rf-line);
+  font-weight: 700; font-size: .95rem; padding: .85rem 1rem;
+}
+.card-body { padding: 1rem; }
 
 /* Stat cards with a gradient accent bar */
 .stat-card { position: relative; transition: transform .15s ease, box-shadow .2s ease; }
@@ -67,32 +141,189 @@ h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -0.02em; }
 .stat-card .display-6 { font-size: 2rem; font-weight: 800; background: var(--rf-grad);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
-/* ---------- Navbar ---------- */
-.navbar.bg-primary { background: var(--rf-grad) !important; box-shadow: 0 4px 20px rgba(76, 29, 149, .25); }
-.navbar .navbar-brand { font-weight: 800; letter-spacing: -0.02em; }
-.navbar .nav-link { border-radius: 8px; padding: 6px 12px !important; transition: background .15s ease; }
-.navbar .nav-link:hover { background: rgba(255,255,255,.14); }
-.navbar .nav-link.active { background: rgba(255,255,255,.22); text-decoration: none !important; }
+/* ---------- Page header ---------- */
+.rf-page-head { margin-bottom: 1.25rem; }
+.rf-page-head h3 { margin: 0; font-size: 1.5rem; }
+.rf-page-head p { margin: .25rem 0 0; color: var(--rf-muted); font-size: .95rem; }
+.rf-eyebrow {
+  font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--rf-violet);
+}
+
+/* ---------- Category tiles (the customer's front door) ---------- */
+.rf-tiles {
+  display: grid; gap: .6rem;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+}
+.rf-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .35rem; padding: .8rem .4rem; min-height: 92px;
+  background: #fff; border: 1px solid var(--rf-line); border-radius: 14px;
+  text-align: center; cursor: pointer; color: var(--rf-ink);
+  transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.rf-tile:hover { transform: translateY(-2px); box-shadow: var(--rf-shadow); }
+.rf-tile.active { border-color: var(--rf-violet); box-shadow: 0 0 0 3px var(--rf-ring); }
+.rf-tile-ic {
+  width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+  font-size: 21px; background: #f4f2fb;
+}
+.rf-tile-label { font-size: .78rem; font-weight: 600; line-height: 1.25; }
+.rf-tile-count { font-size: .68rem; color: var(--rf-muted); }
+
+/* ---------- Filter chips ---------- */
+.rf-chips { display: flex; gap: .45rem; flex-wrap: wrap; }
+.rf-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .45rem .8rem; border-radius: 999px; font-size: .85rem; font-weight: 600;
+  background: #fff; border: 1.5px solid var(--rf-line); color: var(--rf-ink-2);
+  cursor: pointer; min-height: 38px; white-space: nowrap;
+}
+.rf-chip:hover { border-color: var(--rf-violet); color: var(--rf-indigo); }
+.rf-chip.active { background: var(--rf-indigo); border-color: var(--rf-indigo); color: #fff; }
+/* Horizontal scroller for long chip rows on a narrow screen. */
+.rf-chips-scroll {
+  display: flex; gap: .45rem; overflow-x: auto; padding-bottom: .35rem;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.rf-chips-scroll::-webkit-scrollbar { display: none; }
+
+/* ---------- Shop / contact rows ---------- */
+.rf-shop {
+  display: flex; gap: .8rem; align-items: flex-start;
+  padding: .9rem 1rem; background: #fff; border: 1px solid var(--rf-line);
+  border-radius: 14px; margin-bottom: .6rem;
+}
+.rf-shop.selected { border-color: var(--rf-violet); box-shadow: 0 0 0 3px var(--rf-ring); }
+.rf-shop-ic {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 22px; background: #f4f2fb;
+}
+.rf-shop-main { flex: 1 1 auto; min-width: 0; }
+.rf-shop-name { font-weight: 700; line-height: 1.3; }
+.rf-shop-sub { font-size: .82rem; color: var(--rf-muted); }
+.rf-shop-actions { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+
+/* ---------- Emergency screen ---------- */
+.rf-sos-hero {
+  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 60%, #dc2626 100%);
+  color: #fff; border-radius: 18px; padding: 1.25rem; margin-bottom: 1rem;
+}
+.rf-sos-hero h3 { color: #fff; margin: 0; }
+.rf-sos-hero p { margin: .35rem 0 0; color: rgba(255,255,255,.85); font-size: .93rem; }
+.rf-sos-grid { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+/* A helpline is one big number and one big tap — nothing else. */
+.rf-sos-call {
+  display: flex; align-items: center; gap: .7rem; text-decoration: none;
+  padding: .85rem .9rem; border-radius: 14px; background: #fff;
+  border: 2px solid var(--rf-danger-bg); color: var(--rf-ink); min-height: 68px;
+}
+.rf-sos-call:hover { border-color: #dc2626; color: var(--rf-ink); }
+.rf-sos-call-ic { font-size: 26px; line-height: 1; }
+.rf-sos-num { font-size: 1.3rem; font-weight: 800; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.rf-sos-name { font-size: .8rem; color: var(--rf-muted); line-height: 1.25; }
+.rf-tip {
+  display: flex; gap: .6rem; padding: .7rem .85rem; border-radius: 12px;
+  background: var(--rf-warn-bg); color: #78350f; font-size: .88rem; margin-bottom: .5rem;
+}
+
+/* ---------- Khata (credit book) ---------- */
+.rf-khata-row {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .75rem .9rem; border-bottom: 1px solid var(--rf-line);
+}
+.rf-khata-row:last-child { border-bottom: none; }
+.rf-amount { font-variant-numeric: tabular-nums; font-weight: 800; }
+.rf-amount.owed { color: var(--rf-danger); }
+.rf-amount.clear { color: var(--rf-ok); }
+
+/* ---------- Tabs ---------- */
+.rf-tabs {
+  display: flex; gap: .3rem; overflow-x: auto; padding-bottom: .25rem; margin-bottom: 1rem;
+  border-bottom: 1px solid var(--rf-line); scrollbar-width: none;
+}
+.rf-tabs::-webkit-scrollbar { display: none; }
+.rf-tab {
+  border: none; background: none; padding: .6rem .9rem; font-weight: 600; color: var(--rf-muted);
+  border-bottom: 3px solid transparent; white-space: nowrap; min-height: 44px; border-radius: 8px 8px 0 0;
+}
+.rf-tab:hover { color: var(--rf-indigo); background: #faf9ff; }
+.rf-tab.active { color: var(--rf-indigo); border-bottom-color: var(--rf-violet); }
+.rf-tab-badge {
+  display: inline-block; margin-left: .35rem; padding: 0 .4rem; border-radius: 999px;
+  background: var(--rf-danger); color: #fff; font-size: .7rem; font-weight: 700;
+}
 
 /* ---------- Tables ---------- */
 .table { --bs-table-bg: transparent; }
 .table thead.table-light th, .table thead th {
   background: #faf9ff; color: var(--rf-muted); text-transform: uppercase;
-  font-size: .72rem; letter-spacing: .04em; border-bottom: 1px solid rgba(16,24,40,.08);
+  font-size: .72rem; letter-spacing: .04em; border-bottom: 1px solid var(--rf-line);
 }
 .table-hover tbody tr { transition: background .12s ease; }
 .table-hover tbody tr:hover { background: #faf8ff; }
 .table td, .table th { vertical-align: middle; }
 
 /* ---------- Badges ---------- */
-.badge { border-radius: 999px; font-weight: 600; padding: .4em .7em; letter-spacing: .01em; }
+.badge { border-radius: 999px; font-weight: 700; padding: .42em .72em; letter-spacing: .01em; }
+.rf-pill {
+  display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .55rem;
+  border-radius: 999px; font-size: .74rem; font-weight: 700;
+}
+.rf-pill.ok { background: var(--rf-ok-bg); color: var(--rf-ok); }
+.rf-pill.warn { background: var(--rf-warn-bg); color: var(--rf-warn); }
+.rf-pill.danger { background: var(--rf-danger-bg); color: var(--rf-danger); }
+.rf-pill.info { background: var(--rf-info-bg); color: var(--rf-info); }
+.rf-pill.muted { background: #f1f5f9; color: var(--rf-muted); }
 
 /* ---------- Forms ---------- */
 .form-control, .form-select {
-  border-radius: 10px; border-color: #e5e7eb; padding: .55rem .8rem;
+  border-radius: 12px; border-color: #ddd9ea; padding: .65rem .85rem; min-height: var(--rf-tap);
+  font-size: 1rem; /* 16px stops iOS zooming the page on focus */
 }
 .form-control:focus, .form-select:focus { border-color: var(--rf-violet); box-shadow: 0 0 0 4px var(--rf-ring); }
-.form-label { font-weight: 600; font-size: .85rem; color: #374151; }
+.form-label { font-weight: 600; font-size: .87rem; color: var(--rf-ink-2); margin-bottom: .3rem; }
+.form-text { font-size: .8rem; }
+/* Money and phone fields read better aligned and monospaced-by-figure. */
+input[inputmode='numeric'], input[type='number'], input[type='tel'] { font-variant-numeric: tabular-nums; }
+.form-switch .form-check-input { width: 2.6em; height: 1.35em; }
+.form-check-input:checked { background-color: var(--rf-indigo); border-color: var(--rf-indigo); }
+
+/* ---------- Empty states ---------- */
+.rf-empty { text-align: center; padding: 2rem 1rem; color: var(--rf-muted); }
+.rf-empty-ic { font-size: 2.4rem; display: block; margin-bottom: .5rem; opacity: .7; }
+
+/* ---------- Navbar ---------- */
+.navbar.bg-primary { background: var(--rf-grad) !important; box-shadow: 0 4px 20px rgba(76, 29, 149, .22); }
+.navbar .navbar-brand { font-weight: 800; letter-spacing: -0.02em; }
+.navbar .nav-link { border-radius: 10px; padding: 8px 12px !important; transition: background .15s ease; font-weight: 600; }
+.navbar .nav-link:hover { background: rgba(255,255,255,.14); }
+.navbar .nav-link.active { background: rgba(255,255,255,.22); text-decoration: none !important; }
+.rf-lang-btn {
+  border: 1.5px solid rgba(255,255,255,.5); background: rgba(255,255,255,.12); color: #fff;
+  border-radius: 999px; padding: .3rem .75rem; font-weight: 700; font-size: .82rem; min-height: 36px;
+}
+.rf-lang-btn:hover { background: rgba(255,255,255,.24); color: #fff; }
+
+/* ---------- Mobile bottom navigation ----------
+   On a phone the top of the screen is out of thumb reach; the four things a
+   user does most live at the bottom instead. Hidden from tablet up. */
+.rf-bottom-nav {
+  position: fixed; inset: auto 0 0 0; z-index: 1030;
+  display: flex; background: #fff; border-top: 1px solid var(--rf-line);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 -4px 20px rgba(16, 24, 40, .08);
+}
+.rf-bottom-nav a {
+  flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: .5rem .25rem; min-height: 58px; text-decoration: none;
+  color: var(--rf-muted); font-size: .68rem; font-weight: 700;
+}
+.rf-bottom-nav a.active { color: var(--rf-indigo); }
+.rf-bottom-nav a .bn-ic { font-size: 20px; line-height: 1; }
+.rf-bottom-nav a.sos { color: var(--rf-danger); }
+@media (min-width: 992px) { .rf-bottom-nav { display: none; } }
+@media (max-width: 991.98px) { main { padding-bottom: 76px !important; } }
 
 /* ---------- Auth screens ---------- */
 .auth-wrap {
@@ -104,17 +335,44 @@ h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -0.02em; }
   content: ''; position: absolute; border-radius: 50%; filter: blur(8px); opacity: .35;
 }
 .auth-wrap::before { width: 420px; height: 420px; background: #a78bfa; top: -120px; right: -80px; }
-.auth-wrap::after { width: 360px; height: 360px; background: #60a5fa; bottom: -120px; left: -80px; }
+.auth-wrap::after { width: 360px; height: 360px; background: #fb923c; bottom: -120px; left: -80px; }
 .auth-card {
-  width: 100%; max-width: 430px; border: none; border-radius: 20px;
+  width: 100%; max-width: 480px; border: none; border-radius: 20px;
   box-shadow: 0 24px 70px rgba(20, 10, 50, .35); position: relative; z-index: 1;
   animation: rf-rise .4s ease both;
 }
 @keyframes rf-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
+/* Role picker on the register screen: a card per "face" of the platform. */
+.rf-roles { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.rf-role {
+  text-align: left; padding: .7rem .75rem; border-radius: 13px; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--rf-line); color: var(--rf-ink);
+}
+.rf-role:hover { border-color: var(--rf-violet); }
+.rf-role.active { border-color: var(--rf-violet); background: #f7f4ff; box-shadow: 0 0 0 3px var(--rf-ring); }
+.rf-role-ic { font-size: 20px; }
+.rf-role-name { font-weight: 700; font-size: .87rem; line-height: 1.25; }
+.rf-role-desc { font-size: .74rem; color: var(--rf-muted); line-height: 1.3; }
+
+/* ---------- Modals (hand-rolled, kept for existing dashboards) ---------- */
+.modal-back {
+  position: fixed; inset: 0; background: rgba(16, 12, 34, .5); z-index: 1080;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+  animation: rf-fade .15s ease both;
+}
+.modal-back > .card { max-height: 90vh; overflow-y: auto; }
+
 /* page content fade-in */
-main { animation: rf-fade .35s ease both; }
+main { animation: rf-fade .3s ease both; }
 @keyframes rf-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Print: bills get printed and pasted in a paper file ---------- */
+@media print {
+  .navbar, .rf-bottom-nav, app-chat-widget, .btn { display: none !important; }
+  body { background: #fff; }
+  .card { box-shadow: none; border: 1px solid #999; }
+}
 
 /* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

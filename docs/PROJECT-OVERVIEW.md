@@ -7,17 +7,24 @@ just what each person sees and the steps they follow.
 
 ## 1. What is RideFleet?
 
-RideFleet is a **shared delivery + local-commerce platform** for Indian towns and
-cities. It connects four kinds of people through one pool of delivery riders:
+RideFleet is a **local-commerce platform for Indian towns, kasbas and small cities** —
+every kind of shop in the bazaar, a shared pool of delivery riders, the udhaar credit
+book that those shops actually run on, and an emergency phone directory that works
+without an account.
 
-- **Customers** order daily groceries from a nearby **kirana** (local) store.
-- **Store owners** (kiranas) receive those orders and hire a nearby rider to deliver.
-- **Riders** are shared — they accept deliveries from any store, on their own schedule.
-- **Wholesalers & distributors** supply the stores (the B2B "supply chain" behind the shop).
-- A **Super Admin** runs the platform and approves who can operate.
+- **Customers** order from any nearby shop — kirana, medical, water can, gas cylinder,
+  sabzi, hardware — pay cash, UPI or on their **khata**, and set repeat orders.
+- **Shop owners** (any of ~40 shop types) take orders, publish a rate list, keep the
+  udhaar khata, work a refill round and hire a nearby rider.
+- **Shop staff** have their own login for the counter.
+- **Riders** are shared across shops, on their own schedule.
+- **Wholesalers & distributors** supply the shops (the B2B chain behind the shelf).
+- **Field sales agents** sign shops up town by town, working a visit pipeline.
+- **Service providers** (electrician, plumber, tanker, tempo) list themselves too.
+- A **Super Admin** approves who operates and curates the emergency directory.
 
-Think: *Blinkit/Zepto meets a shared Uber-style rider pool, plus the wholesale supply
-chain that stocks the shops.*
+Think: *the town's bazaar, its credit book and its emergency numbers, on a cheap phone
+that may only have 2G.*
 
 ---
 
@@ -25,15 +32,58 @@ chain that stocks the shops.*
 
 | Role | What they do |
 |------|--------------|
-| **Super Admin** | Approves stores & riders, sees all orders/stats, manages everything. |
-| **Store Owner** (kirana) | Lists their shop, takes customer orders, hires riders, restocks from suppliers. |
-| **Rider** | Sets availability + location, accepts orders, delivers with an OTP, tracks earnings. |
-| **Customer** | Sends a grocery list (typed or photo) to a kirana, tracks the rider live, pays. |
-| **Wholesaler** | Lists bulk products; fulfils restock orders from stores/distributors. |
+| **Super Admin** | Approves shops, riders & suppliers; curates local emergency numbers; sees all orders/stats. |
+| **Shop Owner** | Lists any shop type, takes orders, publishes rates, keeps the khata, runs refills, hires riders. |
+| **Shop Staff** | Own login for the counter — takes orders and writes khata, but cannot change shop settings. |
+| **Rider** | Sets availability + location, accepts orders, delivers with an OTP, sees nearby help requests. |
+| **Customer** | Orders from any shop (list, photo or rate board), tracks the rider, sees their own khata. |
+| **Wholesaler** | Lists bulk products; fulfils restock orders from shops/distributors. |
 | **Distributor** | Middleman — buys from wholesalers, sells to kiranas (both buyer and seller). |
+| **Field Sales Agent** | Works a shop-by-shop beat: logs visits, sets follow-ups, earns per shop that goes live. |
+| **Service Provider** | Lists a service (electrician, plumber, tanker, tempo, mechanic) instead of a shelf. |
 
-Everyone signs up at **Register** and picks their role. Stores and riders go **live only
-after the Super Admin approves them**.
+Everyone signs up at **Register** and picks their role from an illustrated card. Shops,
+riders, suppliers, sales agents and service providers go **live only after the Super
+Admin approves them**. Shop staff are gated differently: the owner attaches them to the
+shop by email or mobile.
+
+---
+
+## 2a. Shop types
+
+Categories are grouped by what a person comes looking for, and each carries a Hindi
+label and an icon:
+
+- **Food & daily needs** — kirana, sabzi, fruit, dairy, bakery, sweets, meat & fish,
+  dhaba, tiffin
+- **Medical & emergency** — chemist, clinic, path lab, ambulance, veterinary, fire safety
+- **Home & utility** — water can & tanker, LPG gas, hardware, electrical, plumbing,
+  cement & building material, furniture, utensils, fuel
+- **Everyday shopping** — stationery, xerox & online form work, cosmetics, clothes,
+  footwear, mobile & recharge, electronics, pooja samagri, toys
+- **Farm & village trade** — seeds & fertiliser, cattle feed, poultry, aata chakki
+- **Services** — salon, tailor, laundry, repair & mechanic, courier, tempo & transport
+
+---
+
+## 2b. What makes it work in a small town
+
+These are the features aimed squarely at a kasba rather than a metro:
+
+| Feature | Why it matters here |
+|---------|--------------------|
+| **Udhaar khata** | Goods now, payment on salary day, is how most kirana business is settled. Shopkeeper and customer see the same balance, which ends payday disputes. A WhatsApp reminder is one tap. |
+| **Emergency directory** | 112, 108, 101, 100, 1906, 1912, 1091, 1098, 1077, 1962 are **built into the app as constants**, so the screen renders instantly with no login, no map load and no network. Local ambulance / hospital / blood bank / tanker numbers are added and verified by the admin. |
+| **Repeat refills** | Water can, gas cylinder, milk, cattle feed — the shop gets a dated round each morning (overdue first), and nobody runs out of drinking water because they forgot to call. |
+| **Hindi ↔ English** | One tap switches the whole app; it also follows the device language on the first visit. Shop names, item names and rate lists all carry a local-script field. |
+| **Data saver mode** | Turns maps, photos and animation off entirely — Leaflet is never even initialised, so no tiles are downloaded. Plus a bigger-text mode. |
+| **Landmark addresses** | Street names often don't exist and a GPS pin lands on the wrong lane, so landmark + mohalla are first-class fields and ride along in what the rider reads. |
+| **Tap to call / WhatsApp** | The first thing someone needs is a working phone number, not a checkout. Every shop row has a call button and a pre-filled WhatsApp order message. |
+| **Public shop directory** | Search by pincode, mohalla, shop type or item — logged out. The account is only needed to place a *tracked* order. |
+| **Shutter switch** | One toggle pauses today's orders when the shop closes, without going offline. |
+| **Rate list, not SKUs** | Small shops keep no inventory system, so they publish a simple rate board customers can tap items off. Loose Indian units (pav, adha kilo, bora, can, cylinder) included. |
+| **Phone orders** | The counter can type in an order that arrived by phone call, which is how most of it still arrives — and that's what makes tracking and khata work at all. |
+| **UPI deep links** | A khata balance can be cleared straight from the customer's UPI app. |
 
 ---
 
@@ -93,7 +143,16 @@ Super Admin approves stores & riders and oversees the whole platform.
 
 ## 5. Features built into the site
 
-- **Accounts & roles** — secure login (JWT), 6 roles, password show/hide.
+- **Accounts & roles** — secure login (JWT), 9 roles, password show/hide.
+- **Public pages (no login)** — `/shops` shop directory and `/emergency` helpline
+  directory, plus the existing `/track/:id` link.
+- **Khata (udhaar) ledger** — credit and payment lines per customer (keyed by mobile,
+  not by an account), running balances, per-shop and per-customer views.
+- **Refill subscriptions** — daily / alternate-day / weekly / fortnightly / monthly /
+  on-demand, with a "due today" round for the shop and a snooze for the customer.
+- **Emergency & SOS** — national helplines, verified local numbers, safety steps in both
+  languages, and an in-app help request that reaches nearby riders and shops.
+- **Field sales pipeline** — leads, visit log, follow-up dates, onboarding credit.
 - **Approvals & KYC** — admin approves stores/riders; Aadhaar verification (checksum-validated).
 - **Maps** — nearby stores/riders and live delivery on free OpenStreetMap.
 - **Live tracking** — rider location streams every few seconds (WebSockets); public

@@ -25,7 +25,14 @@ import { CurrentUser, AuthUser } from '../auth/current-user.decorator';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Roles(Role.StoreOwner, Role.Vendor, Role.Customer, Role.SuperAdmin, Role.Admin)
+  @Roles(
+    Role.StoreOwner,
+    Role.StoreStaff,
+    Role.Vendor,
+    Role.Customer,
+    Role.SuperAdmin,
+    Role.Admin,
+  )
   @Post()
   create(@Body() dto: CreateOrderDto, @CurrentUser() user: AuthUser) {
     return this.orderService.create(dto, user);
@@ -52,7 +59,13 @@ export class OrderController {
   }
 
   // Store assigns a rider (OTP generated here).
-  @Roles(Role.StoreOwner, Role.Vendor, Role.SuperAdmin, Role.Admin)
+  @Roles(
+    Role.StoreOwner,
+    Role.StoreStaff,
+    Role.Vendor,
+    Role.SuperAdmin,
+    Role.Admin,
+  )
   @Patch(':id/assign-rider')
   assignRider(
     @Param('id') id: string,
@@ -107,6 +120,10 @@ export class OrderController {
     @Param('id') id: string,
     @Body() body: { lat: number; lng: number },
   ) {
-    return this.orderService.pushLocation(id, Number(body.lat), Number(body.lng));
+    return this.orderService.pushLocation(
+      id,
+      Number(body.lat),
+      Number(body.lng),
+    );
   }
 }

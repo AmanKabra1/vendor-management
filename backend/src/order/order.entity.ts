@@ -23,6 +23,9 @@ export enum PaymentMethod {
   Cod = 'COD',
   Prepaid = 'PREPAID',
   Wallet = 'WALLET',
+  // Goes on the shop's khata (credit book) instead of being collected now —
+  // how a large share of regular kirana business is actually settled.
+  Udhaar = 'UDHAAR',
 }
 
 export enum PaymentStatus {
@@ -48,6 +51,11 @@ export class CustomerInfo {
 
   @Prop({ default: '' })
   address: string;
+
+  // The line a rider actually navigates by in a town: "peepal ped ke paas,
+  // blue gate". More reliable than a GPS pin dropped on the wrong lane.
+  @Prop({ default: '' })
+  landmark: string;
 
   @Prop({ default: null })
   lat: number;

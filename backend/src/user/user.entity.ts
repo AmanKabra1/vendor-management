@@ -28,6 +28,14 @@ export class Address {
   @Prop({ default: '' })
   pincode: string;
 
+  // A kasba address is a landmark plus a mohalla — street names often don't exist
+  // and a GPS pin drops on the wrong lane. Riders navigate by these two fields.
+  @Prop({ default: '' })
+  landmark: string;
+
+  @Prop({ default: '' })
+  area: string;
+
   @Prop({ type: GeoCoordinatesSchema, default: () => ({}) })
   coordinates: GeoCoordinates;
 }
@@ -74,6 +82,15 @@ export class User {
 
   @Prop({ type: AddressSchema, default: () => ({}) })
   address: Address;
+
+  // UI language: 'en' | 'hi' | 'mr'. Most small-town users read the local script
+  // far faster than English, and the wrong default is enough to lose them.
+  @Prop({ default: 'en' })
+  preferredLanguage: string;
+
+  // For counter staff (store_staff): the shop they work at.
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Store', default: null })
+  store: Types.ObjectId | null;
 
   // For vendor/store users: links the account to its Vendor document. Null otherwise.
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Vendor', default: null })

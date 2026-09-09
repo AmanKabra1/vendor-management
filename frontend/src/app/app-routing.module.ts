@@ -17,6 +17,9 @@ import { TrackComponent } from './track/track.component';
 import { CustomerDashboardComponent } from './customer/customer-dashboard.component';
 import { LandingComponent } from './landing/landing.component';
 import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
+import { EmergencyComponent } from './emergency/emergency.component';
+import { ShopDirectoryComponent } from './directory/shop-directory.component';
+import { SalesDashboardComponent } from './sales/sales-dashboard.component';
 
 import {
   authGuard,
@@ -27,6 +30,7 @@ import {
   riderGuard,
   customerGuard,
   supplyGuard,
+  salesGuard,
 } from './shared/guards';
 
 const routes: Routes = [
@@ -34,6 +38,10 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   // Public customer tracking link (no login required)
   { path: 'track/:id', component: TrackComponent },
+  // Public and deliberately outside the auth layout: someone in an emergency,
+  // or just looking for a shop's phone number, must never hit a login wall.
+  { path: 'emergency', component: EmergencyComponent },
+  { path: 'shops', component: ShopDirectoryComponent },
   // Public marketing landing page (redirects signed-in users to their dashboard)
   { path: '', pathMatch: 'full', component: LandingComponent },
   {
@@ -55,6 +63,7 @@ const routes: Routes = [
       { path: 'rider', component: RiderDashboardComponent, canActivate: [riderGuard] },
       { path: 'customer', component: CustomerDashboardComponent, canActivate: [customerGuard] },
       { path: 'supply', component: SupplyDashboardComponent, canActivate: [supplyGuard] },
+      { path: 'sales', component: SalesDashboardComponent, canActivate: [salesGuard] },
     ],
   },
   { path: '**', redirectTo: '' },
