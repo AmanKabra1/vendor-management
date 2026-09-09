@@ -1,10 +1,39 @@
 # Deployment & Access Guide
 
-This stack runs on **100% free tiers**: **MongoDB Atlas** (database) + **Back4App Containers** (backend) + **Vercel** (frontend). No Render. Total cost: ₹0.
+This stack runs on **100% free tiers**: **MongoDB Atlas** (database) + **Vercel**
+(both the NestJS API and the Angular app). Total cost: ₹0.
 
 ```
-Browser ──▶ Vercel (Angular)  ──▶  Back4App (NestJS API + Socket.IO)  ──▶  MongoDB Atlas
+Browser ──▶ Vercel (Angular)  ──▶  Vercel serverless (NestJS API)  ──▶  MongoDB Atlas
 ```
+
+## Current live deployment
+
+| Piece | Vercel project | URL |
+|-------|----------------|-----|
+| Frontend | `vendor-management` | https://vendor-management-jade.vercel.app |
+| Backend API | `vendor-management-x1v1` | https://vendor-management-x1v1.vercel.app |
+
+Both are connected to this GitHub repo, so **a push to `main` deploys both** —
+there is no manual deploy step. `.github/workflows/ci.yml` builds both apps on
+the same push, so a red CI run means the deploy is broken too.
+
+Quick check after a deploy:
+
+```bash
+curl https://vendor-management-x1v1.vercel.app/health
+curl https://vendor-management-x1v1.vercel.app/public/emergency
+```
+
+> The frontend's API URL comes from the `API_URL` env var on its Vercel project
+> (see `frontend/set-env.js`), **not** from source. Section 3 below explains it.
+
+> **Note:** section 2 documents Back4App, which is how the backend was first
+> hosted. That container is gone and its `*.b4a.run` URL now 404s; the backend
+> runs on Vercel serverless via `backend/api/index.ts` + `backend/vercel.json`.
+> Back4App (or Koyeb/Fly/Railway with `backend/Dockerfile`) is still a valid
+> alternative if you want a long-running process instead of lambdas —
+> Socket.IO, for instance, needs one.
 
 ---
 
@@ -44,11 +73,12 @@ Browser ──▶ Vercel (Angular)  ──▶  Back4App (NestJS API + Socket.IO)
 ---
 
 ## 3. Frontend — Vercel (free)
-1. **Point the app at your backend:** edit `frontend/src/environments/environment.prod.ts`:
-   ```ts
-   export const environment = { production: true, apiUrl: 'https://your-app.back4app.io' };
-   ```
-   Commit & push.
+1. **Point the app at your backend** with the `API_URL` env var on the Vercel
+   project (Settings → Environment Variables), e.g.
+   `https://vendor-management-x1v1.vercel.app`. At build time
+   `frontend/set-env.js` writes that into `environment.prod.ts`, so the URL
+   lives in config rather than in source — don't hand-edit that file, it is
+   overwritten on every build.
 2. vercel.com → **Add New → Project** → import this repo.
 3. **Root directory:** `frontend`  ·  Framework: **Angular**.
 4. **Build command:** `npm run build`  ·  **Output directory:** `dist/frontend/browser`.

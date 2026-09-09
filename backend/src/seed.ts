@@ -100,8 +100,14 @@ async function seedEmergencyContacts(app: INestApplicationContext) {
     },
   ];
 
-  const added = await emergency.seedContacts(rows as any);
+  const added = await emergency.seedContacts(rows);
   if (added) {
     console.log(`🚨 Seeded ${added} local emergency contacts`);
+  }
+
+  // Clears duplicates left behind by the earlier non-atomic seeder.
+  const removed = await emergency.dedupeContacts();
+  if (removed) {
+    console.log(`🧹 Removed ${removed} duplicate emergency contacts`);
   }
 }

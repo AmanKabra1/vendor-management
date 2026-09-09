@@ -6,7 +6,10 @@ const path = require('path');
 
 // Use API_URL when set (e.g. on Vercel); otherwise fall back to the deployed
 // backend so a build without the env var still points at production, not localhost.
-const DEFAULT_API_URL = 'https://vendormanagement-qwzydmup.b4a.run';
+// This is the Vercel serverless API (backend/api/index.ts). The old Back4App
+// container URL is dead, so leaving it here would make any build without
+// API_URL set silently talk to nothing.
+const DEFAULT_API_URL = 'https://vendor-management-x1v1.vercel.app';
 const rawUrl = process.env.API_URL || DEFAULT_API_URL;
 // Ensure exactly one trailing slash (the app joins paths onto apiUrl).
 const apiUrl = rawUrl.replace(/\/+$/, '') + '/';

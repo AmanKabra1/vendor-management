@@ -156,18 +156,57 @@ export class EmergencyService {
     return { ok: true };
   }
 
-  /** Idempotent bulk insert — used by the seeder for a district's numbers. */
+  /**
+   * Idempotent bulk insert — used by the seeder for a district's numbers.
+   *
+   * Uses an atomic upsert rather than find-then-create: on a serverless host
+   * several lambdas cold-start at once and each runs the seeder, so a
+   * check-then-insert races and the directory ends up showing the same blood
+   * bank three times. `$setOnInsert` also means a rerun never overwrites edits
+   * an admin has since made to a seeded row.
+   */
   async seedContacts(rows: Partial<EmergencyContact>[]) {
     let added = 0;
     for (const row of rows) {
-      const exists = await this.contactModel
-        .findOne({ phone: row.phone, name: row.name })
+      const res = await this.contactModel
+        .updateOne(
+          { phone: row.phone, name: row.name },
+          { $setOnInsert: row },
+          { upsert: true },
+        )
         .exec();
-      if (exists) continue;
-      await this.contactModel.create(row);
-      added++;
+      if (res.upsertedCount) added++;
     }
     return added;
+  }
+
+  /**
+   * Removes exact duplicate listings, keeping the oldest of each
+   * (name, phone) pair. Repairs rows left behind by the racing seeder above;
+   * safe to run repeatedly since it only ever deletes a row that still has an
+   * identical twin.
+   */
+  async dedupeContacts() {
+    const groups = await this.contactModel.aggregate<{
+      _id: { name: string; phone: string };
+      ids: string[];
+    }>([
+      { $sort: { createdAt: 1 } },
+      {
+        $group: {
+          _id: { name: '$name', phone: '$phone' },
+          ids: { $push: '$_id' },
+        },
+      },
+      { $match: { 'ids.1': { $exists: true } } },
+    ]);
+
+    const extras = groups.flatMap((g) => g.ids.slice(1));
+    if (!extras.length) return 0;
+    const res = await this.contactModel
+      .deleteMany({ _id: { $in: extras } })
+      .exec();
+    return res.deletedCount ?? 0;
   }
 
   // -------------------------------------------------------------------- SOS
