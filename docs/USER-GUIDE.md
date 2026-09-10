@@ -23,19 +23,41 @@ anything:
    **Sanjeevani Medical Store** (24×7) and **Shivam Water Suppliers**.
 3. Tap **📞 Call**, open the **Rate list**, or (as a customer) **🛒 Order**.
 
-**Demo logins** — use them to click around each role. Password for all the
-**demo** accounts is `Demo@1234`:
+**Demo logins — two accounts for every role.** Password for **all** demo
+accounts is **`Demo@1234`**. Log into any of them to see that role's screens
+with real data already filled in:
 
-| Role | Email | Password | Lands on |
-|------|-------|----------|----------|
-| Customer | `demo.customer@ridefleet.test` | `Demo@1234` | Order groceries |
-| Shop owner | `demo.kirana@ridefleet.test` | `Demo@1234` | My shop (orders, khata, rates) |
-| Rider | `demo.rider@ridefleet.test` | `Demo@1234` | Rider hub |
-| Field sales | `demo.sales@ridefleet.test` | `Demo@1234` | Sales pipeline |
-| Admin | `admin@vendor.com` | *(your own admin password)* | Admin console |
+| Role | Account 1 | Account 2 | Lands on |
+|------|-----------|-----------|----------|
+| 🛒 Customer | `demo.customer1@ridefleet.test` | `demo.customer2@ridefleet.test` | Order groceries |
+| 🏪 Shop owner | `demo.shop1@ridefleet.test` | `demo.shop2@ridefleet.test` | My shop (orders, khata, rates) |
+| 🧑‍💼 Shop staff | `demo.staff1@ridefleet.test` | `demo.staff2@ridefleet.test` | Shop counter |
+| 🛵 Rider | `demo.rider1@ridefleet.test` | `demo.rider2@ridefleet.test` | Rider hub |
+| 🏭 Wholesaler | `demo.wholesaler1@ridefleet.test` | `demo.wholesaler2@ridefleet.test` | Supply chain |
+| 🚚 Distributor | `demo.distributor1@ridefleet.test` | `demo.distributor2@ridefleet.test` | Supply chain |
+| 📋 Sales agent | `demo.sales1@ridefleet.test` | `demo.sales2@ridefleet.test` | Sales pipeline |
+| 🛠️ Service provider | `demo.service1@ridefleet.test` | `demo.service2@ridefleet.test` | My listing |
+| 🛡️ Admin | `admin@vendor.com` | *(single account)* | Admin console |
 
-> The demo accounts are throwaway test data — fine to experiment with. The admin
-> password is your private one (set in the backend's Vercel env), never `Demo@1234`.
+> Password for every demo account above: **`Demo@1234`**.
+> The **admin** is the exception — its password is your own private one (set in
+> the backend's Vercel env), **never** `Demo@1234`.
+
+**What's already set up in the demo:**
+
+- **8 shops** in pincode **452001**: Sanjeevani Medical (24×7), Sharma Kirana,
+  Taaza Sabzi, Shivam Water, Gupta Gas (24×7), Gokul Dairy, Kumar Electricals,
+  Sai Plumbing — with published rate lists.
+- **2 orders**, **2 repeat orders** (water + milk), **khata** balances, **2
+  supplier catalogs**, **2 sales leads**, both riders **online**.
+
+To reseed or add this on any environment, run:
+
+```bash
+ADMIN_PW='your-admin-password' node scripts/seed-demo.mjs
+```
+
+> These are throwaway test accounts with fake data — fine to experiment with.
 
 ---
 
