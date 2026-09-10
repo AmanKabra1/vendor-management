@@ -33,7 +33,7 @@ import { AuthService } from '../shared/auth.service';
               <form (ngSubmit)="submit()">
                 <div class="mb-3">
                   <label class="form-label">Email</label>
-                  <input class="form-control" type="email" name="email" [(ngModel)]="email" placeholder="admin@vendor.com" required />
+                  <input class="form-control" type="email" name="email" [(ngModel)]="email" placeholder="you@example.com" required />
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Password</label>
@@ -50,7 +50,6 @@ import { AuthService } from '../shared/auth.service';
               </form>
 
               <p class="text-center mt-3 mb-0">New here? <a routerLink="/register">Create an account</a></p>
-              <p class="text-center text-muted small mt-2 mb-0">Demo admin: admin&#64;vendor.com / admin123</p>
             </div>
           </div>
         </div>
