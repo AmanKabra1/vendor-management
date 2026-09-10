@@ -53,6 +53,7 @@ const TYPES: { key: string; en: string; hi: string; icon: string }[] = [
   selector: 'app-emergency',
   standalone: false,
   template: `
+    <app-public-header [title]="'sos.title' | t"></app-public-header>
     <div class="container-lg px-0 px-md-2 pb-5">
       <div class="rf-sos-hero">
         <div class="d-flex justify-content-between align-items-start gap-2">

@@ -22,6 +22,7 @@ import {
   selector: 'app-shop-directory',
   standalone: false,
   template: `
+    <app-public-header [title]="'nav.shops' | t"></app-public-header>
     <div class="container-lg px-0 px-md-2 pb-5">
       <div class="rf-page-head d-flex justify-content-between align-items-start gap-2">
         <div>

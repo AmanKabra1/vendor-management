@@ -40,6 +40,9 @@ const DICT: Record<string, { en: string; hi: string }> = {
   'nav.more': { en: 'More', hi: 'और' },
 
   // ---- common ----
+  'common.back': { en: 'Back', hi: 'वापस' },
+  'common.home': { en: 'Home', hi: 'होम' },
+  'common.dashboard': { en: 'My dashboard', hi: 'मेरा डैशबोर्ड' },
   'common.call': { en: 'Call', hi: 'कॉल करें' },
   'common.whatsapp': { en: 'WhatsApp', hi: 'व्हाट्सएप' },
   'common.directions': { en: 'Directions', hi: 'रास्ता' },
