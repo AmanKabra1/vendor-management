@@ -54,11 +54,29 @@ different names, so no screen ever looks empty:
   leads per sales agent**, **≥2 local numbers** per emergency type, both riders
   **online**.
 
-To (re)seed this on any environment — both scripts are idempotent:
+**One fully-loaded account of each type** — open account **#1** of any role to
+see everything that role can hold (account #2 is kept lighter, to show the two
+are distinct):
+
+| Fully-loaded account | What it's packed with |
+|---|---|
+| `demo.shop1@…` (Sharma Kirana) | **28-item ration rate list** (atta, rice, 5 dals, oils, ghee, full masala set…), 4 named khata customers |
+| `demo.shop1@…` (Sanjeevani Medical) | **18-item medicine list** |
+| `demo.shop1@…` (Taaza Sabzi) | 12 vegetables with rates |
+| `demo.shop2@…` (Dairy / Water / Gas) | full rate boards (milk, cans, cylinders…) |
+| `demo.service1@…` (Kumar Electricals) | 6 services with prices |
+| `demo.customer1@…` (Aarti) | orders from 4 different shops |
+| `demo.wholesaler1@…` / `demo.distributor1@…` | 8-product bulk catalogs |
+| `demo.sales1@…` (Pooja) | a lead in **every** pipeline stage |
+| `demo.rider1@…` (Imran) | assigned deliveries with OTP |
+
+To (re)seed all of this on any environment — every script is idempotent, run
+them in this order:
 
 ```bash
-ADMIN_PW='your-admin-password' node scripts/seed-demo.mjs   # accounts + shops
-ADMIN_PW='your-admin-password' node scripts/topup-demo.mjs  # tops each up to >=2
+ADMIN_PW='your-admin-password' node scripts/seed-demo.mjs     # 2 accounts/role + shops
+ADMIN_PW='your-admin-password' node scripts/topup-demo.mjs    # >=2 of each record everywhere
+ADMIN_PW='your-admin-password' node scripts/seed-showcase.mjs # fill account #1 of each type fully
 ```
 
 > These are throwaway test accounts with fake data — fine to experiment with.
