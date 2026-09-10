@@ -13,13 +13,27 @@ export async function seedAdmin(app: INestApplicationContext) {
   const userService = app.get(UserService);
 
   const email = process.env.ADMIN_EMAIL || 'admin@vendor.com';
+  const password = process.env.ADMIN_PASSWORD || 'admin123';
+
   const existing = await userService.findByEmail(email);
   if (existing) {
+    // Self-healing: the seeder used to only create a new admin, so an account
+    // first seeded with the default 'admin123' kept that password forever even
+    // after ADMIN_PASSWORD was set. Rotate it to the configured password — but
+    // ONLY when the stored one still matches the default, so a password an
+    // admin has deliberately set (or already rotated) is never overwritten.
+    if (password !== 'admin123') {
+      const stillDefault = await bcrypt.compare('admin123', existing.password);
+      if (stillDefault) {
+        existing.password = await bcrypt.hash(password, 10);
+        await existing.save();
+        console.log(`🔑 Reset default admin password for ${email}`);
+      }
+    }
     await seedEmergencyContacts(app);
     return;
   }
 
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
   const hash = await bcrypt.hash(password, 10);
   await userService.create({
     email,
@@ -31,7 +45,7 @@ export async function seedAdmin(app: INestApplicationContext) {
     vendor: null,
   });
 
-  console.log(`👤 Seeded admin account: ${email} / ${password}`);
+  console.log(`👤 Seeded admin account: ${email}`);
 
   await seedEmergencyContacts(app);
 }
