@@ -43,18 +43,22 @@ with real data already filled in:
 > The **admin** is the exception — its password is your own private one (set in
 > the backend's Vercel env), **never** `Demo@1234`.
 
-**What's already set up in the demo:**
+**What's already set up in the demo** — at least **two of everything**, all with
+different names, so no screen ever looks empty:
 
 - **8 shops** in pincode **452001**: Sanjeevani Medical (24×7), Sharma Kirana,
   Taaza Sabzi, Shivam Water, Gupta Gas (24×7), Gokul Dairy, Kumar Electricals,
   Sai Plumbing — with published rate lists.
-- **2 orders**, **2 repeat orders** (water + milk), **khata** balances, **2
-  supplier catalogs**, **2 sales leads**, both riders **online**.
+- **≥2 orders per customer**, **≥2 repeat orders per customer** (all different
+  items), **≥2 khata customers per shop**, **≥2 products per supplier**, **≥2
+  leads per sales agent**, **≥2 local numbers** per emergency type, both riders
+  **online**.
 
-To reseed or add this on any environment, run:
+To (re)seed this on any environment — both scripts are idempotent:
 
 ```bash
-ADMIN_PW='your-admin-password' node scripts/seed-demo.mjs
+ADMIN_PW='your-admin-password' node scripts/seed-demo.mjs   # accounts + shops
+ADMIN_PW='your-admin-password' node scripts/topup-demo.mjs  # tops each up to >=2
 ```
 
 > These are throwaway test accounts with fake data — fine to experiment with.
