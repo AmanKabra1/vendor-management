@@ -257,17 +257,23 @@ export class ShopDirectoryComponent implements OnInit {
   }
 
   /**
-   * On a phone the category list stacks ABOVE the results, so tapping a type
-   * far down the list would load shops the user can't see without scrolling.
-   * Jump to the results so it's obvious what was fetched. Skipped on desktop,
-   * where the results already sit beside the list.
+   * Bring the results into view whenever a category is picked. This matters on
+   * a phone (the list stacks above the results) AND on desktop when the type
+   * list is long: if you've scrolled down to tap a type near the bottom, the
+   * matching shops render at the TOP of the results column — above your view —
+   * so it looks like nothing happened. We scroll only when the results anchor
+   * isn't already comfortably visible, so it never jumps when you're at the top.
    */
   private scrollToResults() {
-    if (window.innerWidth >= 992) return;
-    setTimeout(
-      () => this.resultsTop?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-      60,
-    );
+    setTimeout(() => {
+      const el = this.resultsTop?.nativeElement;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      const comfortablyVisible = top >= 0 && top < window.innerHeight * 0.5;
+      if (!comfortablyVisible) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 60);
   }
 
   clearFilters() {
