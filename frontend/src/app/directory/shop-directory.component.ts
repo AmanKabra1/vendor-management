@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 import { AuthService } from '../shared/auth.service';
 import { I18nService } from '../shared/i18n.service';
@@ -110,6 +110,9 @@ import {
 
         <!-- Results -->
         <div class="col-lg-8">
+          <!-- Scroll anchor: on a phone the category list sits above the
+               results, so picking a type jumps here to show what was fetched. -->
+          <div #resultsTop style="scroll-margin-top:64px"></div>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="rf-eyebrow">
               {{ category ? i18n.pick(meta(category).en, meta(category).hi) : ('common.all' | t) }}
@@ -222,6 +225,8 @@ export class ShopDirectoryComponent implements OnInit {
   meta = categoryMeta;
   open = isOpenNow;
 
+  @ViewChild('resultsTop') private resultsTop?: ElementRef<HTMLElement>;
+
   constructor(
     private api: ApiService,
     public auth: AuthService,
@@ -248,6 +253,21 @@ export class ShopDirectoryComponent implements OnInit {
   pickCategory(key: string) {
     this.category = this.category === key ? '' : key;
     this.load();
+    this.scrollToResults();
+  }
+
+  /**
+   * On a phone the category list stacks ABOVE the results, so tapping a type
+   * far down the list would load shops the user can't see without scrolling.
+   * Jump to the results so it's obvious what was fetched. Skipped on desktop,
+   * where the results already sit beside the list.
+   */
+  private scrollToResults() {
+    if (window.innerWidth >= 992) return;
+    setTimeout(
+      () => this.resultsTop?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      60,
+    );
   }
 
   clearFilters() {
