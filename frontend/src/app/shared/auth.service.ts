@@ -213,6 +213,31 @@ export class AuthService {
   }
 
   /**
+   * Roles a SuperAdmin must approve before they can operate — the only ones for
+   * whom "waiting for approval" is a real state. Customers, counter staff and
+   * the admins themselves are never gated, so they must never see that banner.
+   * Mirrors APPROVAL_REQUIRED_ROLES on the backend.
+   */
+  private static readonly APPROVAL_ROLES: UserRole[] = [
+    'store_owner',
+    'rider',
+    'wholesaler',
+    'distributor',
+    'sales',
+    'service_provider',
+  ];
+
+  /** True only for an approval-gated role that is still pending. */
+  get isPendingApproval(): boolean {
+    const u = this.currentUser;
+    return (
+      !!u &&
+      AuthService.APPROVAL_ROLES.includes(u.role) &&
+      u.isApproved === false
+    );
+  }
+
+  /**
    * Patches the cached user (e.g. after saving a profile or language).
    * No-ops when there's no cached user, so a stray call can't invent a
    * half-populated account object that templates then read `.name` off.

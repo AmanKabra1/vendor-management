@@ -17,6 +17,8 @@ export async function seedAdmin(app: INestApplicationContext) {
 
   const existing = await userService.findByEmail(email);
   if (existing) {
+    let dirty = false;
+
     // Self-healing: the seeder used to only create a new admin, so an account
     // first seeded with the default 'admin123' kept that password forever even
     // after ADMIN_PASSWORD was set. Rotate it to the configured password — but
@@ -26,10 +28,22 @@ export async function seedAdmin(app: INestApplicationContext) {
       const stillDefault = await bcrypt.compare('admin123', existing.password);
       if (stillDefault) {
         existing.password = await bcrypt.hash(password, 10);
-        await existing.save();
+        dirty = true;
         console.log(`🔑 Reset default admin password for ${email}`);
       }
     }
+
+    // An admin seeded before these flags existed can sit with isApproved=false,
+    // which fired the "waiting for approval" banner on the admin's own console.
+    // The platform admin is approved and verified by definition — enforce it.
+    if (!existing.isApproved || !existing.isVerified) {
+      existing.isApproved = true;
+      existing.isVerified = true;
+      dirty = true;
+      console.log(`✅ Marked admin ${email} approved & verified`);
+    }
+
+    if (dirty) await existing.save();
     await seedEmergencyContacts(app);
     return;
   }

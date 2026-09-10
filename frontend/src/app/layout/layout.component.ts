@@ -88,9 +88,10 @@ import { I18nService } from '../shared/i18n.service';
     </div>
 
     <!-- Approval banner: tells a pending shop/rider exactly where they stand
-         instead of leaving them wondering why nothing works. -->
+         instead of leaving them wondering why nothing works. Only approval-gated
+         roles ever see it — never a customer, staff member or admin. -->
     <div class="alert alert-info mb-0 rounded-0 py-2 small text-center"
-         *ngIf="auth.currentUser && auth.currentUser.isApproved === false">
+         *ngIf="auth.isPendingApproval">
       ⏳ {{ 'store.awaitingApproval' | t }}
     </div>
 
