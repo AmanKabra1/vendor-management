@@ -1,19 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 import { TrackingService } from '../shared/tracking.service';
+import { I18nService } from '../shared/i18n.service';
 
 @Component({
   selector: 'app-rider-dashboard',
   standalone: false,
   template: `
-    <h3 class="mb-4">Rider Hub</h3>
+    <h3 class="mb-4">{{ 'rider.title' | t }}</h3>
 
     <app-kyc></app-kyc>
 
 
     <!-- No profile yet -->
     <div *ngIf="!rider" class="card border-0 shadow-sm mb-4" style="max-width:560px">
-      <div class="card-header bg-white fw-semibold">Set up your rider profile</div>
+      <div class="card-header bg-white fw-semibold">{{ 'rider.setup' | t }}</div>
       <div class="card-body">
         <div class="row g-2">
           <div class="col-md-5">
@@ -21,8 +22,8 @@ import { TrackingService } from '../shared/tracking.service';
               <option>MOTORCYCLE</option><option>SCOOTER</option><option>BICYCLE</option><option>CAR</option><option>VAN</option>
             </select>
           </div>
-          <div class="col-md-4"><input class="form-control" placeholder="License no." [(ngModel)]="profileForm.licenseNumber"></div>
-          <div class="col-md-3"><button class="btn btn-primary w-100" (click)="createProfile()">Create</button></div>
+          <div class="col-md-4"><input class="form-control" [placeholder]="'rider.license' | t" [(ngModel)]="profileForm.licenseNumber"></div>
+          <div class="col-md-3"><button class="btn btn-primary w-100" (click)="createProfile()">{{ 'common.create' | t }}</button></div>
         </div>
       </div>
     </div>
@@ -32,17 +33,17 @@ import { TrackingService } from '../shared/tracking.service';
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body d-flex flex-wrap align-items-center gap-3">
           <div>
-            <div class="text-muted small">Status</div>
+            <div class="text-muted small">{{ 'common.status' | t }}</div>
             <span class="badge" [ngClass]="rider.isApproved ? 'bg-success' : 'bg-warning text-dark'">
-              {{ rider.isApproved ? 'Approved' : 'Awaiting approval' }}
+              {{ (rider.isApproved ? 'common.approved' : 'rider.awaiting') | t }}
             </span>
           </div>
           <div>
-            <div class="text-muted small">Deliveries</div>
+            <div class="text-muted small">{{ 'rider.deliveries' | t }}</div>
             <strong>{{ rider.totalDeliveries }}</strong>
           </div>
           <div class="ms-auto d-flex align-items-center gap-2">
-            <span class="text-muted small">Availability</span>
+            <span class="text-muted small">{{ 'rider.availability' | t }}</span>
             <select class="form-select" style="width:auto" [(ngModel)]="rider.availability" (change)="setAvailability()">
               <option>OFFLINE</option><option>AVAILABLE</option><option>ON_BREAK</option><option>ON_DELIVERY</option>
             </select>
@@ -51,11 +52,11 @@ import { TrackingService } from '../shared/tracking.service';
 
         <!-- Location row -->
         <div class="card-footer bg-white">
-          <label class="form-label small mb-1">My current location (riders need this to receive nearby orders)</label>
+          <label class="form-label small mb-1">{{ 'rider.location' | t }}</label>
           <app-location-picker [lat]="loc.lat" [lng]="loc.lng" (locationChange)="onRiderLoc($event)"></app-location-picker>
-          <span class="small" [class.text-success]="locMsg.startsWith('Saved')" [class.text-danger]="locMsg.startsWith('Could')">{{ locMsg }}</span>
+          <span class="small" [class.text-success]="locState==='ok'" [class.text-danger]="locState==='err'">{{ locMsg }}</span>
           <div class="small text-muted mt-2" *ngIf="!rider.isApproved">
-            You can set availability & location, but you'll only receive orders once an admin approves you.
+            {{ 'rider.approvalNote' | t }}
           </div>
         </div>
       </div>
@@ -96,10 +97,10 @@ import { TrackingService } from '../shared/tracking.service';
 
       <!-- Assigned orders -->
       <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white fw-semibold">My deliveries</div>
+        <div class="card-header bg-white fw-semibold">{{ 'rider.myDeliveries' | t }}</div>
         <div class="table-responsive">
           <table class="table align-middle mb-0">
-            <thead class="table-light"><tr><th>Order #</th><th>Pickup</th><th>Drop</th><th>Status</th><th>Action</th></tr></thead>
+            <thead class="table-light"><tr><th>{{ 'common.orderNo' | t }}</th><th>{{ 'rider.pickup' | t }}</th><th>{{ 'rider.drop' | t }}</th><th>{{ 'common.status' | t }}</th><th>{{ 'common.action' | t }}</th></tr></thead>
             <tbody>
               <tr *ngFor="let o of orders">
                 <td class="small fw-semibold">{{ o.orderNumber }}</td>
@@ -107,18 +108,18 @@ import { TrackingService } from '../shared/tracking.service';
                 <td class="small">{{ o.dropLocation?.address || o.customer?.address || '—' }}</td>
                 <td><span class="badge bg-secondary">{{ o.status }}</span></td>
                 <td class="text-nowrap">
-                  <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'accept')">Accept</button>
-                  <button class="btn btn-sm btn-outline-danger me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'reject')">Reject</button>
-                  <button class="btn btn-sm btn-primary me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'pickup')">Picked up</button>
-                  <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='PICKED_UP' || o.status==='IN_TRANSIT'" (click)="deliver(o)">Deliver (OTP)</button>
+                  <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'accept')">{{ 'rider.accept' | t }}</button>
+                  <button class="btn btn-sm btn-outline-danger me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'reject')">{{ 'common.reject' | t }}</button>
+                  <button class="btn btn-sm btn-primary me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'pickup')">{{ 'rider.pickedUp' | t }}</button>
+                  <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='PICKED_UP' || o.status==='IN_TRANSIT'" (click)="deliver(o)">{{ 'rider.deliverOtp' | t }}</button>
                   <button class="btn btn-sm" [class.btn-outline-info]="liveOrderId!==o.id" [class.btn-info]="liveOrderId===o.id"
                           *ngIf="o.status==='PICKED_UP' || o.status==='IN_TRANSIT' || o.status==='RIDER_ASSIGNED'"
                           (click)="toggleLive(o)">
-                    {{ liveOrderId===o.id ? '⏹ Live' : '📡 Go Live' }}
+                    {{ liveOrderId===o.id ? ('⏹ ' + ('rider.live' | t)) : ('📡 ' + ('rider.goLive' | t)) }}
                   </button>
                 </td>
               </tr>
-              <tr *ngIf="!orders.length"><td colspan="5" class="text-center text-muted py-3">No deliveries assigned.</td></tr>
+              <tr *ngIf="!orders.length"><td colspan="5" class="text-center text-muted py-3">{{ 'rider.noDeliveries' | t }}</td></tr>
             </tbody>
           </table>
         </div>
@@ -132,6 +133,8 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
   profileForm = { vehicleType: 'MOTORCYCLE', licenseNumber: '' };
   loc = { lat: 28.61, lng: 77.2 };
   locMsg = '';
+  /** Styling flag for the location message, language-independent. */
+  locState: '' | 'ok' | 'err' = '';
   liveOrderId: string | null = null;
   /** Open help requests near this rider (see the SOS card in the template). */
   sosAlerts: any[] = [];
@@ -139,7 +142,11 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
   private liveLat = 28.61;
   private liveLng = 77.2;
 
-  constructor(private api: ApiService, private tracking: TrackingService) {}
+  constructor(
+    private api: ApiService,
+    private tracking: TrackingService,
+    private i18n: I18nService,
+  ) {}
 
   ngOnInit() {
     this.load();
@@ -228,16 +235,22 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
     const lat = Number(this.loc.lat);
     const lng = Number(this.loc.lng);
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      this.locMsg = 'Could not save — enter valid lat/lng';
+      this.locMsg = this.i18n.t('rider.saveInvalid');
+      this.locState = 'err';
       return;
     }
-    this.locMsg = 'Saving…';
+    this.locMsg = this.i18n.t('common.loading');
+    this.locState = '';
     this.api.patch(`riders/${this.rider.id}/location`, { lat, lng }).subscribe({
       next: () => {
-        this.locMsg = `Saved ✓ (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+        this.locMsg = `${this.i18n.t('common.save')} ✓ (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+        this.locState = 'ok';
         this.load();
       },
-      error: () => (this.locMsg = 'Could not save location'),
+      error: () => {
+        this.locMsg = this.i18n.t('rider.saveFailed');
+        this.locState = 'err';
+      },
     });
   }
 
@@ -252,11 +265,11 @@ export class RiderDashboardComponent implements OnInit, OnDestroy {
   }
 
   deliver(o: any) {
-    const otp = prompt('Enter delivery OTP from the customer:') || '';
+    const otp = prompt(this.i18n.t('rider.otpPrompt')) || '';
     if (!otp) return;
     this.api.patch(`orders/${o.id}/deliver`, { otp }).subscribe({
       next: () => this.load(),
-      error: (e) => alert(e?.error?.message || 'Delivery failed'),
+      error: (e) => alert(e?.error?.message || this.i18n.t('rider.deliverFailed')),
     });
   }
 }
