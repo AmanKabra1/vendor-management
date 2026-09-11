@@ -52,18 +52,18 @@ import {
           <div class="row g-2">
             <div class="col-12 col-md-6">
               <input class="form-control" [(ngModel)]="q" name="dirQ"
-                     [placeholder]="'dir.searchPlaceholder' | t" (keyup.enter)="load()">
+                     [placeholder]="'dir.searchPlaceholder' | t" (keyup.enter)="search()">
             </div>
             <div class="col-6 col-md-2">
               <input class="form-control" [(ngModel)]="pincode" name="dirPin" inputmode="numeric"
-                     [placeholder]="'common.pincode' | t" (keyup.enter)="load()">
+                     [placeholder]="'common.pincode' | t" (keyup.enter)="search()">
             </div>
             <div class="col-6 col-md-2">
               <input class="form-control" [(ngModel)]="area" name="dirArea"
-                     [placeholder]="'common.area' | t" (keyup.enter)="load()">
+                     [placeholder]="'common.area' | t" (keyup.enter)="search()">
             </div>
             <div class="col-12 col-md-2 d-grid">
-              <button class="btn btn-primary" (click)="load()">🔍 {{ 'common.search' | t }}</button>
+              <button class="btn btn-primary" (click)="search()">🔍 {{ 'common.search' | t }}</button>
             </div>
           </div>
 
@@ -274,6 +274,23 @@ export class ShopDirectoryComponent implements OnInit {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, 60);
+  }
+
+  /**
+   * Explicit pincode / area / text search — a fresh area lookup.
+   *
+   * Clears two filters that are easy to forget and have no obvious "on"
+   * indicator: a category chip selected earlier (far down the list), and any
+   * earlier "Near me" GPS. Left set, either silently narrows the result to
+   * empty — which is the "search a pincode, then re-search it and nothing
+   * shows until a refresh" bug. The visible toggles (open / 24h / udhaar) are
+   * intentional and kept.
+   */
+  search() {
+    this.category = '';
+    this.coords = null;
+    this.load();
+    this.scrollToResults();
   }
 
   clearFilters() {
