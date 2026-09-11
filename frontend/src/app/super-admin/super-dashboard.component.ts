@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
+import { I18nService } from '../shared/i18n.service';
 
 type Tab =
   | 'overview'
@@ -35,8 +36,8 @@ const EMERGENCY_TYPES = [
   standalone: false,
   template: `
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h3 class="mb-0">Admin Console</h3>
-      <span class="badge bg-secondary">Platform Administrator</span>
+      <h3 class="mb-0">{{ 'admin.title' | t }}</h3>
+      <span class="badge bg-secondary">{{ 'admin.subtitle' | t }}</span>
     </div>
 
     <!-- stat cards -->
@@ -55,7 +56,7 @@ const EMERGENCY_TYPES = [
     <ul class="nav nav-pills gap-2 mb-3">
       <li class="nav-item" *ngFor="let t of tabs">
         <a class="nav-link" [class.active]="tab===t.key" (click)="tab=t.key" role="button">
-          {{ t.label }}
+          {{ t.icon ? t.icon + ' ' : '' }}{{ t.labelKey | t }}
           <span class="badge bg-warning text-dark ms-1" *ngIf="t.key==='stores' && pendingStores.length">{{ pendingStores.length }}</span>
           <span class="badge bg-warning text-dark ms-1" *ngIf="t.key==='riders' && pendingRiders.length">{{ pendingRiders.length }}</span>
           <span class="badge bg-warning text-dark ms-1" *ngIf="t.key==='suppliers' && pendingSuppliers.length">{{ pendingSuppliers.length }}</span>
@@ -67,37 +68,37 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='overview'" class="row g-4">
       <div class="col-lg-6">
         <div class="card border-0 h-100">
-          <div class="card-header d-flex justify-content-between"><span>Stores awaiting approval</span><span class="badge bg-warning text-dark">{{ pendingStores.length }}</span></div>
+          <div class="card-header d-flex justify-content-between"><span>{{ 'admin.storesAwaiting' | t }}</span><span class="badge bg-warning text-dark">{{ pendingStores.length }}</span></div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let s of pendingStores">
               <div><div class="fw-semibold">{{ s.name }}</div><small class="text-muted">{{ s.category }} · {{ s.address?.city || '—' }}</small></div>
-              <div><button class="btn btn-sm btn-success me-1" (click)="approveStore(s)">Approve</button><button class="btn btn-sm btn-outline-danger" (click)="rejectStore(s)">Reject</button></div>
+              <div><button class="btn btn-sm btn-success me-1" (click)="approveStore(s)">{{ 'common.approve' | t }}</button><button class="btn btn-sm btn-outline-danger" (click)="rejectStore(s)">{{ 'common.reject' | t }}</button></div>
             </li>
-            <li class="list-group-item text-muted text-center" *ngIf="!pendingStores.length">All clear 🎉</li>
+            <li class="list-group-item text-muted text-center" *ngIf="!pendingStores.length">{{ 'admin.allClear' | t }}</li>
           </ul>
         </div>
       </div>
       <div class="col-lg-6">
         <div class="card border-0 h-100">
-          <div class="card-header d-flex justify-content-between"><span>Riders awaiting approval</span><span class="badge bg-warning text-dark">{{ pendingRiders.length }}</span></div>
+          <div class="card-header d-flex justify-content-between"><span>{{ 'admin.ridersAwaiting' | t }}</span><span class="badge bg-warning text-dark">{{ pendingRiders.length }}</span></div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let r of pendingRiders">
-              <div><div class="fw-semibold">{{ r.user?.name || 'Rider' }}</div><small class="text-muted">{{ r.vehicleType }} · {{ r.user?.email }}</small></div>
-              <button class="btn btn-sm btn-success" (click)="approveRider(r)">Approve</button>
+              <div><div class="fw-semibold">{{ r.user?.name || ('admin.rider' | t) }}</div><small class="text-muted">{{ r.vehicleType }} · {{ r.user?.email }}</small></div>
+              <button class="btn btn-sm btn-success" (click)="approveRider(r)">{{ 'common.approve' | t }}</button>
             </li>
-            <li class="list-group-item text-muted text-center" *ngIf="!pendingRiders.length">All clear 🎉</li>
+            <li class="list-group-item text-muted text-center" *ngIf="!pendingRiders.length">{{ 'admin.allClear' | t }}</li>
           </ul>
         </div>
       </div>
       <div class="col-lg-6">
         <div class="card border-0 h-100">
-          <div class="card-header d-flex justify-content-between"><span>Suppliers awaiting approval</span><span class="badge bg-warning text-dark">{{ pendingSuppliers.length }}</span></div>
+          <div class="card-header d-flex justify-content-between"><span>{{ 'admin.suppliersAwaiting' | t }}</span><span class="badge bg-warning text-dark">{{ pendingSuppliers.length }}</span></div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let u of pendingSuppliers">
               <div><div class="fw-semibold">{{ u.name }}</div><small class="text-muted">{{ u.role }} · {{ u.email }}</small></div>
-              <div><button class="btn btn-sm btn-success me-1" (click)="approveSupplier(u)">Approve</button><button class="btn btn-sm btn-outline-danger" (click)="rejectSupplier(u)">Reject</button></div>
+              <div><button class="btn btn-sm btn-success me-1" (click)="approveSupplier(u)">{{ 'common.approve' | t }}</button><button class="btn btn-sm btn-outline-danger" (click)="rejectSupplier(u)">{{ 'common.reject' | t }}</button></div>
             </li>
-            <li class="list-group-item text-muted text-center" *ngIf="!pendingSuppliers.length">All clear 🎉</li>
+            <li class="list-group-item text-muted text-center" *ngIf="!pendingSuppliers.length">{{ 'admin.allClear' | t }}</li>
           </ul>
         </div>
       </div>
@@ -107,18 +108,18 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='stores'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>Store</th><th>Category</th><th>City</th><th>Status</th><th>Orders</th><th class="text-end">Actions</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.store' | t }}</th><th>{{ 'admin.category' | t }}</th><th>{{ 'admin.city' | t }}</th><th>{{ 'common.status' | t }}</th><th>{{ 'admin.orders' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let s of stores">
               <td class="fw-semibold">{{ s.name }}</td><td>{{ s.category }}</td><td>{{ s.address?.city || '—' }}</td>
               <td><span class="badge" [ngClass]="s.status==='APPROVED'?'bg-success':(s.status==='REJECTED'?'bg-danger':'bg-warning text-dark')">{{ s.status }}</span></td>
               <td>{{ s.totalOrders }}</td>
               <td class="text-end text-nowrap">
-                <button class="btn btn-sm btn-success me-1" *ngIf="s.status!=='APPROVED'" (click)="approveStore(s)">Approve</button>
-                <button class="btn btn-sm btn-outline-danger" *ngIf="s.status!=='REJECTED'" (click)="rejectStore(s)">Reject</button>
+                <button class="btn btn-sm btn-success me-1" *ngIf="s.status!=='APPROVED'" (click)="approveStore(s)">{{ 'common.approve' | t }}</button>
+                <button class="btn btn-sm btn-outline-danger" *ngIf="s.status!=='REJECTED'" (click)="rejectStore(s)">{{ 'common.reject' | t }}</button>
               </td>
             </tr>
-            <tr *ngIf="!stores.length"><td colspan="6" class="text-center text-muted py-3">No stores.</td></tr>
+            <tr *ngIf="!stores.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noStores' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -128,15 +129,15 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='riders'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>Rider</th><th>Vehicle</th><th>Availability</th><th>Deliveries</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.rider' | t }}</th><th>{{ 'admin.vehicle' | t }}</th><th>{{ 'rider.availability' | t }}</th><th>{{ 'rider.deliveries' | t }}</th><th>{{ 'common.status' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let r of riders">
-              <td class="fw-semibold">{{ r.user?.name || 'Rider' }}<div class="small text-muted">{{ r.user?.email }}</div></td>
+              <td class="fw-semibold">{{ r.user?.name || ('admin.rider' | t) }}<div class="small text-muted">{{ r.user?.email }}</div></td>
               <td>{{ r.vehicleType }}</td><td><span class="badge bg-light text-dark">{{ r.availability }}</span></td><td>{{ r.totalDeliveries }}</td>
-              <td><span class="badge" [ngClass]="r.isApproved?'bg-success':'bg-warning text-dark'">{{ r.isApproved?'Approved':'Pending' }}</span></td>
-              <td class="text-end"><button class="btn btn-sm btn-success" *ngIf="!r.isApproved" (click)="approveRider(r)">Approve</button></td>
+              <td><span class="badge" [ngClass]="r.isApproved?'bg-success':'bg-warning text-dark'">{{ (r.isApproved?'common.approved':'common.pending') | t }}</span></td>
+              <td class="text-end"><button class="btn btn-sm btn-success" *ngIf="!r.isApproved" (click)="approveRider(r)">{{ 'common.approve' | t }}</button></td>
             </tr>
-            <tr *ngIf="!riders.length"><td colspan="6" class="text-center text-muted py-3">No riders.</td></tr>
+            <tr *ngIf="!riders.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noRiders' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -146,19 +147,19 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='suppliers'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>Name</th><th>Role</th><th>Email</th><th>Phone</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.name' | t }}</th><th>{{ 'admin.role' | t }}</th><th>{{ 'admin.email' | t }}</th><th>{{ 'admin.phone' | t }}</th><th>{{ 'common.status' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let u of suppliers">
               <td class="fw-semibold">{{ u.name }}</td>
               <td><span class="badge bg-light text-dark text-capitalize">{{ u.role }}</span></td>
               <td>{{ u.email }}</td><td>{{ u.phone || '—' }}</td>
-              <td><span class="badge" [ngClass]="u.isApproved?'bg-success':'bg-warning text-dark'">{{ u.isApproved?'Approved':'Pending' }}</span></td>
+              <td><span class="badge" [ngClass]="u.isApproved?'bg-success':'bg-warning text-dark'">{{ (u.isApproved?'common.approved':'common.pending') | t }}</span></td>
               <td class="text-end text-nowrap">
-                <button class="btn btn-sm btn-success me-1" *ngIf="!u.isApproved" (click)="approveSupplier(u)">Approve</button>
-                <button class="btn btn-sm btn-outline-danger" *ngIf="u.isApproved" (click)="rejectSupplier(u)">Revoke</button>
+                <button class="btn btn-sm btn-success me-1" *ngIf="!u.isApproved" (click)="approveSupplier(u)">{{ 'common.approve' | t }}</button>
+                <button class="btn btn-sm btn-outline-danger" *ngIf="u.isApproved" (click)="rejectSupplier(u)">{{ 'admin.revoke' | t }}</button>
               </td>
             </tr>
-            <tr *ngIf="!suppliers.length"><td colspan="6" class="text-center text-muted py-3">No suppliers.</td></tr>
+            <tr *ngIf="!suppliers.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noSuppliers' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -168,13 +169,13 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='orders'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>Order #</th><th>Store</th><th>Rider</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'common.orderNo' | t }}</th><th>{{ 'admin.store' | t }}</th><th>{{ 'admin.rider' | t }}</th><th>{{ 'admin.amount' | t }}</th><th>{{ 'common.status' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let o of orders">
               <td class="fw-semibold small">{{ o.orderNumber }}</td><td>{{ o.store?.name || '—' }}</td><td>{{ o.rider?.user?.name || '—' }}</td>
               <td>₹{{ o.totalAmount }}</td><td><span class="badge bg-secondary">{{ o.status }}</span></td>
             </tr>
-            <tr *ngIf="!orders.length"><td colspan="5" class="text-center text-muted py-3">No orders.</td></tr>
+            <tr *ngIf="!orders.length"><td colspan="5" class="text-center text-muted py-3">{{ 'admin.noOrders' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -188,40 +189,40 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='emergency'" class="row g-4">
       <div class="col-lg-4">
         <div class="card">
-          <div class="card-header">➕ Add a local emergency number</div>
+          <div class="card-header">➕ {{ 'admin.addLocalNumber' | t }}</div>
           <div class="card-body">
-            <label class="form-label">Type</label>
+            <label class="form-label">{{ 'admin.type' | t }}</label>
             <select class="form-select mb-2" [(ngModel)]="sosForm.type" name="etype">
               <option *ngFor="let t of emergencyTypes" [value]="t.key">{{ t.label }}</option>
             </select>
-            <input class="form-control mb-2" placeholder="Name (e.g. Gupta Nursing Home)"
+            <input class="form-control mb-2" [placeholder]="'admin.eName' | t"
                    [(ngModel)]="sosForm.name" name="ename">
             <input class="form-control mb-2" placeholder="नाम (हिंदी में)"
                    [(ngModel)]="sosForm.nameLocal" name="enamel">
-            <input class="form-control mb-2" placeholder="Phone" inputmode="numeric"
+            <input class="form-control mb-2" [placeholder]="'admin.phone' | t" inputmode="numeric"
                    [(ngModel)]="sosForm.phone" name="ephone">
-            <input class="form-control mb-2" placeholder="Alternate phone" inputmode="numeric"
+            <input class="form-control mb-2" [placeholder]="'admin.eAltPhone' | t" inputmode="numeric"
                    [(ngModel)]="sosForm.altPhone" name="ealt">
-            <input class="form-control mb-2" placeholder="Address / landmark"
+            <input class="form-control mb-2" [placeholder]="'admin.eAddress' | t"
                    [(ngModel)]="sosForm.address" name="eaddr">
             <div class="row g-2 mb-2">
-              <div class="col-4"><input class="form-control" placeholder="Area"
+              <div class="col-4"><input class="form-control" [placeholder]="'admin.area' | t"
                      [(ngModel)]="sosForm.area" name="earea"></div>
-              <div class="col-4"><input class="form-control" placeholder="City"
+              <div class="col-4"><input class="form-control" [placeholder]="'admin.city' | t"
                      [(ngModel)]="sosForm.city" name="ecity"></div>
-              <div class="col-4"><input class="form-control" placeholder="Pincode" inputmode="numeric"
+              <div class="col-4"><input class="form-control" [placeholder]="'common.pincode' | t" inputmode="numeric"
                      [(ngModel)]="sosForm.pincode" name="epin"></div>
             </div>
-            <input class="form-control mb-2" placeholder="Notes (has oxygen, ICU van…)"
+            <input class="form-control mb-2" [placeholder]="'admin.eNotes' | t"
                    [(ngModel)]="sosForm.notes" name="enotes">
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" id="e24" [(ngModel)]="sosForm.is24x7"
                      name="e24">
-              <label class="form-check-label" for="e24">Answers 24×7</label>
+              <label class="form-check-label" for="e24">{{ 'admin.answers24' | t }}</label>
             </div>
             <button class="btn btn-primary w-100" (click)="addContact()"
                     [disabled]="!sosForm.name.trim() || !sosForm.phone.trim()">
-              Add number
+              {{ 'admin.addNumber' | t }}
             </button>
           </div>
         </div>
@@ -231,7 +232,7 @@ const EMERGENCY_TYPES = [
         <!-- Open help requests raised from the app -->
         <div class="card mb-3" *ngIf="alerts.length">
           <div class="card-header d-flex justify-content-between">
-            <span>🆘 Open help requests</span>
+            <span>🆘 {{ 'admin.openHelp' | t }}</span>
             <span class="badge bg-danger">{{ alerts.length }}</span>
           </div>
           <ul class="list-group list-group-flush">
@@ -247,7 +248,7 @@ const EMERGENCY_TYPES = [
               <span class="d-flex gap-1 flex-shrink-0">
                 <a class="btn btn-sm btn-call" *ngIf="a.phone || a.raisedBy?.phone"
                    [href]="'tel:' + (a.phone || a.raisedBy?.phone)">📞</a>
-                <button class="btn btn-sm btn-outline-success" (click)="resolveAlert(a)">Resolve</button>
+                <button class="btn btn-sm btn-outline-success" (click)="resolveAlert(a)">{{ 'admin.resolve' | t }}</button>
               </span>
             </li>
           </ul>
@@ -255,14 +256,14 @@ const EMERGENCY_TYPES = [
 
         <div class="card">
           <div class="card-header d-flex justify-content-between">
-            <span>Local emergency directory</span>
+            <span>{{ 'admin.localDirectory' | t }}</span>
             <span class="text-muted small">{{ contacts.length }}</span>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
-                <tr><th>Type</th><th>Name</th><th>Phone</th><th>Area</th><th>Verified</th>
-                  <th class="text-end">Actions</th></tr>
+                <tr><th>{{ 'admin.type' | t }}</th><th>{{ 'admin.name' | t }}</th><th>{{ 'admin.phone' | t }}</th><th>{{ 'admin.area' | t }}</th><th>{{ 'kyc.verified' | t }}</th>
+                  <th class="text-end">{{ 'common.action' | t }}</th></tr>
               </thead>
               <tbody>
                 <tr *ngFor="let c of contacts">
@@ -274,19 +275,19 @@ const EMERGENCY_TYPES = [
                   <td class="small">{{ c.area || c.city || '—' }} {{ c.pincode }}</td>
                   <td>
                     <span class="badge" [ngClass]="c.verified ? 'bg-success' : 'bg-warning text-dark'">
-                      {{ c.verified ? 'Verified' : 'Unverified' }}
+                      {{ (c.verified ? 'kyc.verified' : 'admin.unverified') | t }}
                     </span>
                   </td>
                   <td class="text-end text-nowrap">
                     <button class="btn btn-sm btn-success me-1" *ngIf="!c.verified"
-                            (click)="verifyContact(c)">Verify</button>
+                            (click)="verifyContact(c)">{{ 'admin.verify' | t }}</button>
                     <button class="btn btn-sm btn-outline-danger"
-                            (click)="removeContact(c)">Remove</button>
+                            (click)="removeContact(c)">{{ 'admin.remove' | t }}</button>
                   </td>
                 </tr>
                 <tr *ngIf="!contacts.length">
                   <td colspan="6" class="text-center text-muted py-3">
-                    No local numbers yet — the national helplines still show on the public page.
+                    {{ 'admin.noLocalNumbers' | t }}
                   </td>
                 </tr>
               </tbody>
@@ -299,22 +300,22 @@ const EMERGENCY_TYPES = [
     <!-- VENDORS (legacy procurement) -->
     <div *ngIf="tab==='vendors'" class="card border-0">
       <div class="card-header d-flex justify-content-between">
-        <span>Procurement vendors (legacy)</span>
+        <span>{{ 'admin.vendorsLegacy' | t }}</span>
         <span>
-          <a class="btn btn-sm btn-outline-primary me-1" routerLink="/admin/vendors">Manage vendors</a>
-          <a class="btn btn-sm btn-outline-secondary" routerLink="/admin/purchase-orders">Purchase orders</a>
+          <a class="btn btn-sm btn-outline-primary me-1" routerLink="/admin/vendors">{{ 'admin.manageVendors' | t }}</a>
+          <a class="btn btn-sm btn-outline-secondary" routerLink="/admin/purchase-orders">{{ 'admin.purchaseOrders' | t }}</a>
         </span>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>Name</th><th>Code</th><th>On-Time</th><th>Quality</th><th></th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.name' | t }}</th><th>{{ 'admin.code' | t }}</th><th>{{ 'admin.onTime' | t }}</th><th>{{ 'admin.quality' | t }}</th><th></th></tr></thead>
           <tbody>
             <tr *ngFor="let v of vendors">
               <td class="fw-semibold">{{ v.name }}</td><td>{{ v.vendorCode }}</td>
               <td>{{ v.onTimeDeliveryRate | number:'1.0-1' }}%</td><td>{{ v.qualityRatingAvg | number:'1.0-2' }}</td>
-              <td class="text-end"><a class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin/vendors', v.id]">View</a></td>
+              <td class="text-end"><a class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin/vendors', v.id]">{{ 'common.view' | t }}</a></td>
             </tr>
-            <tr *ngIf="!vendors.length"><td colspan="5" class="text-center text-muted py-3">No vendors.</td></tr>
+            <tr *ngIf="!vendors.length"><td colspan="5" class="text-center text-muted py-3">{{ 'admin.noVendors' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -323,14 +324,15 @@ const EMERGENCY_TYPES = [
 })
 export class SuperDashboardComponent implements OnInit {
   tab: Tab = 'overview';
-  tabs: { key: Tab; label: string }[] = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'stores', label: 'Stores' },
-    { key: 'riders', label: 'Riders' },
-    { key: 'suppliers', label: 'Suppliers' },
-    { key: 'orders', label: 'Orders' },
-    { key: 'emergency', label: '🆘 Emergency' },
-    { key: 'vendors', label: 'Vendors' },
+  // labelKey is resolved through the t pipe, so tabs switch language too.
+  tabs: { key: Tab; labelKey: string; icon?: string }[] = [
+    { key: 'overview', labelKey: 'admin.overview' },
+    { key: 'stores', labelKey: 'admin.stores' },
+    { key: 'riders', labelKey: 'admin.riders' },
+    { key: 'suppliers', labelKey: 'admin.suppliers' },
+    { key: 'orders', labelKey: 'admin.orders' },
+    { key: 'emergency', labelKey: 'admin.emergency', icon: '🆘' },
+    { key: 'vendors', labelKey: 'admin.vendors' },
   ];
 
   stores: any[] = [];
@@ -358,7 +360,7 @@ export class SuperDashboardComponent implements OnInit {
     is24x7: true,
   };
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private i18n: I18nService) {}
 
   ngOnInit() {
     this.load();
@@ -405,7 +407,7 @@ export class SuperDashboardComponent implements OnInit {
   }
 
   removeContact(c: any) {
-    if (!confirm(`Remove "${c.name}" from the emergency directory?`)) return;
+    if (!confirm(this.i18n.t('admin.removeContactConfirm'))) return;
     this.api.delete(`emergency/${c.id}`).subscribe(() => this.loadEmergency());
   }
 
@@ -419,10 +421,10 @@ export class SuperDashboardComponent implements OnInit {
 
   get statCards() {
     return [
-      { label: 'Stores', value: this.stores.length },
-      { label: 'Riders', value: this.riders.length },
-      { label: 'Orders', value: this.orderStats.total },
-      { label: 'Delivered', value: this.orderStats.byStatus?.DELIVERED || 0 },
+      { label: this.i18n.t('admin.stores'), value: this.stores.length },
+      { label: this.i18n.t('admin.riders'), value: this.riders.length },
+      { label: this.i18n.t('admin.orders'), value: this.orderStats.total },
+      { label: this.i18n.t('admin.delivered'), value: this.orderStats.byStatus?.DELIVERED || 0 },
     ];
   }
 
@@ -434,7 +436,7 @@ export class SuperDashboardComponent implements OnInit {
     this.api.patch(`stores/${s.id}/approve`).subscribe({ error: () => (s.status = prev) });
   }
   rejectStore(s: any) {
-    const reason = prompt('Reason for rejection?') || '';
+    const reason = prompt(this.i18n.t('admin.rejectReason')) || '';
     const prev = s.status;
     s.status = 'REJECTED';
     this.api.patch(`stores/${s.id}/reject`, { reason }).subscribe({ error: () => (s.status = prev) });
@@ -448,7 +450,7 @@ export class SuperDashboardComponent implements OnInit {
     this.api.patch(`users/${u.id}/approve`).subscribe({ error: () => (u.isApproved = false) });
   }
   rejectSupplier(u: any) {
-    const reason = prompt('Reason for rejection?') || '';
+    const reason = prompt(this.i18n.t('admin.rejectReason')) || '';
     const prev = u.isApproved;
     u.isApproved = false;
     this.api.patch(`users/${u.id}/reject`, { reason }).subscribe({ error: () => (u.isApproved = prev) });
