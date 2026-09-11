@@ -252,6 +252,15 @@ export class ShopDirectoryComponent implements OnInit {
 
   pickCategory(key: string) {
     this.category = this.category === key ? '' : key;
+    // Picking a category is a clean "show me all X shops" action, so clear the
+    // text/pincode/area search and any "Near me" GPS. Otherwise a category
+    // would stay narrowed to an earlier pincode that may hold none of it — the
+    // mirror image of the stale-filter bug on the search side. The visible
+    // toggles (open / 24h / udhaar) are intentional and kept.
+    this.q = '';
+    this.pincode = '';
+    this.area = '';
+    this.coords = null;
     this.load();
     this.scrollToResults();
   }
