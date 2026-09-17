@@ -1,4 +1,12 @@
-<!-- Global activity bar: shows whenever any HTTP request is in flight, so a slow
-     request (e.g. backend waking up) doesn't look like a frozen click. -->
+<!-- Global activity feedback for EVERY data fetch in the app (the HTTP
+     interceptor counts all requests except background tracking polls). A slow
+     request — e.g. the serverless backend waking up — otherwise looks like a
+     frozen click. Two layers:
+       1. a thin branded progress strip at the very top (instant), and
+       2. a "Loading…" pill that fades in only when a request is actually slow,
+          so quick requests never flash it. -->
 <div class="global-loading-bar" *ngIf="loading.loading$ | async"></div>
+<div class="rf-loading-pill" *ngIf="loading.loading$ | async" role="status" aria-live="polite">
+  <span class="rf-spinner"></span> {{ 'common.loading' | t }}
+</div>
 <router-outlet></router-outlet>

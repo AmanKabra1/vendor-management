@@ -1,17 +1,61 @@
-// Global activity bar — a thin indeterminate progress strip pinned to the top.
+// Global activity bar — a branded indeterminate progress strip pinned to the top.
 .global-loading-bar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  z-index: 2000;
-  background: linear-gradient(90deg, #0d6efd 0%, #6ea8fe 50%, #0d6efd 100%);
+  height: 4px;
+  z-index: 3000;
+  background: linear-gradient(90deg, #5b21b6 0%, #7c3aed 40%, #2563eb 80%, #5b21b6 100%);
   background-size: 200% 100%;
-  animation: global-loading-slide 1s linear infinite;
+  animation: global-loading-slide 1.1s linear infinite;
 }
 
 @keyframes global-loading-slide {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
+}
+
+// "Loading…" pill — clear feedback that only shows when a request is slow.
+// The held-at-0 phase means requests that finish under ~300ms never flash it.
+.rf-loading-pill {
+  position: fixed;
+  left: 50%;
+  bottom: 84px; // clear of the mobile bottom nav; chat FAB sits to the right
+  z-index: 3000;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(22, 19, 42, 0.92);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  transform: translateX(-50%);
+  animation: rf-load-in 0.5s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes rf-load-in {
+  0%, 55% { opacity: 0; transform: translate(-50%, 8px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.rf-spinner {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: rf-spin 0.6s linear infinite;
+}
+
+@keyframes rf-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 992px) {
+  .rf-loading-pill { bottom: 24px; }
 }
