@@ -38,4 +38,7 @@ export const SELF_SIGNUP_ROLES: Role[] = [
   Role.Distributor,
   Role.Sales,
   Role.ServiceProvider,
+  // Procurement vendor — signs up with the code the admin gives them (or gets a
+  // fresh vendor profile if none). Legacy module, kept working end to end.
+  Role.Vendor,
 ];

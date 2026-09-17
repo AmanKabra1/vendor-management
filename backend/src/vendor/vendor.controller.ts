@@ -42,6 +42,16 @@ export class VendorController {
     return this.vendorService.create(data);
   }
 
+  /** Admin creates a login account for a vendor so they can sign in. */
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @Post(':id/create-login')
+  createLogin(
+    @Param('id') id: string,
+    @Body() body: { email: string; password: string; name?: string },
+  ) {
+    return this.vendorService.createLogin(id, body);
+  }
+
   @Roles(Role.Admin)
   @Get()
   findAll() {

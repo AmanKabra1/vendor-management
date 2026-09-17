@@ -361,16 +361,45 @@ const EMERGENCY_TYPES = [
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>{{ 'admin.name' | t }}</th><th>{{ 'admin.code' | t }}</th><th>{{ 'admin.onTime' | t }}</th><th>{{ 'admin.quality' | t }}</th><th></th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.name' | t }}</th><th>{{ 'admin.code' | t }}</th><th>{{ 'admin.onTime' | t }}</th><th>{{ 'admin.quality' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let v of vendors">
-              <td class="fw-semibold">{{ v.name }}</td><td>{{ v.vendorCode }}</td>
+              <td class="fw-semibold">{{ v.name }}</td><td class="fw-semibold">{{ v.vendorCode }}</td>
               <td>{{ v.onTimeDeliveryRate | number:'1.0-1' }}%</td><td>{{ v.qualityRatingAvg | number:'1.0-2' }}</td>
-              <td class="text-end"><a class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin/vendors', v.id]">{{ 'common.view' | t }}</a></td>
+              <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-outline-success me-1" (click)="openVendorLogin(v)">🔑 {{ 'admin.createLogin' | t }}</button>
+                <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/admin/vendors', v.id]">{{ 'common.view' | t }}</a>
+              </td>
             </tr>
             <tr *ngIf="!vendors.length"><td colspan="5" class="text-center text-muted py-3">{{ 'admin.noVendors' | t }}</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Create vendor login modal -->
+    <div class="modal-back" *ngIf="vendorLogin" (click)="vendorLogin=null">
+      <div class="card shadow" style="max-width:420px;width:100%" (click)="$event.stopPropagation()">
+        <div class="card-header bg-white fw-semibold">🔑 {{ 'admin.createLogin' | t }} — {{ vendorLogin.name }}</div>
+        <div class="card-body">
+          <p class="small text-muted mb-2">{{ 'admin.createLoginHint' | t }}</p>
+          <div class="alert alert-danger py-2" *ngIf="vendorLoginError">{{ vendorLoginError }}</div>
+          <div class="alert alert-success py-2" *ngIf="vendorLoginDone">
+            ✅ {{ 'admin.loginCreated' | t }}<br>
+            <b>{{ vendorLoginForm.email }}</b> · {{ vendorLoginForm.password }}
+          </div>
+          <ng-container *ngIf="!vendorLoginDone">
+            <input class="form-control mb-2" type="email" [placeholder]="'common.email' | t" [(ngModel)]="vendorLoginForm.email" name="vlEmail">
+            <input class="form-control mb-2" [placeholder]="'reg.password' | t" [(ngModel)]="vendorLoginForm.password" name="vlPw">
+            <button class="btn btn-primary w-100" (click)="createVendorLogin()"
+                    [disabled]="!vendorLoginForm.email.trim() || !vendorLoginForm.password.trim() || vendorLoginBusy">
+              {{ 'admin.createLogin' | t }}
+            </button>
+          </ng-container>
+        </div>
+        <div class="card-footer bg-white text-end">
+          <button class="btn btn-light" (click)="vendorLogin=null">{{ 'common.close' | t }}</button>
+        </div>
       </div>
     </div>
   `,
@@ -553,6 +582,31 @@ export class SuperDashboardComponent implements OnInit {
         alert(e?.error?.message || this.i18n.t('admin.deleteFailed'));
         this.load();
       },
+    });
+  }
+
+  // --- vendor login creation ------------------------------------------------
+  vendorLogin: any = null;
+  vendorLoginForm = { email: '', password: '' };
+  vendorLoginBusy = false;
+  vendorLoginError = '';
+  vendorLoginDone = false;
+
+  openVendorLogin(v: any) {
+    this.vendorLogin = v;
+    this.vendorLoginDone = false;
+    this.vendorLoginError = '';
+    // Suggest a sensible default login so the admin can just hit create.
+    const slug = String(v.vendorCode || v.name || 'vendor').toLowerCase().replace(/[^a-z0-9]/g, '');
+    this.vendorLoginForm = { email: `${slug}@vendor.ridefleet.test`, password: 'Vendor@1234' };
+  }
+
+  createVendorLogin() {
+    this.vendorLoginBusy = true;
+    this.vendorLoginError = '';
+    this.api.post(`vendors/${this.vendorLogin.id}/create-login`, this.vendorLoginForm).subscribe({
+      next: () => { this.vendorLoginBusy = false; this.vendorLoginDone = true; },
+      error: (e) => { this.vendorLoginBusy = false; this.vendorLoginError = e?.error?.message || this.i18n.t('admin.deleteFailed'); },
     });
   }
 

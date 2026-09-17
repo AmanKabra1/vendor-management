@@ -13,6 +13,7 @@ const SIGNUP_ROLES: UserRole[] = [
   'wholesaler',
   'distributor',
   'sales',
+  'vendor',
 ];
 
 const NEEDS_APPROVAL: UserRole[] = [
@@ -91,6 +92,14 @@ const NEEDS_APPROVAL: UserRole[] = [
                     : 'Provide a mobile or a landline — at least one is required.' }}
               </div>
             </div>
+            <!-- Vendor-only: link to an existing vendor by code, or leave blank. -->
+            <div class="mb-3" *ngIf="form.role === 'vendor'">
+              <label class="form-label">{{ 'reg.vendorCode' | t }}</label>
+              <input class="form-control" name="vendorCode" [(ngModel)]="form.vendorCode"
+                     placeholder="V001" style="text-transform:uppercase">
+              <div class="form-text">{{ 'reg.vendorCodeHint' | t }}</div>
+            </div>
+
             <div class="alert alert-warning py-2" *ngIf="contactError">{{ contactError }}</div>
             <div class="mb-3">
               <label class="form-label">
@@ -136,6 +145,7 @@ export class RegisterComponent {
     landline: string;
     password: string;
     role: UserRole;
+    vendorCode: string;
   } = {
     name: '',
     email: '',
@@ -143,6 +153,7 @@ export class RegisterComponent {
     landline: '',
     password: '',
     role: 'customer',
+    vendorCode: '',
   };
 
   phoneValid = true;
@@ -191,6 +202,10 @@ export class RegisterComponent {
         phone: this.form.phone,
         landline: this.form.landline,
         role: this.form.role,
+        vendorCode:
+          this.form.role === 'vendor' && this.form.vendorCode.trim()
+            ? this.form.vendorCode.trim().toUpperCase()
+            : undefined,
       })
       .subscribe({
         next: () => this.router.navigateByUrl(this.auth.home),

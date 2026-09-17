@@ -101,9 +101,9 @@ export const ROLE_META: Record<
     descHi: 'प्लेटफ़ॉर्म एडमिन।',
   },
   vendor: {
-    en: 'Vendor', hi: 'वेंडर', icon: '📦',
-    desc: 'Legacy vendor account.',
-    descHi: 'पुराना वेंडर अकाउंट।',
+    en: 'Vendor (supplier)', hi: 'वेंडर (सप्लायर)', icon: '📦',
+    desc: 'Supply a company on purchase orders; track your performance.',
+    descHi: 'कंपनी को पर्चेज़ ऑर्डर पर सप्लाई करें; अपनी परफ़ॉर्मेंस देखें।',
   },
 };
 
