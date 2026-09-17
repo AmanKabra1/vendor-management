@@ -2,6 +2,8 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -94,6 +96,28 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('Invalid credentials');
 
     return this.sign(user);
+  }
+
+  /**
+   * Admin-only "view as" — issues a normal session token for another account so
+   * an admin can step into a shop / rider / customer view to check things. The
+   * controller restricts this to admins; here we refuse to mint a token for
+   * another admin account, so it can never be used to escalate.
+   */
+  async impersonate(targetUserId: string) {
+    const user = await this.userService.findById(targetUserId);
+    if (!user) throw new NotFoundException('Account not found');
+    if (user.role === Role.Admin || user.role === Role.SuperAdmin) {
+      throw new ForbiddenException('Cannot view as another admin');
+    }
+    return { ...this.sign(user), impersonated: true };
+  }
+
+  /** First (oldest) account of a role — used by the admin "view as" buttons. */
+  async firstOfRole(role: string) {
+    const user = await this.userService.firstByRole(role);
+    if (!user) throw new NotFoundException(`No ${role} account exists yet`);
+    return this.impersonate(String(user._id));
   }
 
   private sign(user: UserDocument) {

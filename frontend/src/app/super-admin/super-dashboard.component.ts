@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 import { I18nService } from '../shared/i18n.service';
+import { AuthService, ROLE_META, UserRole } from '../shared/auth.service';
 
 type Tab =
   | 'overview'
@@ -63,6 +64,23 @@ const EMERGENCY_TYPES = [
         </a>
       </li>
     </ul>
+
+    <!-- VIEW AS: step into any role's screen (admin only) -->
+    <div *ngIf="tab==='overview'" class="card border-0 mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>👁️ {{ 'admin.viewAs' | t }}</span>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-2">{{ 'admin.viewAsHint' | t }}</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-outline-primary btn-sm" *ngFor="let r of viewAsRoles"
+                  (click)="viewAs(r.role)" [disabled]="viewingAs">
+            {{ r.icon }} {{ i18n.pick(r.en, r.hi) }}
+          </button>
+        </div>
+        <div class="text-danger small mt-2" *ngIf="viewAsError">{{ viewAsError }}</div>
+      </div>
+    </div>
 
     <!-- OVERVIEW -->
     <div *ngIf="tab==='overview'" class="row g-4">
@@ -375,7 +393,31 @@ export class SuperDashboardComponent implements OnInit {
     is24x7: true,
   };
 
-  constructor(private api: ApiService, private i18n: I18nService) {}
+  // Roles the admin can step into, with their icon + label.
+  viewAsRoles = (
+    ['customer', 'store_owner', 'store_staff', 'rider', 'wholesaler', 'distributor', 'sales', 'service_provider'] as UserRole[]
+  ).map((role) => ({ role, icon: ROLE_META[role].icon, en: ROLE_META[role].en, hi: ROLE_META[role].hi }));
+  viewingAs = false;
+  viewAsError = '';
+
+  constructor(
+    private api: ApiService,
+    public i18n: I18nService,
+    private auth: AuthService,
+  ) {}
+
+  /** Log in as the representative account of a role and open its dashboard. */
+  viewAs(role: UserRole) {
+    this.viewingAs = true;
+    this.viewAsError = '';
+    this.auth.viewAsRole(role).subscribe({
+      next: () => (this.viewingAs = false),
+      error: (e) => {
+        this.viewingAs = false;
+        this.viewAsError = e?.error?.message || this.i18n.t('admin.noneOfRole');
+      },
+    });
+  }
 
   ngOnInit() {
     this.load();

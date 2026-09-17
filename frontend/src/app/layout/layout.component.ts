@@ -95,6 +95,15 @@ import { I18nService } from '../shared/i18n.service';
       ⏳ {{ 'store.awaitingApproval' | t }}
     </div>
 
+    <!-- Admin "view as" banner — always a one-tap way back to the admin. -->
+    <div class="alert alert-warning mb-0 rounded-0 py-2 small text-center d-flex justify-content-center align-items-center gap-2 flex-wrap"
+         *ngIf="auth.isImpersonating">
+      👁️ {{ 'admin.viewingAs' | t }}
+      <b>{{ auth.currentUser?.name }}</b>
+      <span class="badge bg-dark text-uppercase">{{ auth.currentUser?.role }}</span>
+      <button class="btn btn-sm btn-dark py-0" (click)="auth.returnToAdmin()">↩ {{ 'admin.returnToAdmin' | t }}</button>
+    </div>
+
     <main class="container-fluid py-4 px-3 px-md-5">
       <router-outlet></router-outlet>
     </main>

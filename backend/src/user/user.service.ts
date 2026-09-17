@@ -94,6 +94,11 @@ export class UserService {
     return this.userModel.find(filter).select('name email role phone').exec();
   }
 
+  /** Oldest account of a role — the admin "view as" picks this representative. */
+  firstByRole(role: string) {
+    return this.userModel.findOne({ role }).sort({ createdAt: 1 }).exec();
+  }
+
   /** Every account for the admin "Users" tab (any role), newest first. */
   findAllForAdmin() {
     return this.userModel

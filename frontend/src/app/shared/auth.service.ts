@@ -114,6 +114,8 @@ interface AuthResponse {
 
 const TOKEN_KEY = 'vm_token';
 const USER_KEY = 'vm_user';
+// Holds the admin's own session while they're viewing the app as someone else.
+const ADMIN_BACKUP_KEY = 'vm_admin_backup';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -276,9 +278,64 @@ export class AuthService {
     this.userSubject.next(res.user);
   }
 
+  // ---- admin "view as" (impersonation) --------------------------------------
+
+  /** True while an admin is viewing the app as another account. */
+  get isImpersonating(): boolean {
+    return !!localStorage.getItem(ADMIN_BACKUP_KEY);
+  }
+
+  /**
+   * Admin steps into a role's view. Backs up the admin's own token first, then
+   * swaps in the impersonated session and lands on that role's home. The backup
+   * lets `returnToAdmin()` restore the admin session with one tap.
+   */
+  viewAsRole(role: UserRole): Observable<AuthResponse> {
+    return this.api
+      .post<AuthResponse>(`auth/view-as-role/${role}`, {})
+      .pipe(tap((res) => this.enterImpersonation(res)));
+  }
+
+  /** Admin steps into one specific account (by id). */
+  viewAsUser(userId: string): Observable<AuthResponse> {
+    return this.api
+      .post<AuthResponse>(`auth/impersonate/${userId}`, {})
+      .pipe(tap((res) => this.enterImpersonation(res)));
+  }
+
+  private enterImpersonation(res: AuthResponse) {
+    // Save the admin session only the first time (nested "view as" keeps the
+    // original admin backup, so Return always goes back to the admin).
+    if (!this.isImpersonating) {
+      localStorage.setItem(
+        ADMIN_BACKUP_KEY,
+        JSON.stringify({ token: this.token, user: this.currentUser }),
+      );
+    }
+    this.persist(res);
+    this.router.navigateByUrl(this.home);
+  }
+
+  /** Restore the admin's own session after viewing as someone. */
+  returnToAdmin() {
+    const raw = localStorage.getItem(ADMIN_BACKUP_KEY);
+    if (!raw) return;
+    try {
+      const { token, user } = JSON.parse(raw);
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      this.userSubject.next(user);
+    } catch {
+      /* ignore a corrupt backup */
+    }
+    localStorage.removeItem(ADMIN_BACKUP_KEY);
+    this.router.navigateByUrl('/super');
+  }
+
   logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(ADMIN_BACKUP_KEY);
     this.userSubject.next(null);
     // Return to the public landing page, not the login screen.
     this.router.navigate(['/']);
