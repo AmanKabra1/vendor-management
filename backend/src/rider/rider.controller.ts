@@ -4,6 +4,7 @@ import {
   Post,
   Patch,
   Put,
+  Delete,
   Body,
   Param,
   Query,
@@ -118,5 +119,11 @@ export class RiderController {
   @Patch(':id/verify-document')
   verifyDocument(@Param('id') id: string, @Body() dto: VerifyDocumentDto) {
     return this.riderService.verifyDocument(id, dto.type);
+  }
+
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.riderService.remove(id);
   }
 }

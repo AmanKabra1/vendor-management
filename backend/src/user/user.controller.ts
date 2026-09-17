@@ -2,8 +2,10 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Param,
   Body,
+  BadRequestException,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role, SUPPLIER_ROLES } from '../auth/role.enum';
+import { AuthUser, CurrentUser } from '../auth/current-user.decorator';
 import { NotificationService } from '../notification/notification.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,10 +26,25 @@ export class UserController {
     private readonly notifications: NotificationService,
   ) {}
 
+  /** All accounts, for the admin "Users" tab (any role, newest first). */
+  @Get()
+  all() {
+    return this.users.findAllForAdmin();
+  }
+
   /** Wholesalers & distributors for the admin "Suppliers" tab. */
   @Get('suppliers')
   suppliers() {
     return this.users.findSuppliersForAdmin(SUPPLIER_ROLES);
+  }
+
+  /** Admin removes any non-admin account. */
+  @Delete(':id')
+  async remove(@Param('id') id: string, @CurrentUser() actor: AuthUser) {
+    const res = await this.users.remove(id, actor.userId);
+    if (res.notFound) throw new NotFoundException('User not found');
+    if (!res.ok) throw new BadRequestException(res.reason);
+    return res;
   }
 
   @Patch(':id/approve')

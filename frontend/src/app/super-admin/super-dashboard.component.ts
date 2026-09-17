@@ -108,18 +108,23 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='stores'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>{{ 'admin.store' | t }}</th><th>{{ 'admin.category' | t }}</th><th>{{ 'admin.city' | t }}</th><th>{{ 'common.status' | t }}</th><th>{{ 'admin.orders' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.store' | t }}</th><th>{{ 'admin.category' | t }}</th><th>{{ 'admin.owner' | t }}</th><th>{{ 'admin.phone' | t }}</th><th>{{ 'admin.city' | t }}</th><th>{{ 'common.status' | t }}</th><th>{{ 'admin.orders' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let s of stores">
-              <td class="fw-semibold">{{ s.name }}</td><td>{{ s.category }}</td><td>{{ s.address?.city || '—' }}</td>
+              <td class="fw-semibold">{{ s.name }}<div class="small text-muted" *ngIf="s.nameLocal">{{ s.nameLocal }}</div></td>
+              <td>{{ s.category }}</td>
+              <td class="small">{{ s.ownerName || '—' }}</td>
+              <td class="small"><a *ngIf="s.phone" [href]="'tel:'+s.phone">{{ s.phone }}</a><span *ngIf="!s.phone">—</span></td>
+              <td>{{ s.address?.city || '—' }}</td>
               <td><span class="badge" [ngClass]="s.status==='APPROVED'?'bg-success':(s.status==='REJECTED'?'bg-danger':'bg-warning text-dark')">{{ s.status }}</span></td>
               <td>{{ s.totalOrders }}</td>
               <td class="text-end text-nowrap">
                 <button class="btn btn-sm btn-success me-1" *ngIf="s.status!=='APPROVED'" (click)="approveStore(s)">{{ 'common.approve' | t }}</button>
-                <button class="btn btn-sm btn-outline-danger" *ngIf="s.status!=='REJECTED'" (click)="rejectStore(s)">{{ 'common.reject' | t }}</button>
+                <button class="btn btn-sm btn-outline-danger me-1" *ngIf="s.status!=='REJECTED'" (click)="rejectStore(s)">{{ 'common.reject' | t }}</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteStore(s)" [attr.title]="'admin.delete' | t">🗑</button>
               </td>
             </tr>
-            <tr *ngIf="!stores.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noStores' | t }}</td></tr>
+            <tr *ngIf="!stores.length"><td colspan="8" class="text-center text-muted py-3">{{ 'admin.noStores' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -129,15 +134,20 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='riders'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>{{ 'admin.rider' | t }}</th><th>{{ 'admin.vehicle' | t }}</th><th>{{ 'rider.availability' | t }}</th><th>{{ 'rider.deliveries' | t }}</th><th>{{ 'common.status' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'admin.rider' | t }}</th><th>{{ 'admin.vehicle' | t }}</th><th>{{ 'admin.phone' | t }}</th><th>{{ 'rider.availability' | t }}</th><th>{{ 'rider.deliveries' | t }}</th><th>{{ 'common.status' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let r of riders">
               <td class="fw-semibold">{{ r.user?.name || ('admin.rider' | t) }}<div class="small text-muted">{{ r.user?.email }}</div></td>
-              <td>{{ r.vehicleType }}</td><td><span class="badge bg-light text-dark">{{ r.availability }}</span></td><td>{{ r.totalDeliveries }}</td>
+              <td>{{ r.vehicleType }}<div class="small text-muted" *ngIf="r.vehicleNumber">{{ r.vehicleNumber }}</div></td>
+              <td class="small"><a *ngIf="r.user?.phone" [href]="'tel:'+r.user?.phone">{{ r.user?.phone }}</a><span *ngIf="!r.user?.phone">—</span></td>
+              <td><span class="badge bg-light text-dark">{{ r.availability }}</span></td><td>{{ r.totalDeliveries }}</td>
               <td><span class="badge" [ngClass]="r.isApproved?'bg-success':'bg-warning text-dark'">{{ (r.isApproved?'common.approved':'common.pending') | t }}</span></td>
-              <td class="text-end"><button class="btn btn-sm btn-success" *ngIf="!r.isApproved" (click)="approveRider(r)">{{ 'common.approve' | t }}</button></td>
+              <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-success me-1" *ngIf="!r.isApproved" (click)="approveRider(r)">{{ 'common.approve' | t }}</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteRider(r)" [attr.title]="'admin.delete' | t">🗑</button>
+              </td>
             </tr>
-            <tr *ngIf="!riders.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noRiders' | t }}</td></tr>
+            <tr *ngIf="!riders.length"><td colspan="7" class="text-center text-muted py-3">{{ 'admin.noRiders' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -156,7 +166,8 @@ const EMERGENCY_TYPES = [
               <td><span class="badge" [ngClass]="u.isApproved?'bg-success':'bg-warning text-dark'">{{ (u.isApproved?'common.approved':'common.pending') | t }}</span></td>
               <td class="text-end text-nowrap">
                 <button class="btn btn-sm btn-success me-1" *ngIf="!u.isApproved" (click)="approveSupplier(u)">{{ 'common.approve' | t }}</button>
-                <button class="btn btn-sm btn-outline-danger" *ngIf="u.isApproved" (click)="rejectSupplier(u)">{{ 'admin.revoke' | t }}</button>
+                <button class="btn btn-sm btn-outline-danger me-1" *ngIf="u.isApproved" (click)="rejectSupplier(u)">{{ 'admin.revoke' | t }}</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteUser(u, 'suppliers')" [attr.title]="'admin.delete' | t">🗑</button>
               </td>
             </tr>
             <tr *ngIf="!suppliers.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noSuppliers' | t }}</td></tr>
@@ -169,13 +180,17 @@ const EMERGENCY_TYPES = [
     <div *ngIf="tab==='orders'" class="card border-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>{{ 'common.orderNo' | t }}</th><th>{{ 'admin.store' | t }}</th><th>{{ 'admin.rider' | t }}</th><th>{{ 'admin.amount' | t }}</th><th>{{ 'common.status' | t }}</th></tr></thead>
+          <thead class="table-light"><tr><th>{{ 'common.orderNo' | t }}</th><th>{{ 'admin.store' | t }}</th><th>{{ 'admin.rider' | t }}</th><th>{{ 'admin.items' | t }}</th><th>{{ 'admin.amount' | t }}</th><th>{{ 'admin.date' | t }}</th><th>{{ 'common.status' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
           <tbody>
             <tr *ngFor="let o of orders">
               <td class="fw-semibold small">{{ o.orderNumber }}</td><td>{{ o.store?.name || '—' }}</td><td>{{ o.rider?.user?.name || '—' }}</td>
-              <td>₹{{ o.totalAmount }}</td><td><span class="badge bg-secondary">{{ o.status }}</span></td>
+              <td class="small">{{ (o.items || []).length }}</td>
+              <td>₹{{ (o.totalAmount || 0) + (o.deliveryFee || 0) }}</td>
+              <td class="small text-muted">{{ o.createdAt | date:'dd MMM' }}</td>
+              <td><span class="badge bg-secondary">{{ o.status }}</span></td>
+              <td class="text-end"><button class="btn btn-sm btn-danger" (click)="deleteOrder(o)" [attr.title]="'admin.delete' | t">🗑</button></td>
             </tr>
-            <tr *ngIf="!orders.length"><td colspan="5" class="text-center text-muted py-3">{{ 'admin.noOrders' | t }}</td></tr>
+            <tr *ngIf="!orders.length"><td colspan="8" class="text-center text-muted py-3">{{ 'admin.noOrders' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -455,4 +470,26 @@ export class SuperDashboardComponent implements OnInit {
     u.isApproved = false;
     this.api.patch(`users/${u.id}/reject`, { reason }).subscribe({ error: () => (u.isApproved = prev) });
   }
+
+  // --- admin hard-delete for every type ---------------------------------
+  // Each removes the row from its list on success; a failure re-fetches so the
+  // table never lies about what's actually on the server.
+  private del(path: string, list: any[], row: any) {
+    if (!confirm(this.i18n.t('admin.deleteConfirm'))) return;
+    this.api.delete(path).subscribe({
+      next: () => {
+        const i = list.indexOf(row);
+        if (i >= 0) list.splice(i, 1);
+      },
+      error: (e) => {
+        alert(e?.error?.message || this.i18n.t('admin.deleteFailed'));
+        this.load();
+      },
+    });
+  }
+
+  deleteStore(s: any) { this.del(`stores/${s.id}`, this.stores, s); }
+  deleteRider(r: any) { this.del(`riders/${r.id}`, this.riders, r); }
+  deleteOrder(o: any) { this.del(`orders/${o.id}`, this.orders, o); }
+  deleteUser(u: any, listName: 'suppliers') { this.del(`users/${u.id}`, this[listName], u); }
 }

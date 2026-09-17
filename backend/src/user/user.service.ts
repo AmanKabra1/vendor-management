@@ -94,6 +94,16 @@ export class UserService {
     return this.userModel.find(filter).select('name email role phone').exec();
   }
 
+  /** Every account for the admin "Users" tab (any role), newest first. */
+  findAllForAdmin() {
+    return this.userModel
+      .find({})
+      .select('name email role phone isApproved isVerified isActive createdAt')
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .exec();
+  }
+
   /** Full supplier list for the admin console, including approval status. */
   findSuppliersForAdmin(roles: string[]) {
     return this.userModel
@@ -108,5 +118,22 @@ export class UserService {
     return this.userModel
       .findByIdAndUpdate(id, { isApproved: approved }, { new: true })
       .exec();
+  }
+
+  /**
+   * Admin removes a user account. Refuses to delete an admin/super-admin or the
+   * caller themselves, so the platform can't be locked out by accident.
+   */
+  async remove(id: string, actingUserId: string) {
+    const user = await this.userModel.findById(id).exec();
+    if (!user) return { ok: false, notFound: true };
+    if (String(user._id) === actingUserId) {
+      return { ok: false, reason: 'cannot delete your own account' };
+    }
+    if (user.role === 'admin' || user.role === 'super_admin') {
+      return { ok: false, reason: 'cannot delete an admin account' };
+    }
+    await user.deleteOne();
+    return { ok: true, deleted: id };
   }
 }

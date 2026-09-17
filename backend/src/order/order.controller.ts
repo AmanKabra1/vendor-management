@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   UseGuards,
@@ -111,6 +112,13 @@ export class OrderController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.orderService.cancel(id, dto?.reason || '', user);
+  }
+
+  // Admin removes an order entirely.
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.orderService.remove(id);
   }
 
   // Rider pushes live GPS for an order (replaces the websocket relay).

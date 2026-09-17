@@ -102,6 +102,14 @@ export class StoreService {
     return store;
   }
 
+  /** Hard-delete a shop. Admin-only (the controller enforces the role). */
+  async remove(id: string) {
+    const store = await this.storeModel.findById(id).exec();
+    if (!store) throw new NotFoundException('Store not found');
+    await store.deleteOne();
+    return { ok: true, deleted: id };
+  }
+
   async setStatus(id: string, status: StoreStatus, reason = '') {
     const store = await this.storeModel.findById(id).exec();
     if (!store) throw new NotFoundException('Store not found');

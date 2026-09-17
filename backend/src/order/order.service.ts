@@ -404,6 +404,14 @@ export class OrderService {
     return this.saveAndBroadcast(order);
   }
 
+  /** Admin removes an order entirely. */
+  async remove(id: string) {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) throw new NotFoundException('Order not found');
+    await order.deleteOne();
+    return { ok: true, deleted: id };
+  }
+
   /** Public, sanitized tracking view for the customer link (no auth). */
   async publicTracking(id: string) {
     const order = await this.orderModel

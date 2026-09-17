@@ -117,6 +117,14 @@ export class RiderService {
     return rider;
   }
 
+  /** Admin removes a rider profile entirely. */
+  async remove(id: string) {
+    const rider = await this.riderModel.findById(id).exec();
+    if (!rider) throw new NotFoundException('Rider not found');
+    await rider.deleteOne();
+    return { ok: true, deleted: id };
+  }
+
   async verifyDocument(id: string, type: RiderDocType) {
     const rider = await this.riderModel.findById(id).exec();
     if (!rider) throw new NotFoundException('Rider not found');

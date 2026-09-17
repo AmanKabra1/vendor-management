@@ -163,4 +163,11 @@ export class StoreController {
   reject(@Param('id') id: string, @Body() dto: RejectStoreDto) {
     return this.storeService.setStatus(id, StoreStatus.Rejected, dto?.reason);
   }
+
+  /** Admin removes a shop entirely. */
+  @Roles(Role.SuperAdmin, Role.Admin)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.storeService.remove(id);
+  }
 }
