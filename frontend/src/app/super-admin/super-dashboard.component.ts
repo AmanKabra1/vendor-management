@@ -137,6 +137,7 @@ const EMERGENCY_TYPES = [
               <td><span class="badge" [ngClass]="s.status==='APPROVED'?'bg-success':(s.status==='REJECTED'?'bg-danger':'bg-warning text-dark')">{{ s.status }}</span></td>
               <td>{{ s.totalOrders }}</td>
               <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="viewAsUser(s.owner)" [attr.title]="'admin.viewAs' | t">👁️</button>
                 <button class="btn btn-sm btn-success me-1" *ngIf="s.status!=='APPROVED'" (click)="approveStore(s)">{{ 'common.approve' | t }}</button>
                 <button class="btn btn-sm btn-outline-danger me-1" *ngIf="s.status!=='REJECTED'" (click)="rejectStore(s)">{{ 'common.reject' | t }}</button>
                 <button class="btn btn-sm btn-danger" (click)="deleteStore(s)" [attr.title]="'admin.delete' | t">🗑</button>
@@ -161,6 +162,7 @@ const EMERGENCY_TYPES = [
               <td><span class="badge bg-light text-dark">{{ r.availability }}</span></td><td>{{ r.totalDeliveries }}</td>
               <td><span class="badge" [ngClass]="r.isApproved?'bg-success':'bg-warning text-dark'">{{ (r.isApproved?'common.approved':'common.pending') | t }}</span></td>
               <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-outline-secondary me-1" *ngIf="r.user" (click)="viewAsUser(r.user._id || r.user)" [attr.title]="'admin.viewAs' | t">👁️</button>
                 <button class="btn btn-sm btn-success me-1" *ngIf="!r.isApproved" (click)="approveRider(r)">{{ 'common.approve' | t }}</button>
                 <button class="btn btn-sm btn-danger" (click)="deleteRider(r)" [attr.title]="'admin.delete' | t">🗑</button>
               </td>
@@ -183,6 +185,7 @@ const EMERGENCY_TYPES = [
               <td>{{ u.email }}</td><td>{{ u.phone || '—' }}</td>
               <td><span class="badge" [ngClass]="u.isApproved?'bg-success':'bg-warning text-dark'">{{ (u.isApproved?'common.approved':'common.pending') | t }}</span></td>
               <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="viewAsUser(u.id)" [attr.title]="'admin.viewAs' | t">👁️</button>
                 <button class="btn btn-sm btn-success me-1" *ngIf="!u.isApproved" (click)="approveSupplier(u)">{{ 'common.approve' | t }}</button>
                 <button class="btn btn-sm btn-outline-danger me-1" *ngIf="u.isApproved" (click)="rejectSupplier(u)">{{ 'admin.revoke' | t }}</button>
                 <button class="btn btn-sm btn-danger" (click)="deleteUser(u, 'suppliers')" [attr.title]="'admin.delete' | t">🗑</button>
@@ -416,6 +419,14 @@ export class SuperDashboardComponent implements OnInit {
         this.viewingAs = false;
         this.viewAsError = e?.error?.message || this.i18n.t('admin.noneOfRole');
       },
+    });
+  }
+
+  /** Open a specific account (a shop's owner, a rider's user, a supplier). */
+  viewAsUser(userId: string) {
+    if (!userId) return;
+    this.auth.viewAsUser(userId).subscribe({
+      error: (e) => alert(e?.error?.message || this.i18n.t('admin.noneOfRole')),
     });
   }
 

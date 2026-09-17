@@ -118,7 +118,17 @@ export class StoreService {
     await store.save();
     if (status === StoreStatus.Approved) {
       const owner = await this.users.findById(String(store.owner));
-      if (owner) this.notifications.approved(owner.email, owner.name, 'store');
+      if (owner) {
+        // Approving the shop also clears the owner's account approval, so they
+        // stop seeing the "waiting for admin approval" banner the moment their
+        // shop goes live. Without this the store reads APPROVED while the owner
+        // account still says pending — confusing and wrong.
+        if (!owner.isApproved) {
+          owner.isApproved = true;
+          await owner.save();
+        }
+        this.notifications.approved(owner.email, owner.name, 'store');
+      }
     }
     return store;
   }
