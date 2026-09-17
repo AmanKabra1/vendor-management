@@ -221,6 +221,8 @@ const DICT: Record<string, { en: string; hi: string }> = {
   'common.phone': { en: 'Mobile number', hi: 'मोबाइल नंबर' },
   'common.name': { en: 'Name', hi: 'नाम' },
   'common.amount': { en: 'Amount', hi: 'रकम' },
+  'common.item': { en: 'Item', hi: 'सामान' },
+  'common.qty': { en: 'Qty', hi: 'मात्रा' },
   'common.note': { en: 'Note', hi: 'नोट' },
   'common.delete': { en: 'Delete', hi: 'हटाएँ' },
   'common.landmark': { en: 'Landmark (near…)', hi: 'लैंडमार्क (के पास…)' },
@@ -303,6 +305,7 @@ const DICT: Record<string, { en: string; hi: string }> = {
   'cust.snooze': { en: 'Later', hi: 'बाद में' },
   'cust.track': { en: 'Track', hi: 'ट्रैक' },
   'cust.invoice': { en: 'Bill', hi: 'बिल' },
+  'cust.timeHint': { en: 'Morning / 6-8 pm', hi: 'सुबह / शाम 6-8' },
   'cust.noShops': {
     en: 'No shops found nearby. Try the shop directory, or search by pincode.',
     hi: 'आस-पास दुकान नहीं मिली। दुकान सूची देखें या पिनकोड से खोजें।',
@@ -342,6 +345,8 @@ const DICT: Record<string, { en: string; hi: string }> = {
     hi: 'आपका सहायक "दुकान स्टाफ" के रूप में रजिस्टर करे, फिर उसे यहाँ जोड़ें। वह ऑर्डर और खाता कर सकता है, दुकान की सेटिंग नहीं।',
   },
   'store.findRider': { en: 'Find a rider', hi: 'राइडर खोजें' },
+  'store.namePlaceholder': { en: 'e.g. Sharma Kirana Store', hi: 'जैसे शर्मा किराना स्टोर' },
+  'store.upiPlaceholder': { en: 'name@paytm', hi: 'name@paytm' },
 
   // ---- sales agent ----
   'sales.title': { en: 'Field sales', hi: 'फील्ड सेल्स' },
@@ -352,6 +357,8 @@ const DICT: Record<string, { en: string; hi: string }> = {
   'sales.onboarded': { en: 'Shops onboarded', hi: 'जुड़ी दुकानें' },
   'sales.live': { en: 'Live on platform', hi: 'चालू दुकानें' },
   'sales.incentive': { en: 'Estimated incentive', hi: 'अनुमानित इंसेंटिव' },
+  'sales.shopName': { en: 'Shop name', hi: 'दुकान का नाम' },
+  'sales.category': { en: 'Shop type', hi: 'दुकान का प्रकार' },
 
   // ---- register ----
   'reg.title': { en: 'Create your account', hi: 'अकाउंट बनाएँ' },

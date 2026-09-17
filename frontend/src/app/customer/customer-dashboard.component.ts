@@ -204,8 +204,8 @@ import {
             </div>
 
             <div class="d-flex gap-2 mb-2" *ngFor="let it of items; let i = index">
-              <input class="form-control" placeholder="Item" [(ngModel)]="it.name" [name]="'in' + i">
-              <input type="number" class="form-control" style="max-width:80px" placeholder="Qty"
+              <input class="form-control" [placeholder]="'common.item' | t" [(ngModel)]="it.name" [name]="'in' + i">
+              <input type="number" class="form-control" style="max-width:80px" [placeholder]="'common.qty' | t"
                      [(ngModel)]="it.quantity" [name]="'iq' + i">
               <input type="number" class="form-control" style="max-width:100px" placeholder="₹"
                      [(ngModel)]="it.price" [name]="'ip' + i">
@@ -279,11 +279,11 @@ import {
               </div>
               <div class="col-6 col-md-3">
                 <input type="number" class="form-control" [(ngModel)]="refillForm.quantity" name="rfQty"
-                       placeholder="Qty">
+                       [placeholder]="'common.qty' | t">
               </div>
               <div class="col-6 col-md-4">
                 <input class="form-control" [(ngModel)]="refillForm.preferredTime" name="rfTime"
-                       placeholder="Morning / 6-8 pm">
+                       [placeholder]="'cust.timeHint' | t">
               </div>
               <div class="col-12 col-md-5 d-grid">
                 <button class="btn btn-primary" (click)="addRefill()">{{ 'common.save' | t }}</button>

@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../shared/api.service';
 import { I18nService } from '../shared/i18n.service';
-import { categoriesByGroup, categoryMeta } from '../shared/store-categories';
+import {
+  categoriesByGroup,
+  categoryMeta,
+  GROUP_LABELS,
+} from '../shared/store-categories';
 
 const STATUSES = [
   { key: 'NEW', en: 'New', hi: 'नया', tint: 'muted' },
@@ -67,16 +71,16 @@ const STATUSES = [
         <div class="card">
           <div class="card-header">➕ {{ 'sales.addLead' | t }}</div>
           <div class="card-body">
-            <input class="form-control mb-2" [placeholder]="'nav.shops' | t"
+            <input class="form-control mb-2" [placeholder]="'sales.shopName' | t"
                    [(ngModel)]="form.shopName" name="lname">
             <input class="form-control mb-2" [placeholder]="'common.name' | t"
                    [(ngModel)]="form.ownerName" name="loname">
             <input class="form-control mb-2" [placeholder]="'common.phone' | t" inputmode="numeric"
                    [(ngModel)]="form.phone" name="lphone">
 
-            <label class="form-label">{{ 'dir.allTypes' | t }}</label>
+            <label class="form-label">{{ 'sales.category' | t }}</label>
             <select class="form-select mb-2" [(ngModel)]="form.category" name="lcat">
-              <optgroup *ngFor="let g of groups" [label]="g.group">
+              <optgroup *ngFor="let g of groups" [label]="groupLabel(g.group)">
                 <option *ngFor="let c of g.items" [value]="c.key">
                   {{ c.icon }} {{ i18n.pick(c.en, c.hi) }}
                 </option>
@@ -273,6 +277,12 @@ export class SalesDashboardComponent implements OnInit {
   statusLabel(key: string): string {
     const s = this.statuses.find((x) => x.key === key);
     return s ? this.i18n.pick(s.en, s.hi) : key;
+  }
+
+  /** Translated heading for a category group in the dropdown. */
+  groupLabel(group: string): string {
+    const g = GROUP_LABELS[group as keyof typeof GROUP_LABELS];
+    return g ? this.i18n.pick(g.en, g.hi) : group;
   }
 
   tintFor(key: string): string {

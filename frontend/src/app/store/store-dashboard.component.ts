@@ -68,7 +68,7 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
           <div class="row g-2 mb-3">
             <div class="col-md-6">
               <label class="form-label">{{ 'common.name' | t }}</label>
-              <input class="form-control" placeholder="Sharma Kirana Store"
+              <input class="form-control" [placeholder]="'store.namePlaceholder' | t"
                      [(ngModel)]="storeForm.name" name="sname">
             </div>
             <div class="col-md-6">
@@ -105,7 +105,7 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
             <div class="col-md-4">
               <label class="form-label">UPI ID</label>
               <input class="form-control" [(ngModel)]="storeForm.upiId" name="supi"
-                     placeholder="name@paytm">
+                     [placeholder]="'store.upiPlaceholder' | t">
             </div>
             <div class="col-md-4">
               <label class="form-label">{{ 'common.landmark' | t }}</label>
@@ -445,7 +445,7 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
 
             <div class="row g-2 mb-2 align-items-center" *ngFor="let it of priceList; let i = index">
               <div class="col-12 col-md-4">
-                <input class="form-control" placeholder="Item" [(ngModel)]="it.name" [name]="'pn' + i">
+                <input class="form-control" [placeholder]="'common.item' | t" [(ngModel)]="it.name" [name]="'pn' + i">
               </div>
               <div class="col-6 col-md-3">
                 <input class="form-control" placeholder="हिंदी नाम" [(ngModel)]="it.nameLocal"
