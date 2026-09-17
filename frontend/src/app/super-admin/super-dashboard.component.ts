@@ -8,6 +8,7 @@ type Tab =
   | 'stores'
   | 'riders'
   | 'suppliers'
+  | 'users'
   | 'orders'
   | 'emergency'
   | 'vendors';
@@ -64,23 +65,6 @@ const EMERGENCY_TYPES = [
         </a>
       </li>
     </ul>
-
-    <!-- VIEW AS: step into any role's screen (admin only) -->
-    <div *ngIf="tab==='overview'" class="card border-0 mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>👁️ {{ 'admin.viewAs' | t }}</span>
-      </div>
-      <div class="card-body">
-        <p class="text-muted small mb-2">{{ 'admin.viewAsHint' | t }}</p>
-        <div class="d-flex gap-2 flex-wrap">
-          <button class="btn btn-outline-primary btn-sm" *ngFor="let r of viewAsRoles"
-                  (click)="viewAs(r.role)" [disabled]="viewingAs">
-            {{ r.icon }} {{ i18n.pick(r.en, r.hi) }}
-          </button>
-        </div>
-        <div class="text-danger small mt-2" *ngIf="viewAsError">{{ viewAsError }}</div>
-      </div>
-    </div>
 
     <!-- OVERVIEW -->
     <div *ngIf="tab==='overview'" class="row g-4">
@@ -192,6 +176,39 @@ const EMERGENCY_TYPES = [
               </td>
             </tr>
             <tr *ngIf="!suppliers.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noSuppliers' | t }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS (every account of every type, with view-as + delete) -->
+    <div *ngIf="tab==='users'" class="card border-0">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span>{{ 'admin.users' | t }} · {{ filteredUsers.length }}</span>
+        <div class="rf-chips-scroll">
+          <button class="rf-chip" [class.active]="userRole===''" (click)="userRole=''">{{ 'common.all' | t }}</button>
+          <button class="rf-chip" *ngFor="let r of userRoleFilters" [class.active]="userRole===r.role" (click)="userRole=r.role">
+            {{ r.icon }} {{ i18n.pick(r.en, r.hi) }}
+          </button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr><th>{{ 'admin.name' | t }}</th><th>{{ 'admin.role' | t }}</th><th>{{ 'admin.phone' | t }}</th><th>{{ 'common.status' | t }}</th><th>{{ 'admin.joined' | t }}</th><th class="text-end">{{ 'common.action' | t }}</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let u of filteredUsers">
+              <td class="fw-semibold">{{ u.name }}<div class="small text-muted">{{ u.email }}</div></td>
+              <td><span class="badge bg-light text-dark">{{ roleLabel(u.role) }}</span></td>
+              <td class="small"><a *ngIf="u.phone" [href]="'tel:'+u.phone">{{ u.phone }}</a><span *ngIf="!u.phone">—</span></td>
+              <td><span class="rf-pill" [class.ok]="u.isApproved" [class.warn]="!u.isApproved">{{ (u.isApproved?'common.approved':'common.pending') | t }}</span></td>
+              <td class="small text-muted">{{ u.createdAt | date:'dd MMM yyyy' }}</td>
+              <td class="text-end text-nowrap">
+                <button class="btn btn-sm btn-outline-secondary me-1" *ngIf="u.role!=='admin' && u.role!=='super_admin'" (click)="viewAsUser(u.id)" [attr.title]="'admin.viewAs' | t">👁️</button>
+                <button class="btn btn-sm btn-danger" *ngIf="u.role!=='admin' && u.role!=='super_admin'" (click)="deleteUser(u, 'users')" [attr.title]="'admin.delete' | t">🗑</button>
+                <span class="badge bg-dark" *ngIf="u.role==='admin' || u.role==='super_admin'">{{ 'admin.subtitle' | t }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredUsers.length"><td colspan="6" class="text-center text-muted py-3">{{ 'admin.noUsers' | t }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -366,6 +383,7 @@ export class SuperDashboardComponent implements OnInit {
     { key: 'stores', labelKey: 'admin.stores' },
     { key: 'riders', labelKey: 'admin.riders' },
     { key: 'suppliers', labelKey: 'admin.suppliers' },
+    { key: 'users', labelKey: 'admin.users' },
     { key: 'orders', labelKey: 'admin.orders' },
     { key: 'emergency', labelKey: 'admin.emergency', icon: '🆘' },
     { key: 'vendors', labelKey: 'admin.vendors' },
@@ -396,12 +414,12 @@ export class SuperDashboardComponent implements OnInit {
     is24x7: true,
   };
 
-  // Roles the admin can step into, with their icon + label.
-  viewAsRoles = (
+  // Every account, for the Users tab, with a role filter.
+  users: any[] = [];
+  userRole = '';
+  userRoleFilters = (
     ['customer', 'store_owner', 'store_staff', 'rider', 'wholesaler', 'distributor', 'sales', 'service_provider'] as UserRole[]
   ).map((role) => ({ role, icon: ROLE_META[role].icon, en: ROLE_META[role].en, hi: ROLE_META[role].hi }));
-  viewingAs = false;
-  viewAsError = '';
 
   constructor(
     private api: ApiService,
@@ -409,20 +427,16 @@ export class SuperDashboardComponent implements OnInit {
     private auth: AuthService,
   ) {}
 
-  /** Log in as the representative account of a role and open its dashboard. */
-  viewAs(role: UserRole) {
-    this.viewingAs = true;
-    this.viewAsError = '';
-    this.auth.viewAsRole(role).subscribe({
-      next: () => (this.viewingAs = false),
-      error: (e) => {
-        this.viewingAs = false;
-        this.viewAsError = e?.error?.message || this.i18n.t('admin.noneOfRole');
-      },
-    });
+  get filteredUsers() {
+    return this.userRole ? this.users.filter((u) => u.role === this.userRole) : this.users;
   }
 
-  /** Open a specific account (a shop's owner, a rider's user, a supplier). */
+  roleLabel(role: string): string {
+    const m = ROLE_META[role as UserRole];
+    return m ? this.i18n.pick(m.en, m.hi) : role;
+  }
+
+  /** Open one specific account (from any table's 👁️ button or the Users tab). */
   viewAsUser(userId: string) {
     if (!userId) return;
     this.auth.viewAsUser(userId).subscribe({
@@ -438,6 +452,7 @@ export class SuperDashboardComponent implements OnInit {
     this.api.get('stores').subscribe((s) => (this.stores = s));
     this.api.get('riders').subscribe((r) => (this.riders = r));
     this.api.get('users/suppliers').subscribe((u) => (this.suppliers = u));
+    this.api.get('users').subscribe((u: any) => (this.users = (u || []).map((x: any) => ({ ...x, id: x.id ?? x._id }))));
     this.api.get('orders').subscribe((o) => (this.orders = o));
     this.api.get('orders/stats').subscribe((s) => (this.orderStats = s));
     this.api.get('vendors').subscribe((v) => (this.vendors = v));
@@ -544,5 +559,5 @@ export class SuperDashboardComponent implements OnInit {
   deleteStore(s: any) { this.del(`stores/${s.id}`, this.stores, s); }
   deleteRider(r: any) { this.del(`riders/${r.id}`, this.riders, r); }
   deleteOrder(o: any) { this.del(`orders/${o.id}`, this.orders, o); }
-  deleteUser(u: any, listName: 'suppliers') { this.del(`users/${u.id}`, this[listName], u); }
+  deleteUser(u: any, listName: 'suppliers' | 'users') { this.del(`users/${u.id}`, this[listName], u); }
 }
