@@ -56,7 +56,7 @@ export const COUNTRIES: Country[] = [
              [(ngModel)]="number" (ngModelChange)="onInput($event)" [placeholder]="placeholder">
     </div>
     <div class="form-text text-danger" *ngIf="touched && number && !valid">
-      Enter a valid {{ country.name }} number ({{ lengthHint }} digits).
+      {{ 'phone.invalid' | t }} — {{ country.name }} ({{ lengthHint }} {{ 'phone.digits' | t }})
     </div>
   `,
   styles: [

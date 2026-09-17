@@ -41,7 +41,50 @@ const DICT: Record<string, { en: string; hi: string }> = {
 
   // ---- common ----
   'common.back': { en: 'Back', hi: 'वापस' },
+  'common.email': { en: 'Email', hi: 'ईमेल' },
   'common.create': { en: 'Create', hi: 'बनाएँ' },
+
+  // ---- AI chat assistant ----
+  'chat.title': { en: 'Ask the RideFleet Assistant', hi: 'राइडफ्लीट सहायक से पूछें' },
+  'chat.name': { en: 'RideFleet Assistant', hi: 'राइडफ्लीट सहायक' },
+  'chat.hello': { en: 'Hi! Ask me anything about orders, hiring riders, deliveries or approvals.', hi: 'नमस्ते! ऑर्डर, राइडर, डिलीवरी या मंज़ूरी के बारे में कुछ भी पूछें।' },
+  'chat.type': { en: 'Type a message…', hi: 'संदेश लिखें…' },
+  'chat.error': { en: 'Sorry, something went wrong.', hi: 'माफ़ करें, कुछ गड़बड़ हो गई।' },
+
+  // ---- location picker ----
+  'loc.address': { en: 'Type your address / area, e.g. Rajwada, Indore', hi: 'अपना पता / एरिया लिखें, जैसे राजवाड़ा, इंदौर' },
+  'loc.gpsUnavailable': { en: 'GPS unavailable — type an address or lat/lng', hi: 'GPS उपलब्ध नहीं — पता या lat/lng डालें' },
+  'loc.locating': { en: 'Locating…', hi: 'ढूँढ रहे हैं…' },
+  'loc.locatedGps': { en: 'Located via GPS ✓', hi: 'GPS से मिल गया ✓' },
+  'loc.gpsDenied': { en: 'GPS denied — type an address instead', hi: 'GPS मना — पता लिखें' },
+  'loc.typeToSearch': { en: 'Type an address to search', hi: 'खोजने के लिए पता लिखें' },
+  'loc.searching': { en: 'Searching…', hi: 'खोज रहे हैं…' },
+  'loc.noMatch': { en: 'No match — try a more specific address or use GPS', hi: 'नहीं मिला — सटीक पता लिखें या GPS दबाएँ' },
+  'loc.found': { en: 'Found ✓', hi: 'मिल गया ✓' },
+  'loc.searchFailed': { en: 'Search failed — check your connection or enter lat/lng', hi: 'खोज असफल — कनेक्शन जाँचें या lat/lng डालें' },
+
+  // ---- phone input ----
+  'phone.invalid': { en: 'Enter a valid number', hi: 'सही नंबर डालें' },
+  'phone.digits': { en: 'digits', hi: 'अंक' },
+
+  // ---- public order tracking ----
+  'track.title': { en: 'Track your order', hi: 'अपना ऑर्डर ट्रैक करें' },
+  'track.stepAssigned': { en: 'Assigned', hi: 'राइडर मिला' },
+  'track.stepPicked': { en: 'Picked up', hi: 'उठा लिया' },
+  'track.stepTransit': { en: 'On the way', hi: 'रास्ते में' },
+  'track.stepDelivered': { en: 'Delivered', hi: 'पहुँच गया' },
+  'track.from': { en: 'From', hi: 'दुकान से' },
+  'track.awaiting': { en: 'Awaiting assignment', hi: 'राइडर तय हो रहा है' },
+  'track.timeline': { en: 'Timeline', hi: 'प्रगति' },
+  'track.notFound': { en: 'Order not found or no longer available.', hi: 'ऑर्डर नहीं मिला या अब उपलब्ध नहीं।' },
+
+  // ---- register ----
+  'reg.email': { en: 'Email', hi: 'ईमेल' },
+  'reg.landline': { en: 'Landline (optional)', hi: 'लैंडलाइन (वैकल्पिक)' },
+  'reg.landlinePlaceholder': { en: 'STD code + number, e.g. 011 23456789', hi: 'STD कोड + नंबर, जैसे 011 23456789' },
+  'reg.password': { en: 'Password', hi: 'पासवर्ड' },
+  'reg.emergencyBtn': { en: 'Emergency', hi: 'आपातकाल' },
+  'reg.menu': { en: 'Menu', hi: 'मेन्यू' },
   'common.status': { en: 'Status', hi: 'स्थिति' },
   'common.action': { en: 'Action', hi: 'कार्रवाई' },
   'common.approved': { en: 'Approved', hi: 'मंज़ूर' },

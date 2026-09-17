@@ -66,7 +66,7 @@ const NEEDS_APPROVAL: UserRole[] = [
               <input class="form-control" name="name" [(ngModel)]="form.name" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label">{{ 'common.email' | t }}</label>
               <input class="form-control" type="email" name="email" [(ngModel)]="form.email" required />
             </div>
             <div class="mb-3">
@@ -84,7 +84,7 @@ const NEEDS_APPROVAL: UserRole[] = [
                 {{ i18n.lang() === 'hi' ? 'लैंडलाइन (वैकल्पिक)' : 'Landline (optional)' }}
               </label>
               <input class="form-control" name="landline" inputmode="numeric"
-                placeholder="STD code + number, e.g. 011 23456789" [(ngModel)]="form.landline">
+                [placeholder]="'reg.landlinePlaceholder' | t" [(ngModel)]="form.landline">
               <div class="form-text">
                 {{ i18n.lang() === 'hi'
                     ? 'मोबाइल या लैंडलाइन — कम से कम एक ज़रूरी है।'

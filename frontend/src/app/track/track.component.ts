@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/api.service';
 import { TrackingService } from '../shared/tracking.service';
 import { MapMarker } from '../shared/map.component';
+import { I18nService } from '../shared/i18n.service';
 
 @Component({
   selector: 'app-track',
@@ -12,7 +13,7 @@ import { MapMarker } from '../shared/map.component';
       <div class="card shadow-sm track-card">
         <div class="card-header bg-primary text-white">
           <div class="d-flex justify-content-between align-items-center">
-            <span class="fw-bold">📦 Track your order</span>
+            <span class="fw-bold">📦 {{ 'track.title' | t }}</span>
             <span class="small">{{ info?.orderNumber }}</span>
           </div>
         </div>
@@ -25,7 +26,7 @@ import { MapMarker } from '../shared/map.component';
             <div class="d-flex justify-content-between text-center small">
               <div *ngFor="let s of steps" class="flex-fill">
                 <div class="dot mx-auto" [class.done]="isReached(s.key)"></div>
-                <div [class.fw-bold]="info.status===s.key" [class.text-muted]="!isReached(s.key)">{{ s.label }}</div>
+                <div [class.fw-bold]="info.status===s.key" [class.text-muted]="!isReached(s.key)">{{ s.labelKey | t }}</div>
               </div>
             </div>
           </div>
@@ -34,17 +35,17 @@ import { MapMarker } from '../shared/map.component';
 
           <div class="card-body">
             <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Status</span>
+              <span class="text-muted">{{ 'common.status' | t }}</span>
               <span class="badge bg-primary">{{ pretty(info.status) }}</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">From</span><span>{{ info.storeName }}</span>
+              <span class="text-muted">{{ 'track.from' | t }}</span><span>{{ info.storeName }}</span>
             </div>
             <div class="d-flex justify-content-between mb-3">
-              <span class="text-muted">Rider</span><span>{{ liveRiderName || info.riderName || 'Awaiting assignment' }}</span>
+              <span class="text-muted">{{ 'admin.rider' | t }}</span><span>{{ liveRiderName || info.riderName || ('track.awaiting' | t) }}</span>
             </div>
 
-            <h6 class="text-muted">Timeline</h6>
+            <h6 class="text-muted">{{ 'track.timeline' | t }}</h6>
             <ul class="list-unstyled timeline mb-0">
               <li *ngFor="let t of (info.timeline || []).slice().reverse()">
                 <span class="badge bg-light text-dark me-2">{{ pretty(t.status) }}</span>
@@ -73,10 +74,10 @@ export class TrackComponent implements OnInit, OnDestroy {
   liveRiderName = '';
 
   steps = [
-    { key: 'RIDER_ASSIGNED', label: 'Assigned' },
-    { key: 'PICKED_UP', label: 'Picked up' },
-    { key: 'IN_TRANSIT', label: 'On the way' },
-    { key: 'DELIVERED', label: 'Delivered' },
+    { key: 'RIDER_ASSIGNED', labelKey: 'track.stepAssigned' },
+    { key: 'PICKED_UP', labelKey: 'track.stepPicked' },
+    { key: 'IN_TRANSIT', labelKey: 'track.stepTransit' },
+    { key: 'DELIVERED', labelKey: 'track.stepDelivered' },
   ];
   private order = ['CREATED', 'RIDER_ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'];
 
@@ -84,6 +85,7 @@ export class TrackComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private api: ApiService,
     private tracking: TrackingService,
+    private i18n: I18nService,
   ) {}
 
   ngOnInit() {
@@ -101,7 +103,7 @@ export class TrackComponent implements OnInit, OnDestroy {
           if (s.orderId === this.id) this.info.status = s.status;
         });
       },
-      error: () => (this.error = 'Order not found or no longer available.'),
+      error: () => (this.error = this.i18n.t('track.notFound')),
     });
   }
 

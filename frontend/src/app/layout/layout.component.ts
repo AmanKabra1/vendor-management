@@ -25,9 +25,9 @@ import { I18nService } from '../shared/i18n.service';
                   [attr.aria-label]="'Switch language'">
             {{ i18n.lang() === 'en' ? 'हिं' : 'EN' }}
           </button>
-          <a class="btn btn-sm btn-danger d-lg-none" routerLink="/emergency" aria-label="Emergency">🆘</a>
+          <a class="btn btn-sm btn-danger d-lg-none" routerLink="/emergency" [attr.aria-label]="'nav.emergency' | t">🆘</a>
           <button class="btn btn-sm btn-outline-light d-lg-none" type="button"
-                  (click)="menuOpen = !menuOpen" aria-label="Toggle menu">☰</button>
+                  (click)="menuOpen = !menuOpen" [attr.aria-label]="'reg.menu' | t">☰</button>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ApiService } from './api.service';
+import { I18nService } from './i18n.service';
 
 interface ChatMsg {
   from: 'me' | 'bot';
@@ -11,7 +12,7 @@ interface ChatMsg {
   standalone: false,
   template: `
     <!-- Launcher -->
-    <button class="chat-fab" (click)="toggle()" *ngIf="!open" title="Ask RideFleet Assistant">
+    <button class="chat-fab" (click)="toggle()" *ngIf="!open" [title]="'chat.title' | t">
       💬
     </button>
 
@@ -19,14 +20,14 @@ interface ChatMsg {
     <div class="chat-panel" *ngIf="open">
       <div class="chat-head">
         <span class="d-flex align-items-center gap-2">
-          <span class="bot-dot"></span> RideFleet Assistant
+          <span class="bot-dot"></span> {{ 'chat.name' | t }}
         </span>
         <button class="btn-close-x" (click)="toggle()">✕</button>
       </div>
 
       <div class="chat-body" #body>
         <div *ngIf="!messages.length" class="text-muted small text-center mt-3">
-          Hi! Ask me anything about creating orders, hiring riders, deliveries or approvals.
+          {{ 'chat.hello' | t }}
         </div>
         <div *ngFor="let m of messages" class="msg" [class.me]="m.from==='me'">
           <div class="bubble" [class.bubble-me]="m.from==='me'">{{ m.text }}</div>
@@ -35,7 +36,7 @@ interface ChatMsg {
       </div>
 
       <form class="chat-input" (ngSubmit)="send()">
-        <input class="form-control" [(ngModel)]="draft" name="draft" placeholder="Type a message…" autocomplete="off" />
+        <input class="form-control" [(ngModel)]="draft" name="draft" [placeholder]="'chat.type' | t" autocomplete="off" />
         <button class="btn btn-primary" [disabled]="loading || !draft.trim()">➤</button>
       </form>
     </div>
@@ -65,7 +66,7 @@ export class ChatWidgetComponent {
   loading = false;
   messages: ChatMsg[] = [];
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private i18n: I18nService) {}
 
   toggle() {
     this.open = !this.open;
@@ -83,7 +84,7 @@ export class ChatWidgetComponent {
         this.loading = false;
       },
       error: () => {
-        this.messages.push({ from: 'bot', text: 'Sorry, something went wrong.' });
+        this.messages.push({ from: 'bot', text: this.i18n.t('chat.error') });
         this.loading = false;
       },
     });
