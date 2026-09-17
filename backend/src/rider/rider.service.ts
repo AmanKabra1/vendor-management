@@ -113,7 +113,16 @@ export class RiderService {
     rider.isApproved = true;
     await rider.save();
     const user = await this.users.findById(String(rider.user));
-    if (user) this.notifications.approved(user.email, user.name, 'rider profile');
+    if (user) {
+      // Approve the rider's account too, so they stop seeing the "waiting for
+      // approval" banner the moment their profile is approved (the account flag
+      // and the rider-profile flag used to drift apart).
+      if (!user.isApproved) {
+        user.isApproved = true;
+        await user.save();
+      }
+      this.notifications.approved(user.email, user.name, 'rider profile');
+    }
     return rider;
   }
 
