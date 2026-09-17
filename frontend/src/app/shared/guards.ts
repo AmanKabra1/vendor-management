@@ -11,12 +11,17 @@ export const authGuard: CanActivateFn = () => {
   return false;
 };
 
-/** Requires the admin role. */
+/**
+ * Requires platform-admin access (legacy admin OR super_admin). The legacy
+ * procurement screens (/admin/vendors, /admin/purchase-orders) are linked from
+ * the super-admin console, so a super_admin must be allowed through too — else
+ * those buttons bounce to the wrong place and appear dead.
+ */
 export const adminGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (auth.isLoggedIn && auth.isAdmin) return true;
-  router.navigate([auth.isLoggedIn ? '/vendor' : '/login']);
+  if (auth.isLoggedIn && auth.isPlatformAdmin) return true;
+  router.navigate([auth.isLoggedIn ? auth.home : '/login']);
   return false;
 };
 

@@ -260,12 +260,14 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
                         (click)="orderForm.paymentMethod = 'UDHAAR'">📒 {{ 'store.addCredit' | t }}</button>
               </div>
               <button class="btn btn-primary w-100" (click)="createOrder()"
-                      [disabled]="store.status !== 'APPROVED'">
-                {{ 'common.add' | t }}
+                      [disabled]="store.status !== 'APPROVED' || creatingOrder || !orderForm.cname.trim()">
+                {{ creatingOrder ? ('cust.placing' | t) : ('common.add' | t) }}
               </button>
               <small *ngIf="store.status !== 'APPROVED'" class="text-danger d-block mt-1">
                 {{ 'store.awaitingApproval' | t }}
               </small>
+              <small *ngIf="orderMsg" class="text-success d-block mt-1">{{ orderMsg }}</small>
+              <small *ngIf="orderErr" class="text-danger d-block mt-1">{{ orderErr }}</small>
             </div>
           </div>
         </div>
@@ -785,6 +787,9 @@ export class StoreDashboardComponent implements OnInit {
     amount: 0,
     paymentMethod: 'COD' as 'COD' | 'UDHAAR',
   };
+  creatingOrder = false;
+  orderMsg = '';
+  orderErr = '';
 
   // khata
   khataSummary: any = null;
@@ -985,6 +990,9 @@ export class StoreDashboardComponent implements OnInit {
 
   createOrder() {
     const f = this.orderForm;
+    this.orderMsg = '';
+    this.orderErr = '';
+    this.creatingOrder = true;
     this.api
       .post('orders', {
         store: this.store.id,
@@ -998,25 +1006,35 @@ export class StoreDashboardComponent implements OnInit {
         totalAmount: f.amount,
         paymentMethod: f.paymentMethod,
       })
-      .subscribe(() => {
-        // An udhaar order is also a khata line — write it once, here.
-        if (f.paymentMethod === 'UDHAAR' && f.cname && f.cphone && f.amount) {
-          this.api
-            .post('khata', {
-              store: this.store.id,
-              customerName: f.cname,
-              customerPhone: f.cphone,
-              type: 'CREDIT',
-              amount: Number(f.amount),
-              note: f.item,
-            })
-            .subscribe({ next: () => this.loadKhata(), error: () => {} });
-        }
-        this.orderForm = {
-          cname: '', cphone: '', caddr: '', landmark: '', item: '', amount: 0,
-          paymentMethod: 'COD',
-        };
-        this.load();
+      .subscribe({
+        next: () => {
+          this.creatingOrder = false;
+          // An udhaar order is also a khata line — write it once, here.
+          if (f.paymentMethod === 'UDHAAR' && f.cname && f.cphone && f.amount) {
+            this.api
+              .post('khata', {
+                store: this.store.id,
+                customerName: f.cname,
+                customerPhone: f.cphone,
+                type: 'CREDIT',
+                amount: Number(f.amount),
+                note: f.item,
+              })
+              .subscribe({ next: () => this.loadKhata(), error: () => {} });
+          }
+          this.orderForm = {
+            cname: '', cphone: '', caddr: '', landmark: '', item: '', amount: 0,
+            paymentMethod: 'COD',
+          };
+          this.orderMsg = this.i18n.lang() === 'hi' ? 'ऑर्डर बन गया ✓' : 'Order created ✓';
+          this.load();
+        },
+        error: (e) => {
+          this.creatingOrder = false;
+          this.orderErr =
+            e?.error?.message ||
+            (this.i18n.lang() === 'hi' ? 'ऑर्डर नहीं बना' : 'Could not create the order');
+        },
       });
   }
 

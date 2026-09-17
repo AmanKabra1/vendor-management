@@ -70,6 +70,9 @@ async function main() {
 
   // Reuse existing demo shops if this owner already has them.
   let existing = (await api('GET', '/stores', { token: owner.token })).data || [];
+  // The test owns its own shops (it mutates their rate list / shutter), and
+  // deletes them again at the very end, so re-running never pollutes the
+  // directory with duplicates. Idempotent within a run via the owner's list.
   const findByCat = (c) => existing.find((s) => s.category === c);
 
   let medical = findByCat('MEDICAL');
@@ -84,7 +87,7 @@ async function main() {
     }});
     medical = r.data;
   }
-  medical.id ? pass('create Medical shop (24x7)', medical.name) : fail('create Medical shop', JSON.stringify(medical));
+  (medical.id || medical._id) ? pass('Medical shop (24x7)', medical.name) : fail('Medical shop', JSON.stringify(medical));
 
   let water = findByCat('WATER');
   if (!water) {
@@ -97,7 +100,7 @@ async function main() {
     }});
     water = r.data;
   }
-  water.id ? pass('create Water shop', water.name) : fail('create Water shop', JSON.stringify(water));
+  (water.id || water._id) ? pass('Water shop', water.name) : fail('Water shop', JSON.stringify(water));
 
   const medId = medical.id || medical._id;
   const watId = water.id || water._id;
@@ -242,6 +245,16 @@ async function main() {
   const me = await api('GET', '/me', { token: cust.token });
   me.data?.preferredLanguage === 'hi' ? pass('language persisted on account') : fail('language persist', me.data?.preferredLanguage);
   await api('PATCH', '/me/language', { token: cust.token, body: { preferredLanguage: 'en' } });
+
+  // ---- cleanup: delete the shops this test created, so the public directory
+  //      is never left with duplicates of the real demo shops ----
+  console.log('\n[cleanup] removing test shops');
+  for (const sid of [medId, watId]) {
+    if (sid) {
+      const r = await api('DELETE', `/stores/${sid}`, { token: aTok });
+      console.log(`  ${r.ok ? '🗑 removed' : '· skipped'} ${sid}`);
+    }
+  }
 
   summary();
 }

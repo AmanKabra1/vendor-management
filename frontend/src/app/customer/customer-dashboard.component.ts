@@ -288,6 +288,7 @@ import {
               <div class="col-12 col-md-5 d-grid">
                 <button class="btn btn-primary" (click)="addRefill()">{{ 'common.save' | t }}</button>
               </div>
+              <div class="col-12" *ngIf="refillErr"><small class="text-danger">{{ refillErr }}</small></div>
             </div>
           </div>
 
@@ -432,6 +433,7 @@ export class CustomerDashboardComponent implements OnInit {
 
   refills: any[] = [];
   refillFormOpen = false;
+  refillErr = '';
   refillForm = {
     itemLabel: '',
     category: 'WATER',
@@ -660,9 +662,14 @@ export class CustomerDashboardComponent implements OnInit {
         next: () => {
           this.refillFormOpen = false;
           this.refillForm.itemLabel = '';
+          this.refillErr = '';
           this.loadRefills();
         },
-        error: () => {},
+        error: (e) => {
+          this.refillErr =
+            e?.error?.message ||
+            (this.i18n.lang() === 'hi' ? 'नहीं जुड़ा, फिर कोशिश करें' : "Couldn't save, please try again");
+        },
       });
   }
 

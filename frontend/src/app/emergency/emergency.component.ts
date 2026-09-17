@@ -201,6 +201,9 @@ const TYPES: { key: string; en: string; hi: string; icon: string }[] = [
           <div class="alert alert-success mt-2 mb-0 py-2 small" *ngIf="sent">
             {{ 'sos.sent' | t }}
           </div>
+          <div class="alert alert-danger mt-2 mb-0 py-2 small" *ngIf="sosErr">
+            {{ sosErr }}
+          </div>
         </div>
       </div>
 
@@ -221,6 +224,7 @@ export class EmergencyComponent implements OnInit {
   locating = false;
   sending = false;
   sent = false;
+  sosErr = '';
 
   /** Rendered before any request finishes — see the class comment. */
   national: Helpline[] = FALLBACK_HELPLINES;
@@ -320,6 +324,7 @@ export class EmergencyComponent implements OnInit {
   raise() {
     this.sending = true;
     this.sent = false;
+    this.sosErr = '';
     this.api
       .post('emergency/sos', {
         type: this.sos.type,
@@ -335,7 +340,15 @@ export class EmergencyComponent implements OnInit {
           this.sent = true;
           this.sos.message = '';
         },
-        error: () => (this.sending = false),
+        error: (e) => {
+          this.sending = false;
+          // Safety action — never fail silently. Tell them to call directly.
+          this.sosErr =
+            e?.error?.message ||
+            (this.i18n.lang() === 'hi'
+              ? 'संदेश नहीं भेजा जा सका — कृपया सीधे नंबर पर कॉल करें।'
+              : "Couldn't send — please call a number above directly.");
+        },
       });
   }
 
