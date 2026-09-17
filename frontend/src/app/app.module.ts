@@ -33,6 +33,7 @@ import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
 import { PhoneInputComponent } from './shared/phone-input.component';
 import { EmergencyComponent } from './emergency/emergency.component';
 import { ShopDirectoryComponent } from './directory/shop-directory.component';
+import { ShopDetailComponent } from './directory/shop-detail.component';
 import { SalesDashboardComponent } from './sales/sales-dashboard.component';
 import { TranslatePipe } from './shared/t.pipe';
 import { JoinPipe } from './shared/join.pipe';
@@ -67,6 +68,7 @@ import { LoadingInterceptor } from './shared/loading.interceptor';
     PhoneInputComponent,
     EmergencyComponent,
     ShopDirectoryComponent,
+    ShopDetailComponent,
     SalesDashboardComponent,
     PublicHeaderComponent,
     TranslatePipe,

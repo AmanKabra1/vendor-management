@@ -209,11 +209,43 @@ export class Store {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
   onboardedBy: Types.ObjectId | null;
 
+  // The person behind the counter — customers ask for them by name.
+  @Prop({ default: '' })
+  ownerName: string;
+
   @Prop({ default: '' })
   email: string;
 
   @Prop({ default: '' })
   phone: string;
+
+  // A second number to try when the first is busy (very common at a shop).
+  @Prop({ default: '' })
+  altPhone: string;
+
+  // GST or the local shop/trade licence number — builds buyer trust.
+  @Prop({ default: '' })
+  gstNumber: string;
+
+  // "Since 1998" — years in the bazaar is the strongest trust signal there is.
+  @Prop({ default: 0 })
+  establishedYear: number;
+
+  // Weekly closed day ("Sunday", "Tuesday", "None") — the town runs on these.
+  @Prop({ default: '' })
+  weeklyOff: string;
+
+  // Typical minutes to deliver locally, shown as "~30 min" on the card.
+  @Prop({ default: 0 })
+  avgDeliveryMins: number;
+
+  // How the shop takes money: Cash, UPI, Card, Paytm…
+  @Prop({ type: [String], default: [] })
+  paymentModes: string[];
+
+  // A shopfront photo (data URI or URL) so a shop is recognisable at a glance.
+  @Prop({ default: '' })
+  photoUrl: string;
 
   // Many shopkeepers take orders on WhatsApp — keep it as a first-class channel.
   @Prop({ default: '' })

@@ -142,7 +142,12 @@ import {
               </div>
               <div class="rf-shop-sub">
                 {{ i18n.pick(meta(s.category).en, meta(s.category).hi) }}
+                <span *ngIf="s.ownerName">· {{ s.ownerName }}</span>
                 · {{ [s.address?.landmark, s.address?.area, s.address?.city, s.address?.pincode] | rfJoin }}
+              </div>
+              <div class="rf-shop-sub" *ngIf="timings(s) || s.avgDeliveryMins">
+                <span *ngIf="timings(s)">⏰ {{ timings(s) }}</span>
+                <span *ngIf="s.avgDeliveryMins"> · 🛵 ~{{ s.avgDeliveryMins }} {{ 'shop.min' | t }}</span>
               </div>
               <div class="rf-shop-sub mt-1">
                 <span class="rf-pill ok me-1" *ngIf="s.acceptsUdhaar">📒 {{ 'dir.udhaarOk' | t }}</span>
@@ -169,6 +174,9 @@ import {
                         (click)="rates = rates === s.id ? null : s.id">
                   📋 {{ 'dir.rateList' | t }} ({{ s.priceList.length }})
                 </button>
+                <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/shop', s.id]">
+                  ℹ️ {{ 'dir.viewDetails' | t }}
+                </a>
                 <a class="btn btn-sm btn-warm" *ngIf="auth.isCustomer" routerLink="/customer"
                    [queryParams]="{ store: s.id }">
                   🛒 {{ 'cust.place' | t }}
@@ -366,6 +374,13 @@ export class ShopDirectoryComponent implements OnInit {
   hasCoords(s: any): boolean {
     const c = s?.location?.coordinates;
     return Array.isArray(c) && c.length === 2 && (c[0] !== 0 || c[1] !== 0);
+  }
+
+  /** Short timings string for the card ("8:00 – 21:00" or "24×7"). */
+  timings(s: any): string {
+    if (s?.is24x7) return this.i18n.pick('24×7', '24×7');
+    const h = s?.operatingHours;
+    return h?.open && h?.close ? `${h.open} – ${h.close}` : '';
   }
 
   /** Opens the phone's own maps app, which everyone already has. */

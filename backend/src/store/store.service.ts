@@ -194,9 +194,10 @@ export class StoreService {
     return this.storeModel
       .find(this.buildFilter(query))
       .select(
-        'name nameLocal category phone whatsapp address is24x7 closedToday homeDelivery ' +
-          'acceptsUdhaar emergencyService operatingHours location rating ratingCount ' +
-          'totalOrders minOrderValue deliveryRadiusKm priceList upiId',
+        'name nameLocal category ownerName phone altPhone whatsapp address is24x7 closedToday ' +
+          'homeDelivery acceptsUdhaar emergencyService operatingHours weeklyOff avgDeliveryMins ' +
+          'paymentModes establishedYear photoUrl location rating ratingCount totalOrders ' +
+          'minOrderValue deliveryRadiusKm priceList upiId description',
       )
       .sort({ is24x7: -1, rating: -1, totalOrders: -1 })
       .limit(100)
@@ -208,8 +209,9 @@ export class StoreService {
     const store = await this.storeModel
       .findOne({ _id: id, status: StoreStatus.Approved, isActive: true })
       .select(
-        'name nameLocal category description phone whatsapp address is24x7 closedToday ' +
-          'homeDelivery acceptsUdhaar emergencyService operatingHours location rating ' +
+        'name nameLocal category description ownerName phone altPhone whatsapp address is24x7 ' +
+          'closedToday homeDelivery acceptsUdhaar emergencyService operatingHours weeklyOff ' +
+          'avgDeliveryMins paymentModes gstNumber establishedYear photoUrl location rating ' +
           'ratingCount totalOrders minOrderValue deliveryRadiusKm deliveryChargeFlat ' +
           'serviceAreas priceList upiId',
       )

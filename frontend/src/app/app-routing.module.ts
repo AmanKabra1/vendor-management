@@ -19,6 +19,7 @@ import { LandingComponent } from './landing/landing.component';
 import { SupplyDashboardComponent } from './supply/supply-dashboard.component';
 import { EmergencyComponent } from './emergency/emergency.component';
 import { ShopDirectoryComponent } from './directory/shop-directory.component';
+import { ShopDetailComponent } from './directory/shop-detail.component';
 import { SalesDashboardComponent } from './sales/sales-dashboard.component';
 
 import {
@@ -42,6 +43,7 @@ const routes: Routes = [
   // or just looking for a shop's phone number, must never hit a login wall.
   { path: 'emergency', component: EmergencyComponent },
   { path: 'shops', component: ShopDirectoryComponent },
+  { path: 'shop/:id', component: ShopDetailComponent },
   // Public marketing landing page (redirects signed-in users to their dashboard)
   { path: '', pathMatch: 'full', component: LandingComponent },
   {

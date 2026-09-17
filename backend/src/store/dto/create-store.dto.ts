@@ -30,6 +30,10 @@ export class CreateStoreDto {
 
   @IsOptional()
   @IsString()
+  ownerName?: string;
+
+  @IsOptional()
+  @IsString()
   email?: string;
 
   @IsOptional()
@@ -38,7 +42,35 @@ export class CreateStoreDto {
 
   @IsOptional()
   @IsString()
+  altPhone?: string;
+
+  @IsOptional()
+  @IsString()
   whatsapp?: string;
+
+  @IsOptional()
+  @IsString()
+  gstNumber?: string;
+
+  @IsOptional()
+  @IsNumber()
+  establishedYear?: number;
+
+  @IsOptional()
+  @IsString()
+  weeklyOff?: string;
+
+  @IsOptional()
+  @IsNumber()
+  avgDeliveryMins?: number;
+
+  @IsOptional()
+  @IsArray()
+  paymentModes?: string[];
+
+  @IsOptional()
+  @IsString()
+  photoUrl?: string;
 
   // { street, city, state, pincode, landmark, area }
   @IsOptional()

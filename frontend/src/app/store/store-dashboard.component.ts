@@ -107,6 +107,45 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
               <input class="form-control" [(ngModel)]="storeForm.upiId" name="supi"
                      [placeholder]="'store.upiPlaceholder' | t">
             </div>
+
+            <div class="col-md-4">
+              <label class="form-label">{{ 'shop.ownerName' | t }}</label>
+              <input class="form-control" [(ngModel)]="storeForm.ownerName" name="sown">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ 'shop.altPhone' | t }}</label>
+              <input class="form-control" [(ngModel)]="storeForm.altPhone" name="salt" inputmode="numeric">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ 'shop.gst' | t }}</label>
+              <input class="form-control" [(ngModel)]="storeForm.gstNumber" name="sgst">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">{{ 'shop.establishedYear' | t }}</label>
+              <input type="number" class="form-control" [(ngModel)]="storeForm.establishedYear" name="syear" placeholder="1998">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">{{ 'shop.weeklyOff' | t }}</label>
+              <input class="form-control" [(ngModel)]="storeForm.weeklyOff" name="swoff" placeholder="Sunday">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">{{ 'shop.deliveryTime' | t }} ({{ 'shop.min' | t }})</label>
+              <input type="number" class="form-control" [(ngModel)]="storeForm.avgDeliveryMins" name="sdel" placeholder="30">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">{{ 'shop.payment' | t }}</label>
+              <div class="d-flex flex-wrap gap-2 pt-1">
+                <label class="rf-chip" *ngFor="let m of payModeKeys" style="cursor:pointer"
+                       [class.active]="payModes[m]">
+                  <input type="checkbox" class="d-none" [(ngModel)]="payModes[m]" [name]="'pm'+m"> {{ m }}
+                </label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">{{ 'shop.about' | t }}</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="storeForm.description" name="sabout"></textarea>
+            </div>
+
             <div class="col-md-4">
               <label class="form-label">{{ 'common.landmark' | t }}</label>
               <input class="form-control" [(ngModel)]="storeForm.landmark" name="slm">
@@ -546,6 +585,43 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
                 <input class="form-control" [(ngModel)]="store.upiId" name="pupi">
               </div>
               <div class="col-md-4">
+                <label class="form-label">{{ 'shop.ownerName' | t }}</label>
+                <input class="form-control" [(ngModel)]="store.ownerName" name="pown">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">{{ 'shop.altPhone' | t }}</label>
+                <input class="form-control" [(ngModel)]="store.altPhone" name="palt" inputmode="numeric">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">{{ 'shop.gst' | t }}</label>
+                <input class="form-control" [(ngModel)]="store.gstNumber" name="pgst">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">{{ 'shop.establishedYear' | t }}</label>
+                <input type="number" class="form-control" [(ngModel)]="store.establishedYear" name="pyear">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">{{ 'shop.weeklyOff' | t }}</label>
+                <input class="form-control" [(ngModel)]="store.weeklyOff" name="pwoff">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">{{ 'shop.deliveryTime' | t }} ({{ 'shop.min' | t }})</label>
+                <input type="number" class="form-control" [(ngModel)]="store.avgDeliveryMins" name="pdel">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">{{ 'shop.payment' | t }}</label>
+                <div class="d-flex flex-wrap gap-1 pt-1">
+                  <label class="rf-chip" *ngFor="let m of payModeKeys" style="cursor:pointer;font-size:.78rem"
+                         [class.active]="storePayModes[m]">
+                    <input type="checkbox" class="d-none" [(ngModel)]="storePayModes[m]" [name]="'ppm'+m"> {{ m }}
+                  </label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">{{ 'shop.about' | t }}</label>
+                <textarea class="form-control" rows="2" [(ngModel)]="store.description" name="pabout"></textarea>
+              </div>
+              <div class="col-md-4">
                 <label class="form-label">{{ 'common.landmark' | t }}</label>
                 <input class="form-control" [(ngModel)]="store.address.landmark" name="plm">
               </div>
@@ -667,9 +743,16 @@ export class StoreDashboardComponent implements OnInit {
     name: '',
     nameLocal: '',
     category: 'KIRANA',
+    ownerName: '',
     phone: '',
+    altPhone: '',
     whatsapp: '',
     upiId: '',
+    gstNumber: '',
+    establishedYear: null as number | null,
+    weeklyOff: '',
+    avgDeliveryMins: null as number | null,
+    description: '',
     landmark: '',
     area: '',
     city: '',
@@ -682,6 +765,16 @@ export class StoreDashboardComponent implements OnInit {
     lat: 28.61,
     lng: 77.2,
   };
+
+  /** Payment modes the shop accepts (checkbox group in the create + profile forms). */
+  payModeKeys = ['Cash', 'UPI', 'Card', 'Paytm'];
+  payModes: Record<string, boolean> = { Cash: true, UPI: true, Card: false, Paytm: false };
+  storePayModes: Record<string, boolean> = { Cash: true, UPI: true, Card: false, Paytm: false };
+
+  /** Reads a {mode: bool} map into the string array the API stores. */
+  private pickModes(map: Record<string, boolean>): string[] {
+    return this.payModeKeys.filter((k) => map[k]);
+  }
 
   orderForm = {
     cname: '',
@@ -768,6 +861,9 @@ export class StoreDashboardComponent implements OnInit {
         // Defaults so the settings form never binds to undefined.
         this.store.address = this.store.address || {};
         this.store.operatingHours = this.store.operatingHours || { open: '08:00', close: '21:00' };
+        // Reflect the saved payment modes in the checkbox group.
+        const saved: string[] = this.store.paymentModes || [];
+        for (const k of this.payModeKeys) this.storePayModes[k] = saved.includes(k);
         this.priceList = (this.store.priceList || []).map((p: any) => ({ ...p }));
         this.loadKhata();
         this.loadRefills();
@@ -796,9 +892,17 @@ export class StoreDashboardComponent implements OnInit {
         name: f.name,
         nameLocal: f.nameLocal,
         category: f.category,
+        ownerName: f.ownerName,
         phone: f.phone,
+        altPhone: f.altPhone,
         whatsapp: f.whatsapp,
         upiId: f.upiId,
+        gstNumber: f.gstNumber,
+        establishedYear: f.establishedYear || undefined,
+        weeklyOff: f.weeklyOff,
+        avgDeliveryMins: f.avgDeliveryMins || undefined,
+        paymentModes: this.pickModes(this.payModes),
+        description: f.description,
         address: {
           landmark: f.landmark,
           area: f.area,
@@ -837,9 +941,17 @@ export class StoreDashboardComponent implements OnInit {
       .patch(`stores/${s.id}`, {
         name: s.name,
         nameLocal: s.nameLocal,
+        ownerName: s.ownerName,
         phone: s.phone,
+        altPhone: s.altPhone,
         whatsapp: s.whatsapp,
         upiId: s.upiId,
+        gstNumber: s.gstNumber,
+        establishedYear: Number(s.establishedYear) || 0,
+        weeklyOff: s.weeklyOff,
+        avgDeliveryMins: Number(s.avgDeliveryMins) || 0,
+        paymentModes: this.pickModes(this.storePayModes),
+        description: s.description,
         address: s.address,
         operatingHours: s.operatingHours,
         is24x7: !!s.is24x7,
