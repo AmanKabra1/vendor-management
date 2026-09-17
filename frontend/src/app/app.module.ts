@@ -37,6 +37,7 @@ import { ShopDetailComponent } from './directory/shop-detail.component';
 import { SalesDashboardComponent } from './sales/sales-dashboard.component';
 import { TranslatePipe } from './shared/t.pipe';
 import { JoinPipe } from './shared/join.pipe';
+import { StatusPipe } from './shared/status.pipe';
 import { PublicHeaderComponent } from './shared/public-header.component';
 
 import { AuthInterceptor } from './shared/auth.interceptor';
@@ -73,6 +74,7 @@ import { LoadingInterceptor } from './shared/loading.interceptor';
     PublicHeaderComponent,
     TranslatePipe,
     JoinPipe,
+    StatusPipe,
   ],
   imports: [
     BrowserModule,

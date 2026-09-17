@@ -118,7 +118,7 @@ const EMERGENCY_TYPES = [
               <td class="small">{{ s.ownerName || '—' }}</td>
               <td class="small"><a *ngIf="s.phone" [href]="'tel:'+s.phone">{{ s.phone }}</a><span *ngIf="!s.phone">—</span></td>
               <td>{{ s.address?.city || '—' }}</td>
-              <td><span class="badge" [ngClass]="s.status==='APPROVED'?'bg-success':(s.status==='REJECTED'?'bg-danger':'bg-warning text-dark')">{{ s.status }}</span></td>
+              <td><span class="badge" [ngClass]="s.status==='APPROVED'?'bg-success':(s.status==='REJECTED'?'bg-danger':'bg-warning text-dark')">{{ s.status | status }}</span></td>
               <td>{{ s.totalOrders }}</td>
               <td class="text-end text-nowrap">
                 <button class="btn btn-sm btn-outline-secondary me-1" (click)="viewAsUser(s.owner)" [attr.title]="'admin.viewAs' | t">👁️</button>
@@ -143,7 +143,7 @@ const EMERGENCY_TYPES = [
               <td class="fw-semibold">{{ r.user?.name || ('admin.rider' | t) }}<div class="small text-muted">{{ r.user?.email }}</div></td>
               <td>{{ r.vehicleType }}<div class="small text-muted" *ngIf="r.vehicleNumber">{{ r.vehicleNumber }}</div></td>
               <td class="small"><a *ngIf="r.user?.phone" [href]="'tel:'+r.user?.phone">{{ r.user?.phone }}</a><span *ngIf="!r.user?.phone">—</span></td>
-              <td><span class="badge bg-light text-dark">{{ r.availability }}</span></td><td>{{ r.totalDeliveries }}</td>
+              <td><span class="badge bg-light text-dark">{{ r.availability | status }}</span></td><td>{{ r.totalDeliveries }}</td>
               <td><span class="badge" [ngClass]="r.isApproved?'bg-success':'bg-warning text-dark'">{{ (r.isApproved?'common.approved':'common.pending') | t }}</span></td>
               <td class="text-end text-nowrap">
                 <button class="btn btn-sm btn-outline-secondary me-1" *ngIf="r.user" (click)="viewAsUser(r.user._id || r.user)" [attr.title]="'admin.viewAs' | t">👁️</button>
@@ -225,7 +225,7 @@ const EMERGENCY_TYPES = [
               <td class="small">{{ (o.items || []).length }}</td>
               <td>₹{{ (o.totalAmount || 0) + (o.deliveryFee || 0) }}</td>
               <td class="small text-muted">{{ o.createdAt | date:'dd MMM' }}</td>
-              <td><span class="badge bg-secondary">{{ o.status }}</span></td>
+              <td><span class="badge bg-secondary">{{ o.status | status }}</span></td>
               <td class="text-end"><button class="btn btn-sm btn-danger" (click)="deleteOrder(o)" [attr.title]="'admin.delete' | t">🗑</button></td>
             </tr>
             <tr *ngIf="!orders.length"><td colspan="8" class="text-center text-muted py-3">{{ 'admin.noOrders' | t }}</td></tr>

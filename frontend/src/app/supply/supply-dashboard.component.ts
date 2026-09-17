@@ -119,7 +119,7 @@ import { I18nService } from '../shared/i18n.service';
               <td class="small fw-semibold">{{ o.refNumber }}</td>
               <td>{{ o.buyer?.name }}</td><td>{{ o.seller?.name }}</td>
               <td>{{ o.items?.length }}</td><td>₹{{ o.totalAmount }}</td>
-              <td><span class="badge" [ngClass]="badge(o.status)">{{ o.status }}</span></td>
+              <td><span class="badge" [ngClass]="badge(o.status)">{{ o.status | status }}</span></td>
               <td class="text-end text-nowrap">
                 <!-- seller advances -->
                 <button class="btn btn-sm btn-success me-1" *ngIf="isSeller(o) && (o.status==='PLACED'||o.status==='ACCEPTED')" (click)="advance(o)">

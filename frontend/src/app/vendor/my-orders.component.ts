@@ -22,7 +22,7 @@ import { ApiService } from '../shared/api.service';
               <td>{{ po.orderDate | date: 'mediumDate' }}</td>
               <td>{{ po.deliveryDate ? (po.deliveryDate | date: 'mediumDate') : '—' }}</td>
               <td>{{ po.quantity }}</td>
-              <td><span class="badge" [ngClass]="badge(po.status)">{{ po.status }}</span></td>
+              <td><span class="badge" [ngClass]="badge(po.status)">{{ po.status | status }}</span></td>
               <td>{{ po.qualityRating != null ? (po.qualityRating | number:'1.0-1') : '—' }}</td>
               <td>{{ po.acknowledgmentDate ? (po.acknowledgmentDate | date:'short') : '—' }}</td>
               <td class="text-end">

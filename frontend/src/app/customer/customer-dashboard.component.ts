@@ -337,7 +337,7 @@ import {
               </td>
               <td class="rf-amount">₹{{ (o.totalAmount || 0) + (o.deliveryFee || 0) }}</td>
               <td>
-                <span class="rf-pill" [ngClass]="statusClass(o.status)">{{ o.status }}</span>
+                <span class="rf-pill" [ngClass]="statusClass(o.status)">{{ o.status | status }}</span>
                 <small class="d-block text-muted" *ngIf="o.paymentMethod === 'UDHAAR'">📒 khata</small>
               </td>
               <td class="text-end text-nowrap">

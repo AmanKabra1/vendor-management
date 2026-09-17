@@ -33,7 +33,7 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
         <h3>{{ store ? i18n.pick(store.name, store.nameLocal) : ('store.title' | t) }}</h3>
         <p *ngIf="store">
           <span class="rf-pill" [ngClass]="store.status === 'APPROVED' ? 'ok' : 'warn'">
-            {{ store.status }}
+            {{ store.status | status }}
           </span>
           <span class="rf-pill muted ms-1">{{ store.totalOrders || 0 }} {{ 'nav.orders' | t }}</span>
         </p>
@@ -298,7 +298,7 @@ type Tab = 'orders' | 'khata' | 'refills' | 'rates' | 'staff' | 'profile';
                         📞 {{ o.customer.phone }}
                       </a>
                     </td>
-                    <td><span class="rf-pill" [ngClass]="statusClass(o.status)">{{ o.status }}</span></td>
+                    <td><span class="rf-pill" [ngClass]="statusClass(o.status)">{{ o.status | status }}</span></td>
                     <td>{{ o.rider?.user?.name || '—' }}</td>
                     <td class="text-nowrap">
                       <button class="btn btn-sm btn-outline-primary me-1" *ngIf="o.status === 'CREATED'"

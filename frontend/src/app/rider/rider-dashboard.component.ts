@@ -106,7 +106,7 @@ import { I18nService } from '../shared/i18n.service';
                 <td class="small fw-semibold">{{ o.orderNumber }}</td>
                 <td class="small">{{ o.pickupLocation?.address || '—' }}</td>
                 <td class="small">{{ o.dropLocation?.address || o.customer?.address || '—' }}</td>
-                <td><span class="badge bg-secondary">{{ o.status }}</span></td>
+                <td><span class="badge bg-secondary">{{ o.status | status }}</span></td>
                 <td class="text-nowrap">
                   <button class="btn btn-sm btn-success me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'accept')">{{ 'rider.accept' | t }}</button>
                   <button class="btn btn-sm btn-outline-danger me-1" *ngIf="o.status==='RIDER_ASSIGNED'" (click)="act(o,'reject')">{{ 'common.reject' | t }}</button>

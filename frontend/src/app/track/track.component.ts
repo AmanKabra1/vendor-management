@@ -36,7 +36,7 @@ import { I18nService } from '../shared/i18n.service';
           <div class="card-body">
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">{{ 'common.status' | t }}</span>
-              <span class="badge bg-primary">{{ pretty(info.status) }}</span>
+              <span class="badge bg-primary">{{ info.status | status }}</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">{{ 'track.from' | t }}</span><span>{{ info.storeName }}</span>
@@ -48,7 +48,7 @@ import { I18nService } from '../shared/i18n.service';
             <h6 class="text-muted">{{ 'track.timeline' | t }}</h6>
             <ul class="list-unstyled timeline mb-0">
               <li *ngFor="let t of (info.timeline || []).slice().reverse()">
-                <span class="badge bg-light text-dark me-2">{{ pretty(t.status) }}</span>
+                <span class="badge bg-light text-dark me-2">{{ t.status | status }}</span>
                 <small class="text-muted">{{ t.at | date: 'short' }} · {{ t.note }}</small>
               </li>
             </ul>
