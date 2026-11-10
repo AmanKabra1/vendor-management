@@ -52,7 +52,10 @@ curl https://vendor-management-x1v1.vercel.app/public/emergency
 
 ---
 
-## 2. Backend — Back4App Containers (free)
+## 2. Backend — Vercel (current) or Back4App (alternative)
+**Vercel (what is live):** vercel.com → **Add New → Project** → import this repo → **Root directory:** `backend` → add the environment variables from the table below (same names) → Deploy. `backend/vercel.json` routes everything to `api/index.ts`.
+
+**Back4App Containers (alternative, long-running process):**
 1. back4app.com → **Containers** → **Deploy from GitHub** → pick this repo.
 2. **Root directory:** `backend`  ·  **Dockerfile:** `backend/Dockerfile` (auto-detected).
 3. **Environment variables:**
